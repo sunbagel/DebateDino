@@ -7,7 +7,7 @@ import (
 // Symbol type (name in mongodb)
 
 type Tournament struct {
-	ID           primitive.ObjectID   `bson:"_id"`
+	ID           primitive.ObjectID   `json:"_id"`
 	Host         primitive.ObjectID   `json:"host"`
 	Name         string               `json:"name"`
 	Description  string               `json:"description"`
@@ -20,7 +20,8 @@ type Tournament struct {
 }
 
 type User struct {
-	ID            primitive.ObjectID   `bson:"_id"`
+	ID            primitive.ObjectID   `json:"_id"`
+	Name          string               `json:"name"`
 	Password      string               `json:"password"`
 	Email         string               `json:"email"`
 	Institution   string               `json:"institution"`
@@ -31,12 +32,12 @@ type User struct {
 }
 
 type Question struct {
-	ID   primitive.ObjectID `bson:"_id"`
+	ID   primitive.ObjectID `json:"_id"`
 	Type string             `json:"type"`
 	Text []string           `json:"text"`
 }
 
 type Form struct {
-	ID        primitive.ObjectID `bson:"_id"`
+	ID        primitive.ObjectID `json:"_id"`
 	Questions []Question         `json:"questions"`
 }

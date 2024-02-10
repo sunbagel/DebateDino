@@ -25,11 +25,12 @@ func DBinstance() *mongo.Client {
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoUri))
 
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
+	// defer waits until the end of the function to run
+	// defer func() {
+	// 	if err = client.Disconnect(ctx); err != nil {
+	// 		panic(err)
+	// 	}
+	// }()
 
 	err = client.Ping(ctx, nil)
 
@@ -43,3 +44,10 @@ func DBinstance() *mongo.Client {
 }
 
 var Client *mongo.Client = DBinstance()
+
+func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collection {
+
+	var collection *mongo.Collection = client.Database("debatedino").Collection(collectionName)
+
+	return collection
+}
