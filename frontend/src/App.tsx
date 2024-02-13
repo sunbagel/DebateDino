@@ -6,6 +6,7 @@ import './styles/App.css'
 import Home from './pages/Home'
 import NavBar from './components/NavBar'
 import About from './pages/About';
+import Tournaments from './pages/Tournaments';
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home/>}/>
           <Route path="/about" element={<About/>}/>
+          <Route path="/tournaments" element={<Tournaments/>}/>
         </Routes>
       </Router>
       
