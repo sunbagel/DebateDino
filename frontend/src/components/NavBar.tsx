@@ -1,5 +1,6 @@
 import { useState } from "react";
 import '../styles/NavBar.css'
+import { Link } from "react-router-dom";
 
 const NavBar = () => {
 
@@ -9,10 +10,10 @@ const NavBar = () => {
     
     <nav className="bg-lime-200 bg-opacity-50 shadow-md">
       <div className="container mx-auto px-6 py-8 flex justify-between items-center">
-        <a href="#" className="flex items-center text-gray-800 text-xl font-bold">
+        <Link to="/" className="flex items-center text-gray-800 text-xl font-bold">
             <img src="../../walterworth.png" alt="Logo" className="h-8"/>
             <span className="self-center whitespace-nowrap">DebateDino</span>
-        </a>
+        </Link>
 
         <div className="flex md:order-2">
           <button type="button" className="block text-gray-800">
@@ -21,6 +22,7 @@ const NavBar = () => {
               <img src="../../walterworth.png" alt="User profile" className="object-cover h-full w-full" />
             </div>
           </button>
+          
           <a href="#" className="navbar-link">
             Profile
             
@@ -35,9 +37,9 @@ const NavBar = () => {
 
             {/* links */}
             <div className="flex flex-col md:flex-row md:ml-6">
-                <a href="#" className="navbar-link">Home</a>
-                <a href="#" className="navbar-link">About</a>
-                <a href="#" className="navbar-link">Tournaments</a>
+                <Link to="/" className="navbar-link">Home</Link>
+                <Link to="/about" className="navbar-link">About</Link>
+                <Link to="/tournaments" className="navbar-link">Tournaments</Link>
             </div>
 
             {/* search */}
