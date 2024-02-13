@@ -20,8 +20,13 @@ const NavBar = () => {
               <img src="../../walterworth.png" alt="User profile" className="object-cover h-full w-full" />
             </div>
           </button>
+          <a href="#" className="p-2 lg:px-4 md:mx-2 text-gray-800 text-center border border-transparent rounded hover:bg-gray-100 hover:text-gray-700 transition-colors duration-300">
+            Profile
+            
+            </a>
           <button type="button" className="text-gray-800 hover:text-gray-600 md:hidden ml-3" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <div>X</div> : <div>Menu</div>}
+            {/* <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" /> */}
           </button>
         </div>
 
