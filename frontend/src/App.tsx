@@ -8,6 +8,7 @@ function App() {
   return (
     <div>
       <NavBar/>
+      
       {/* maybe move this back into home */}
       <div className="container mx-auto flex items-center justify-center min-h-screen">
         <Home/>
