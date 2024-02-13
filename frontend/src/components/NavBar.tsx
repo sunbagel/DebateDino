@@ -7,8 +7,8 @@ const NavBar = () => {
     
   return (
     
-    <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-6 py-3 flex justify-between items-center">
+    <nav className="bg-lime-200 bg-opacity-50 shadow-md">
+      <div className="container mx-auto px-6 py-8 flex justify-between items-center">
         <a href="#" className="flex items-center text-gray-800 text-xl font-bold">
             <img src="../../walterworth.png" alt="Logo" className="h-8"/>
             <span className="self-center whitespace-nowrap">DebateDino</span>
