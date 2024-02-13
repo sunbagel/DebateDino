@@ -8,13 +8,16 @@ const NavBar = () => {
     
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
-        <a href="#" className="text-gray-800 text-xl font-bold">Logo</a>
+        <a href="#" className="flex items-center text-gray-800 text-xl font-bold">
+            <img src="../../walterworth.png" alt="Logo" className="h-8"/>
+            <span className="self-center whitespace-nowrap">DebateDino</span>
+        </a>
 
         <div className="flex md:order-2">
           <button type="button" className="block text-gray-800">
             <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-gray-600">
               {/* Replace with your user profile image */}
-              <img src="/path-to-your-profile-image.jpg" alt="User profile" className="object-cover h-full w-full" />
+              <img src="../../walterworth.png" alt="User profile" className="object-cover h-full w-full" />
             </div>
           </button>
           <button type="button" className="text-gray-800 hover:text-gray-600 md:hidden ml-3" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
