@@ -3,8 +3,6 @@
 const Home = () => {
   return (
     
-
-    <div className="container mx-auto flex items-center justify-center min-h-screen ">
       <div className="p-12 bg-lime-200 bg-opacity-50 backdrop-filter backdrop-blur-md rounded-lg shadow-lg overflow-hidden min-w-full max-w-4xl">
       <div className="flex flex-row items-center justify-center w-full">
       
@@ -22,7 +20,6 @@ const Home = () => {
         </div>
       </div>
       </div>
-    </div>
         
         
     
