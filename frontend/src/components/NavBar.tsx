@@ -19,16 +19,11 @@ const NavBar = () => {
         </Link>
 
         <div className="flex md:order-2">
-          <button type="button" className="block text-gray-800">
-            <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-gray-600">
-              {/* Replace with your user profile image */}
-              <img src="../../walterworth.png" alt="User profile" className="object-cover h-full w-full" />
-            </div>
-          </button>
+          
           
           <UserDropdown/>
 
-          
+
           <button type="button" className="text-gray-800 hover:text-gray-600 md:hidden ml-3" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <div>X</div> : <div>Menu</div>}
             {/* <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" /> */}

@@ -20,14 +20,27 @@ const UserDropdown = () => {
     return (
 
         <DropdownMenu>
-            <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+            <DropdownMenuTrigger>
+
+                <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-gray-600">
+                    {/* Replace with your user profile image */}
+                    <img src="../../walterworth.png" alt="User profile" className="object-cover h-full w-full" />
+                </div>
+
+            </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
+
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>My Tournaments</DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
-                <DropdownMenuItem>Team</DropdownMenuItem>
-                <DropdownMenuItem>Subscription</DropdownMenuItem>
+
+                <DropdownMenuSeparator/>
+
+                <DropdownMenuItem>Sign Out</DropdownMenuItem>
+
             </DropdownMenuContent>
         </DropdownMenu>
 
