@@ -21,7 +21,7 @@ const UserDropdown = () => {
 
         <DropdownMenu>
             <DropdownMenuTrigger>
-
+                
                 <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-gray-600">
                     {/* Replace with your user profile image */}
                     <img src="../../walterworth.png" alt="User profile" className="object-cover h-full w-full" />
@@ -29,7 +29,7 @@ const UserDropdown = () => {
 
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>Mount Ashwort</DropdownMenuLabel>
 
                 <DropdownMenuSeparator />
 
