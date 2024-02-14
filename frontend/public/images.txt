@@ -1,0 +1,1 @@
+put images and other static files here

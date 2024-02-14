@@ -1,0 +1,20 @@
+
+
+.navbar-link{
+
+    @apply text-gray-800 px-4 py-2 mx-2 rounded transition-colors duration-300;
+}
+
+
+.navbar-link:hover {
+    @apply bg-gray-100 text-gray-700;
+}
+
+.search-bar {
+    @apply w-full py-2 pl-10 pr-4 border rounded-md;
+}
+
+.search-bar:focus {
+    @apply border-blue-500 outline-none;
+}
+
