@@ -12,6 +12,7 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
   } from "@/shadcn-components/ui/dropdown-menu"
+import { Link } from "react-router-dom";
 
 
 
@@ -33,7 +34,10 @@ const UserDropdown = () => {
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>
+
+                    <Link to="/profile">Profile</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>My Tournaments</DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
 
