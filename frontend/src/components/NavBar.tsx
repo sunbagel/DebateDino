@@ -1,6 +1,9 @@
 import { useState } from "react";
 import '../styles/NavBar.css';
 import { Link } from "react-router-dom";
+import UserDropdown from "./UserDropdown";
+
+
 
 const NavBar = () => {
 
@@ -23,10 +26,9 @@ const NavBar = () => {
             </div>
           </button>
           
-          <a href="#" className="navbar-link">
-            Profile
-            
-            </a>
+          <UserDropdown/>
+
+          
           <button type="button" className="text-gray-800 hover:text-gray-600 md:hidden ml-3" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <div>X</div> : <div>Menu</div>}
             {/* <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" /> */}
