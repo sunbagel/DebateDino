@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import NavBar from './components/NavBar'
 import About from './pages/About';
 import Tournaments from './pages/Tournaments';
+import UserProfile from './pages/UserProfile';
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" element={<Home/>}/>
           <Route path="/about" element={<About/>}/>
           <Route path="/tournaments" element={<Tournaments/>}/>
+          <Route path="/profile" element={<UserProfile/>}/>
         </Routes>
       </Router>
       

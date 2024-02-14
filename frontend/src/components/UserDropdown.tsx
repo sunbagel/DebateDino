@@ -35,10 +35,13 @@ const UserDropdown = () => {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem>
-
                     <Link to="/profile">Profile</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>My Tournaments</DropdownMenuItem>
+
+                {/* maybe make a separate view for personal tournaments */}
+                <DropdownMenuItem>
+                    <Link to="/tournaments">My Tournaments</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
 
                 <DropdownMenuSeparator/>
