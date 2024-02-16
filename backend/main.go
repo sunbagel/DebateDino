@@ -49,6 +49,7 @@ func main() {
 
 	// Tournaments
 	router.GET("/api/tournaments", tournamentsHandler.GetTournaments)
+	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
 
 	router.Run(":" + port)
 }
