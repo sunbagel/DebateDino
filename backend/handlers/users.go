@@ -14,18 +14,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var validate = validator.New()
-
 // define UserHandler to better encapsulate collection pointers.
 // less exposed compared to a global collection variable
 type UserHandler struct {
 	collection *mongo.Collection
+	validate   *validator.Validate
 }
 
 // "constructor"
 // returns an instance of UserHandler struct
-func NewUserHandler(collection *mongo.Collection) *UserHandler {
-	return &UserHandler{collection: collection}
+func NewUserHandler(collection *mongo.Collection, validate *validator.Validate) *UserHandler {
+	return &UserHandler{collection: collection, validate: validate}
 }
 
 // (h *UserHandler) is a receiver
@@ -41,7 +40,7 @@ func (handler *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	validationErr := validate.Struct(user)
+	validationErr := handler.validate.Struct(user)
 	if validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
 		fmt.Println(validationErr)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 func main() {
@@ -24,8 +25,15 @@ func main() {
 		DBname: "debatedino",
 	}
 	client := db.DBinstance()
+
+	var validate = validator.New()
+
+	// define collections
 	userCollection := client.Database(cfg.DBname).Collection("users")
 	// tournamentCollection := client.Database(cfg.DBname).Collection("tournaments")
+
+	// create handlers
+	userHandler := handlers.NewUserHandler(userCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
@@ -33,10 +41,6 @@ func main() {
 			"message": "hello world",
 		})
 	})
-
-	// create handlers
-	userHandler := handlers.NewUserHandler(userCollection)
-
 	// Users
 	router.POST("/api/user", userHandler.CreateUser)
 	router.GET("/api/user", userHandler.GetUsers)
