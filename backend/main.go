@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"os"
-	"server/config"
 	"server/db"
 	"server/routes"
 	"server/users"
@@ -21,9 +20,6 @@ func main() {
 	router.Use(gin.Logger())
 	router.Use(cors.Default())
 
-	cfg := config.Config{
-		MongoDBURI: "your_mongodb_uri",
-	}
 	client := db.DBinstance()
 	userCollection := client.Database("your_db").Collection("users")
 	tournamentCollection := client.Database("your_db").Collection("tournaments")
