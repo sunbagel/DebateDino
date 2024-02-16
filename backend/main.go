@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"server/config"
+	"server/db"
 	"server/routes"
 	"server/users"
 
@@ -23,6 +24,9 @@ func main() {
 	cfg := config.Config{
 		MongoDBURI: "your_mongodb_uri",
 	}
+	client := db.DBinstance()
+	userCollection := client.Database("your_db").Collection("users")
+	tournamentCollection := client.Database("your_db").Collection("tournaments")
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
