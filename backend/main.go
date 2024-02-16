@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"server/config"
 	"server/routes"
 	"server/users"
 
@@ -18,6 +19,10 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(cors.Default())
+
+	cfg := config.Config{
+		MongoDBURI: "your_mongodb_uri",
+	}
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
