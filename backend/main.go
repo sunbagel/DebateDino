@@ -33,7 +33,7 @@ func main() {
 	// tournamentCollection := client.Database(cfg.DBname).Collection("tournaments")
 
 	// create handlers
-	userHandler := handlers.NewUserHandler(userCollection, validate)
+	userHandler := handlers.NewRouteHandler(userCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {

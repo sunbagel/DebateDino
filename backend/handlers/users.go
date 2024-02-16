@@ -8,29 +8,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
-
-// define UserHandler to better encapsulate collection pointers.
-// less exposed compared to a global collection variable
-type UserHandler struct {
-	collection *mongo.Collection
-	validate   *validator.Validate
-}
-
-// "constructor"
-// returns an instance of UserHandler struct
-func NewUserHandler(collection *mongo.Collection, validate *validator.Validate) *UserHandler {
-	return &UserHandler{collection: collection, validate: validate}
-}
 
 // (h *UserHandler) is a receiver
 // indicates that we can call CreateUser on an instance of *UserHandler
 // (it's like "this" when defining a class function in C++)
-func (handler *UserHandler) CreateUser(c *gin.Context) {
+func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 	var user models.User
@@ -61,7 +46,7 @@ func (handler *UserHandler) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func (handler *UserHandler) GetUsers(c *gin.Context) {
+func (handler *RouteHandler) GetUsers(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
