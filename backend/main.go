@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"server/routes"
+	"server/users"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -26,8 +27,11 @@ func main() {
 	})
 
 	// Users
-	router.POST("/api/user", routes.CreateUser)
-	router.GET("/api/user", routes.GetUsers)
+	router.POST("/api/user", users.CreateUser)
+	router.GET("/api/user", users.GetUsers)
+
+	// Tournaments
+	router.GET("/api/tournaments", routes.GetTournaments)
 
 	router.Run(":" + port)
 }

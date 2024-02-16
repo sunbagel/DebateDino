@@ -1,10 +1,11 @@
-package routes
+package users
 
 import (
 	"context"
 	"fmt"
 	"net/http"
 	"server/models"
+	"server/routes"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var userCollection *mongo.Collection = OpenCollection(Client, "users")
+var userCollection *mongo.Collection = routes.OpenCollection(routes.Client, "users")
 
 var validate = validator.New()
 
