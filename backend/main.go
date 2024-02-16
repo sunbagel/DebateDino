@@ -30,10 +30,12 @@ func main() {
 
 	// define collections
 	userCollection := client.Database(cfg.DBname).Collection("users")
+	tournamentCollection := client.Database((cfg.DBname)).Collection("tournaments")
 	// tournamentCollection := client.Database(cfg.DBname).Collection("tournaments")
 
 	// create handlers
 	userHandler := handlers.NewRouteHandler(userCollection, validate)
+	tournamentsHandler := handlers.NewRouteHandler(tournamentCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
@@ -46,7 +48,7 @@ func main() {
 	router.GET("/api/user", userHandler.GetUsers)
 
 	// Tournaments
-	// router.GET("/api/tournaments", routes.GetTournaments)
+	router.GET("/api/tournaments", tournamentsHandler.GetTournaments)
 
 	router.Run(":" + port)
 }

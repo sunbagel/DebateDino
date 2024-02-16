@@ -12,8 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// (h *UserHandler) is a receiver
-// indicates that we can call CreateUser on an instance of *UserHandler
+// (h *RouteHandler) is a receiver
+// indicates that we can call CreateUser on an instance of *RouteHandler
 // (it's like "this" when defining a class function in C++)
 func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
