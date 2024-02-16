@@ -55,5 +55,5 @@ func main() {
 	router.GET("/api/tournaments", tournamentsHandler.GetTournaments)
 	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
 
-	router.Run(":" + port)
+	router.Run("localhost:" + port)
 }
