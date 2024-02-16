@@ -1,4 +1,4 @@
-package routes
+package handlers
 
 import (
 	"context"
@@ -8,17 +8,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var userCollection *mongo.Collection = OpenCollection(Client, "users")
-
-var validate = validator.New()
-
-func CreateUser(c *gin.Context) {
+// (h *UserHandler) is a receiver
+// indicates that we can call CreateUser on an instance of *UserHandler
+// (it's like "this" when defining a class function in C++)
+func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 	var user models.User
@@ -28,7 +25,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	validationErr := validate.Struct(user)
+	validationErr := handler.validate.Struct(user)
 	if validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
 		fmt.Println(validationErr)
@@ -37,7 +34,8 @@ func CreateUser(c *gin.Context) {
 
 	user.ID = primitive.NewObjectID()
 
-	result, insertErr := userCollection.InsertOne(ctx, user)
+	// get collection from the handler
+	result, insertErr := handler.collection.InsertOne(ctx, user)
 	if insertErr != nil {
 		msg := fmt.Sprintf("User was not created")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
@@ -48,13 +46,13 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func GetUsers(c *gin.Context) {
+func (handler *RouteHandler) GetUsers(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
 	var users []bson.M
 
-	cursor, err := userCollection.Find(ctx, bson.M{})
+	cursor, err := handler.collection.Find(ctx, bson.M{})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -1,4 +1,4 @@
-package routes
+package db
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// connect to db
 func DBinstance() *mongo.Client {
 	err := godotenv.Load(".env")
 
@@ -41,13 +42,4 @@ func DBinstance() *mongo.Client {
 
 	fmt.Println("Connected to MongoDB")
 	return client
-}
-
-var Client *mongo.Client = DBinstance()
-
-func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-
-	var collection *mongo.Collection = client.Database("debatedino").Collection(collectionName)
-
-	return collection
 }

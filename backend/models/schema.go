@@ -41,3 +41,16 @@ type Form struct {
 	ID        primitive.ObjectID `json:"_id"`
 	Questions []Question         `json:"questions"`
 }
+
+type QuestionResponse struct {
+	ID       primitive.ObjectID `json:"_id"`
+	Question primitive.ObjectID `json:"question"` // should this be a reference to the question, or just contain the question's text?
+	Answer   string             `json:"answer"`
+}
+
+type FormResponse struct {
+	ID            primitive.ObjectID `json:"_id"`
+	FormStructure primitive.ObjectID `json:"formId"`    // reference to the Form's structure
+	Participant   primitive.ObjectID `json:"userId"`    // submittant's id
+	Responses     []QuestionResponse `json:"responses"` // responses to questions (should be validated in frontend and backend)
+}
