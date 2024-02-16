@@ -30,10 +30,12 @@ func main() {
 
 	// define collections
 	userCollection := client.Database(cfg.DBname).Collection("users")
+	tournamentCollection := client.Database((cfg.DBname)).Collection("tournaments")
 	// tournamentCollection := client.Database(cfg.DBname).Collection("tournaments")
 
 	// create handlers
 	userHandler := handlers.NewRouteHandler(userCollection, validate)
+	tournamentsHandler := handlers.NewRouteHandler(tournamentCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
@@ -43,10 +45,15 @@ func main() {
 	})
 	// Users
 	router.POST("/api/user", userHandler.CreateUser)
+	// might want to add filtering options, ex. /users?name=John&institution=XYZ, can access the gin.Context with c.Query("name")
 	router.GET("/api/user", userHandler.GetUsers)
+	// get by id
+	router.GET("/api/user/:id", userHandler.GetUser)
+	router.PUT("/api/user/:id", userHandler.UpdateUser)
 
 	// Tournaments
-	// router.GET("/api/tournaments", routes.GetTournaments)
+	router.GET("/api/tournaments", tournamentsHandler.GetTournaments)
+	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
 
-	router.Run(":" + port)
+	router.Run("localhost:" + port)
 }
