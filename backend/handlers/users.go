@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // (h *RouteHandler) is a receiver
@@ -72,4 +73,36 @@ func (handler *RouteHandler) GetUsers(c *gin.Context) {
 	defer cancel()
 	// return users
 	c.JSON(http.StatusOK, users)
+}
+
+func (handler *RouteHandler) GetUser(c *gin.Context) {
+
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	// passed in api call /users/:id
+	userID := c.Param("id")
+
+	// Convert userID from string to ObjectID if your database uses MongoDB's ObjectID
+	objID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
+	var user models.User
+	// find user
+	if err := handler.collection.FindOne(ctx, bson.M{"_id": objID}).Decode((&user)); err != nil {
+
+		// handle errors
+		if err == mongo.ErrNoDocuments {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching user"})
+		return
+	}
+
+	// return user
+	c.JSON(http.StatusOK, user)
 }
