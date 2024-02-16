@@ -52,14 +52,17 @@ func (handler *RouteHandler) GetUsers(c *gin.Context) {
 
 	var users []bson.M
 
+	// get all users
 	cursor, err := handler.collection.Find(ctx, bson.M{})
 
+	// check err in getting users
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
 		return
 	}
 
+	// pass all users from cursor to users
 	if err = cursor.All(ctx, &users); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
@@ -67,5 +70,6 @@ func (handler *RouteHandler) GetUsers(c *gin.Context) {
 	}
 
 	defer cancel()
+	// return users
 	c.JSON(http.StatusOK, users)
 }

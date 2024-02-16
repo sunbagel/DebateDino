@@ -40,7 +40,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	// get collection from the handler
 	result, insertErr := handler.collection.InsertOne(ctx, tournament)
 	if insertErr != nil {
-		msg := fmt.Sprintf("User was not created")
+		msg := fmt.Sprintf("Tournament was not created")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		fmt.Println(insertErr)
 		return
