@@ -5,8 +5,7 @@ import (
 	"os"
 	"server/config"
 	"server/db"
-	"server/routes"
-	"server/users"
+	"server/handlers"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -26,7 +25,7 @@ func main() {
 	}
 	client := db.DBinstance()
 	userCollection := client.Database(cfg.DBname).Collection("users")
-	tournamentCollection := client.Database(cfg.DBname).Collection("tournaments")
+	// tournamentCollection := client.Database(cfg.DBname).Collection("tournaments")
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
@@ -35,12 +34,15 @@ func main() {
 		})
 	})
 
+	// create handlers
+	userHandler := handlers.NewUserHandler(userCollection)
+
 	// Users
-	router.POST("/api/user", users.CreateUser)
-	router.GET("/api/user", users.GetUsers)
+	router.POST("/api/user", userHandler.CreateUser)
+	router.GET("/api/user", userHandler.GetUsers)
 
 	// Tournaments
-	router.GET("/api/tournaments", routes.GetTournaments)
+	// router.GET("/api/tournaments", routes.GetTournaments)
 
 	router.Run(":" + port)
 }
