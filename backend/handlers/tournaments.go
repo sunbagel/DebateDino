@@ -55,7 +55,7 @@ func (handler *RouteHandler) GetTournaments(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
-	var users []bson.M
+	var tournaments []bson.M
 
 	cursor, err := handler.collection.Find(ctx, bson.M{})
 
@@ -65,12 +65,12 @@ func (handler *RouteHandler) GetTournaments(c *gin.Context) {
 		return
 	}
 
-	if err = cursor.All(ctx, &users); err != nil {
+	if err = cursor.All(ctx, &tournaments); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
 		return
 	}
 
 	defer cancel()
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, tournaments)
 }
