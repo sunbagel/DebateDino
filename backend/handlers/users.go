@@ -1,11 +1,10 @@
-package users
+package handlers
 
 import (
 	"context"
 	"fmt"
 	"net/http"
 	"server/models"
-	"server/routes"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,11 +14,24 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var userCollection *mongo.Collection = routes.OpenCollection(routes.Client, "users")
-
 var validate = validator.New()
 
-func CreateUser(c *gin.Context) {
+// define UserHandler to better encapsulate collection pointers.
+// less exposed compared to a global collection variable
+type UserHandler struct {
+	collection *mongo.Collection
+}
+
+// "constructor"
+// returns an instance of UserHandler struct
+func NewUserHandler(collection *mongo.Collection) *UserHandler {
+	return &UserHandler{collection: collection}
+}
+
+// (h *UserHandler) is a receiver
+// indicates that we can call CreateUser on an instance of *UserHandler
+// (it's like "this" when defining a class function in C++)
+func (handler *UserHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 	var user models.User
@@ -38,7 +50,8 @@ func CreateUser(c *gin.Context) {
 
 	user.ID = primitive.NewObjectID()
 
-	result, insertErr := userCollection.InsertOne(ctx, user)
+	// get collection from the handler
+	result, insertErr := handler.collection.InsertOne(ctx, user)
 	if insertErr != nil {
 		msg := fmt.Sprintf("User was not created")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
@@ -49,13 +62,13 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func GetUsers(c *gin.Context) {
+func (handler *UserHandler) GetUsers(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 
 	var users []bson.M
 
-	cursor, err := userCollection.Find(ctx, bson.M{})
+	cursor, err := handler.collection.Find(ctx, bson.M{})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
