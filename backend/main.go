@@ -3,12 +3,13 @@ package main
 import (
 	"net/http"
 	"os"
+	"server/config"
+	"server/db"
 	"server/routes"
 	"server/users"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"honnef.co/go/tools/config"
 )
 
 func main() {
@@ -21,11 +22,11 @@ func main() {
 	router.Use(cors.Default())
 
 	cfg := config.Config{
-		MongoDBURI: "your_mongodb_uri",
+		DBname: "debatedino",
 	}
 	client := db.DBinstance()
-	userCollection := client.Database("your_db").Collection("users")
-	tournamentCollection := client.Database("your_db").Collection("tournaments")
+	userCollection := client.Database(cfg.DBname).Collection("users")
+	tournamentCollection := client.Database(cfg.DBname).Collection("tournaments")
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
