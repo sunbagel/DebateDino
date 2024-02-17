@@ -49,28 +49,43 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// code is identical to users.go lol...
-// but i don't want to generalize route functionality, since it has the possibility of varying quite a bit.
-func (handler *RouteHandler) GetTournaments(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+// search tournament from request body
+// can be duplicates
+func (handler *RouteHandler) SearchTournament(c *gin.Context) {
+
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	searchCriteria := bson.M{}
+
+	// get query
+	queryParams := c.Request.URL.Query()
+
+	// put key/value pairs into searchCriteria
+	// **does not filter for invalid keys**
+	for key, values := range queryParams {
+		if len(values) > 0 {
+			searchCriteria[key] = values[0]
+		}
+	}
+
+	// find based on criteria
+	cursor, err := handler.collection.Find(ctx, searchCriteria)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	defer cursor.Close(ctx)
+
+	// populate tournaments with cursor
 	var tournaments []bson.M
 
-	cursor, err := handler.collection.Find(ctx, bson.M{})
-
-	if err != nil {
+	if err := cursor.All(ctx, &tournaments); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
 		return
 	}
-
-	if err = cursor.All(ctx, &tournaments); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		fmt.Println(err)
-		return
-	}
-
-	defer cancel()
+	// return tournaments
 	c.JSON(http.StatusOK, tournaments)
 }

@@ -63,6 +63,8 @@ func (handler *RouteHandler) GetUsers(c *gin.Context) {
 		return
 	}
 
+	defer cursor.Close(ctx)
+
 	// pass all users from cursor to users
 	if err = cursor.All(ctx, &users); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -70,7 +72,6 @@ func (handler *RouteHandler) GetUsers(c *gin.Context) {
 		return
 	}
 
-	defer cancel()
 	// return users
 	c.JSON(http.StatusOK, users)
 }
