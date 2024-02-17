@@ -53,6 +53,7 @@ func main() {
 
 	// Tournaments
 	router.GET("/api/tournaments", tournamentsHandler.GetTournaments)
+	router.GET("/api/tournaments_test", tournamentsHandler.SearchTournament)
 	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
 
 	router.Run("localhost:" + port)

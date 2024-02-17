@@ -65,12 +65,54 @@ func (handler *RouteHandler) GetTournaments(c *gin.Context) {
 		return
 	}
 
+	defer cursor.Close(ctx)
+
 	if err = cursor.All(ctx, &tournaments); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
 		return
 	}
 
+	c.JSON(http.StatusOK, tournaments)
+}
+
+// search tournament from request body
+// can be duplicates
+func (handler *RouteHandler) SearchTournament(c *gin.Context) {
+
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	searchCriteria := bson.M{}
+
+	// get query
+	queryParams := c.Request.URL.Query()
+
+	// put key/value pairs into searchCriteria
+	// **does not filter for invalid keys**
+	for key, values := range queryParams {
+		if len(values) > 0 {
+			searchCriteria[key] = values[0]
+		}
+	}
+
+	// find based on criteria
+	cursor, err := handler.collection.Find(ctx, searchCriteria)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	defer cursor.Close(ctx)
+
+	// populate tournaments with cursor
+	var tournaments []bson.M
+
+	if err := cursor.All(ctx, &tournaments); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+	// return tournaments
 	c.JSON(http.StatusOK, tournaments)
 }
