@@ -52,7 +52,6 @@ func main() {
 	router.PUT("/api/user/:id", userHandler.UpdateUser)
 
 	// Tournaments
-	router.GET("/api/tournaments", tournamentsHandler.GetTournaments)
 	router.GET("/api/tournaments_test", tournamentsHandler.SearchTournament)
 	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
 

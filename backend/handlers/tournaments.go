@@ -49,33 +49,6 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// code is identical to users.go lol...
-// but i don't want to generalize route functionality, since it has the possibility of varying quite a bit.
-func (handler *RouteHandler) GetTournaments(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-
-	var tournaments []bson.M
-
-	cursor, err := handler.collection.Find(ctx, bson.M{})
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		fmt.Println(err)
-		return
-	}
-
-	defer cursor.Close(ctx)
-
-	if err = cursor.All(ctx, &tournaments); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		fmt.Println(err)
-		return
-	}
-
-	c.JSON(http.StatusOK, tournaments)
-}
-
 // search tournament from request body
 // can be duplicates
 func (handler *RouteHandler) SearchTournament(c *gin.Context) {
