@@ -33,7 +33,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	user.ID = primitive.NewObjectID()
+	// user.ID = primitive.NewObjectID()
 
 	// get collection from the handler
 	result, insertErr := handler.collection.InsertOne(ctx, user)
@@ -76,7 +76,7 @@ func (handler *RouteHandler) GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-func (handler *RouteHandler) GetUser(c *gin.Context) {
+func (handler *RouteHandler) GetUserById(c *gin.Context) {
 
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()

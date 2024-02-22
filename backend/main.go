@@ -48,12 +48,14 @@ func main() {
 	// might want to add filtering options, ex. /users?name=John&institution=XYZ, can access the gin.Context with c.Query("name")
 	router.GET("/api/user", userHandler.GetUsers)
 	// get by id
-	router.GET("/api/user/:id", userHandler.GetUser)
+	router.GET("/api/user/:id", userHandler.GetUserById)
 	router.PUT("/api/user/:id", userHandler.UpdateUser)
 
 	// Tournaments
 	router.GET("/api/tournaments_test", tournamentsHandler.SearchTournament)
 	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
+	router.DELETE("/api/tournaments/:id", tournamentsHandler.DeleteTournament)
+	router.PUT("/api/tournaments/:id", tournamentsHandler.UpdateTournament)
 
 	router.Run("localhost:" + port)
 }
