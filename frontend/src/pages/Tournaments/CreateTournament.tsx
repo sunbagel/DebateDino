@@ -13,7 +13,7 @@ const CreateTournaments = () => {
 
     const createTournament = (e: React.ChangeEvent<HTMLButtonElement>) => {
         e.preventDefault();
-
+        
     }
 
     return (
