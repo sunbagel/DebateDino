@@ -12,6 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// Create Tournament
+// POST   /api/tournaments/
 func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
@@ -35,7 +37,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	}
 
 	// set ID field (?)
-	tournament.ID = primitive.NewObjectID()
+	// tournament.ID = primitive.NewObjectID()
 
 	// get collection from the handler
 	result, insertErr := handler.collection.InsertOne(ctx, tournament)
@@ -48,6 +50,9 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+// Search Tournament
+// GET    /api/tournaments/
 
 // search tournament from request body
 // can be duplicates
@@ -88,4 +93,67 @@ func (handler *RouteHandler) SearchTournament(c *gin.Context) {
 	}
 	// return tournaments
 	c.JSON(http.StatusOK, tournaments)
+}
+
+// Delete Tournament
+// DELETE   /api/tournaments/:id
+func (handler *RouteHandler) DeleteTournament(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// the id is passed through the url
+	id := c.Param("id")
+
+	// Convert id (string) to mongoDB Objectid
+	objId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	// tournament to be deleted
+	tournament := bson.M{"_id": objId}
+
+	_, err = handler.collection.DeleteOne(ctx, tournament)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete item"})
+	}
+
+	c.JSON(http.StatusOK, bson.M{"deletedId": id})
+}
+
+// Update Tournament
+// PUT    /api/tournaments/:id
+func (handler *RouteHandler) UpdateTournament(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	tournamentId := c.Param("id")
+	objID, err := primitive.ObjectIDFromHex(tournamentId)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Tournament ID format"})
+		return
+	}
+
+	var updateData map[string]interface{}
+
+	if err := c.BindJSON(&updateData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result, updateErr := handler.collection.UpdateByID(ctx, objID, bson.M{"$set": updateData})
+	if updateErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": updateErr.Error()})
+		return
+	}
+
+	// if no Tournament modified
+	if result.ModifiedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Tournament updated successfully"})
 }
