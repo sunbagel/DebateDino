@@ -1,7 +1,45 @@
-import axios from "@/lib/axios";
-import { Separator } from "@/shadcn-components/ui/separator";
 import { User } from "@/types/users"
+import axios from "@/lib/axios";
 import { useEffect, useState } from "react";
+
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { format } from "date-fns"
+
+import { Button } from "@/shadcn-components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/shadcn-components/ui/form"
+import { Separator } from "@/shadcn-components/ui/separator";
+import { Input } from "@/shadcn-components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/shadcn-components/ui/popover";
+import { cn } from "@/lib/shadcn-utils";
+import { CalendarIcon } from "@radix-ui/react-icons"
+import { Calendar } from "@/shadcn-components/ui/calendar"
+import { Textarea } from "@/shadcn-components/ui/textarea"
+import { useNavigate } from "react-router-dom"
+
+
+const formSchema = z.object({
+    name: z.string().min(2, {
+      message: "Name must be between 2 to 20 characters.",
+    }).max(20),
+    email: z.string().max(50),
+    institution: z.string(),
+    agreement: z.string().max(2000),
+
+    // link to tourney dashboard instead (?)
+    // judging: z.array(z.string()).optional(),
+    // participating: z.array(z.string()).optional(),
+    // hosting: z.array(z.string()).optional();
+})
 
 
 const UserProfile = () => {
@@ -36,7 +74,7 @@ const UserProfile = () => {
     <div className="container mx-auto flex min-h-screen flex-col">
         <div className="flex pt-10 ">
         <div className="flex flex-col space-y-3">
-            <img src="@/../public/walterworth.png"
+            <img src="/walterworth.png"
               alt = "Avatar"
               className="rounded-full"
               height="100"
