@@ -128,7 +128,7 @@ const UserProfile = () => {
         <Separator/>
         <div className="pt-5">
           <Form {...form}>
-            <form onSubmit = {form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
                 name="name"
@@ -136,7 +136,11 @@ const UserProfile = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your Name" {...field} />
+                      <Input 
+                        readOnly={!isEditing} 
+                        placeholder="Your Name" 
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -150,6 +154,7 @@ const UserProfile = () => {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
+                        readOnly={!isEditing}
                         placeholder="Email"
                         {...field}
                       />
@@ -165,7 +170,11 @@ const UserProfile = () => {
                 <FormItem>
                   <FormLabel>Institution</FormLabel>
                   <FormControl>
-                    <Input placeholder="Who you repping?" {...field} />
+                    <Input 
+                      readOnly={!isEditing} 
+                      placeholder="Who you repping?" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
