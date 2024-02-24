@@ -63,6 +63,7 @@ const UserProfile = () => {
   // monitor form edits
   const { isDirty, dirtyFields } = form.formState;
 
+  // fetch initial user info
   useEffect(()=>{
     // api should not return password. may want to return id?
     axios.get(`user/${userIDPlaceholder}`)
@@ -75,8 +76,8 @@ const UserProfile = () => {
       
   }, [form, setUserInfo])
 
+  // set form default everytime userInfo is changed
   useEffect(() => {
-    console.log("hih babes", userInfo);
     form.reset(userInfo);
   }, [userInfo, form])
 
@@ -106,7 +107,6 @@ const UserProfile = () => {
 
     setIsEditing(false);
     
-
   }
 
   return (
@@ -177,10 +177,10 @@ const UserProfile = () => {
           </Form>
           <div className="my-6">
             {!isEditing &&
-              <Button onClick={() => setIsEditing(true)}>
+              <Button type="button" onClick={() => setIsEditing(true)}>
                 Edit
               </Button>}
-            {isEditing && <Button onClick={() => setIsEditing(false)}>Stop Editing</Button>}
+            {isEditing && <Button type="button" onClick={() => setIsEditing(false)}>Stop Editing</Button>}
           </div>
           
                 
