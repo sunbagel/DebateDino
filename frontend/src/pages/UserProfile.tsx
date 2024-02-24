@@ -48,6 +48,8 @@ const UserProfile = () => {
   }
 
   const [ userInfo, setUserInfo ] = useState<User>(defaultUser);
+  const [ isEditing, setIsEditing ] = useState<boolean>(false);
+  const [ isSubmitted, setIsSubmitted ] = useState<boolean>(false);
   const userIDPlaceholder = "65d69c469d47c04d60421fdb";
 
   
@@ -74,6 +76,11 @@ const UserProfile = () => {
       
   }, [form, setUserInfo])
 
+  useEffect(() => {
+    console.log("hih babes", userInfo);
+    form.reset(userInfo);
+  }, [userInfo, form])
+
   function onSubmit(data: z.infer<typeof formSchema>) {
 
     // Initialize an object to hold the updated values.
@@ -92,10 +99,14 @@ const UserProfile = () => {
       .then(res => {
         const test = res.data;
         console.log(test);
+        setUserInfo(userInfo => ({...userInfo, ...updatedValues}))
       })
       .catch(err => {
         console.log(err);
       })
+
+    setIsEditing(false);
+    
 
   }
 
@@ -161,7 +172,15 @@ const UserProfile = () => {
                 </FormItem>
               )}
             />
-              {isDirty && <Button type="submit" >Save Changes</Button>}
+            {!isEditing && 
+              <Button 
+                onClick={() => {
+                  setIsEditing(true);
+                }}
+              >
+                Edit
+              </Button>}
+            {isEditing && isDirty && <Button type="submit" disabled={form.formState.isSubmitting}>Save Changes</Button>}
             </form>
           </Form>
                 
