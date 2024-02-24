@@ -19,7 +19,7 @@ import { cn } from "@/lib/shadcn-utils";
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { Calendar } from "@/shadcn-components/ui/calendar"
 import { Textarea } from "@/shadcn-components/ui/textarea"
-import axios from 'axios'
+import axios from '@/lib/axios'
 import { useNavigate } from "react-router-dom"
 
 
@@ -58,7 +58,7 @@ const CreateTournaments = ({navigation}) => {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
         console.log(data)
-        axios.post(`${import.meta.env.VITE_API_SERVER}/api/tournaments`, data)
+        axios.post(`/tournaments`, data)
         .then(res => {
             const test = res.data;
             console.log(test);

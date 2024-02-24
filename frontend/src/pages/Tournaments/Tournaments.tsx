@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from 'axios'
+import axios from '@/lib/axios'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shadcn-components/ui/card";
 
 
@@ -22,7 +22,7 @@ const Tournaments = () => {
     const [tournaments, setTournaments] = useState<Array<Tournament>>([]);
 
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_API_SERVER}/api/tournaments_test`)
+        axios.get(`tournaments_test`)
         .then(res => {
             const tournamentRes: Tournament[] = res.data;
             return setTournaments(tournamentRes);
