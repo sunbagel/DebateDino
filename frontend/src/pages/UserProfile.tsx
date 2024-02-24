@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { format } from "date-fns"
 
 import { Button } from "@/shadcn-components/ui/button"
 import {
@@ -19,12 +18,6 @@ import {
 } from "@/shadcn-components/ui/form"
 import { Separator } from "@/shadcn-components/ui/separator";
 import { Input } from "@/shadcn-components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/shadcn-components/ui/popover";
-import { cn } from "@/lib/shadcn-utils";
-import { CalendarIcon } from "@radix-ui/react-icons"
-import { Calendar } from "@/shadcn-components/ui/calendar"
-import { Textarea } from "@/shadcn-components/ui/textarea"
-import { useNavigate } from "react-router-dom"
 
 
 const formSchema = z.object({
@@ -48,15 +41,23 @@ const UserProfile = () => {
   const userIDPlaceholder = "65d69c469d47c04d60421fdb";
 
   const tempUser = {
-    "name": "alex2",
-    "password": "abc123",
-    "email": "alex@gmail.com",
-    "institution": "Queens University",
-    "agreement": "i agree",
-    "participating": [],
-    "judging": [],
-    "hosting": []
+    username: "sunbagel",
+    name: "alex2",
+    email: "alex@gmail.com",
+    institution: "Queens University",
+    agreement: "i agree",
+    // participating: [],
+    // judging: [],
+    // hosting: []
   }
+  
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: tempUser
+  })
+
+  // monitor form edits
+  const { isDirty } = form.formState;
 
   useEffect(()=>{
     // api should not return password. may want to return id?
@@ -88,33 +89,30 @@ const UserProfile = () => {
         </div>
         <Separator/>
         <div className="pt-5">
-          {/* <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <Form {...form}>
+            <form className="space-y-8">
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tournament Name</FormLabel>
+                    <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="How would you like to call it?" {...field} />
+                      <Input placeholder="Your Name" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      This is your tournament name. You may change it later on.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name="description"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="What's your tournament about?"
+                      <Input
+                        placeholder="Email"
                         {...field}
                       />
                     </FormControl>
@@ -122,74 +120,23 @@ const UserProfile = () => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-[240px] pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Where will your tournament be held?" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="refundPolicy"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Refund Policy</FormLabel>
-                    <FormControl>
-                      <Input placeholder="" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit">Create Tournament</Button>
+            <FormField
+              control={form.control}
+              name="institution"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Institution</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Who you repping?" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+              {isDirty && <Button type="submit">Save Changes</Button>}
             </form>
           </Form>
-                </div>*/}
+                
       </div>
 
     </div>
