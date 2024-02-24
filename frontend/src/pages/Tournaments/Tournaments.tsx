@@ -2,19 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from '@/lib/axios'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shadcn-components/ui/card";
+import { Tournament } from "@/types/tournaments";
 
 
-type Tournament = {
-    host: string;
-	name: string;
-	description: string;
-	location: string;
-	date: string;
-	image: string;
-	debaters: string[];
-	judges: string[];
-	refundPolicy: string;
-}
 
 const Tournaments = () => {
 
