@@ -3,7 +3,7 @@ import axios from "@/lib/axios";
 import { useEffect, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { Button } from "@/shadcn-components/ui/button"
@@ -59,7 +59,7 @@ const UserProfile = () => {
   })
 
   // monitor form edits
-  const { isDirty } = form.formState;
+  const { isDirty, dirtyFields } = form.formState;
 
   useEffect(()=>{
     // api should not return password. may want to return id?
@@ -72,7 +72,32 @@ const UserProfile = () => {
     })
     .catch(err => console.log(err))
       
-  }, [setUserInfo])
+  }, [form, setUserInfo])
+
+  function onSubmit(data: z.infer<typeof formSchema>) {
+
+    // Initialize an object to hold the updated values.
+    const updatedValues: Partial<z.infer<typeof formSchema>> = {};
+
+    // Iterate over dirtyFields to determine which fields have been modified.
+    Object.keys(dirtyFields).forEach((key) => {
+      const fieldKey = key as keyof z.infer<typeof formSchema>;
+      if (dirtyFields[fieldKey]) {
+        updatedValues[fieldKey] = data[fieldKey];
+      }
+    });
+
+    console.log(updatedValues);
+    axios.put(`user/${userIDPlaceholder}`, updatedValues)
+      .then(res => {
+        const test = res.data;
+        console.log(test);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+  }
 
   return (
     <div className="container mx-auto flex min-h-screen flex-col">
@@ -93,7 +118,7 @@ const UserProfile = () => {
         <Separator/>
         <div className="pt-5">
           <Form {...form}>
-            <form className="space-y-8">
+            <form onSubmit = {form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
                 name="name"
@@ -136,7 +161,7 @@ const UserProfile = () => {
                 </FormItem>
               )}
             />
-              {isDirty && <Button type="submit">Save Changes</Button>}
+              {isDirty && <Button type="submit" >Save Changes</Button>}
             </form>
           </Form>
                 
