@@ -22,7 +22,7 @@ const Tournaments = () => {
     const [tournaments, setTournaments] = useState<Array<Tournament>>([]);
 
     useEffect(() => {
-        axios.get(`tournaments_test`)
+        axios.get(`tournaments`)
         .then(res => {
             const tournamentRes: Tournament[] = res.data;
             return setTournaments(tournamentRes);
