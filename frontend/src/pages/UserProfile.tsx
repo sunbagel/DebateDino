@@ -24,7 +24,7 @@ const formSchema = z.object({
     name: z.string().min(2, {
       message: "Name must be between 2 to 20 characters.",
     }).max(20),
-    email: z.string().max(50),
+    email: z.string().email("This is not a valid email").max(50),
     institution: z.string(),
     agreement: z.string().max(2000),
 
@@ -70,7 +70,6 @@ const UserProfile = () => {
       console.log(res.data);
       const userRes : User = res.data;
       setUserInfo(userRes);
-      form.reset(userRes);
     })
     .catch(err => console.log(err))
       
@@ -172,17 +171,18 @@ const UserProfile = () => {
                 </FormItem>
               )}
             />
-            {!isEditing && 
-              <Button 
-                onClick={() => {
-                  setIsEditing(true);
-                }}
-              >
-                Edit
-              </Button>}
+            
             {isEditing && isDirty && <Button type="submit" disabled={form.formState.isSubmitting}>Save Changes</Button>}
             </form>
           </Form>
+          <div className="my-6">
+            {!isEditing &&
+              <Button onClick={() => setIsEditing(true)}>
+                Edit
+              </Button>}
+            {isEditing && <Button onClick={() => setIsEditing(false)}>Stop Editing</Button>}
+          </div>
+          
                 
       </div>
 
