@@ -36,24 +36,26 @@ const formSchema = z.object({
 
 
 const UserProfile = () => {
-
-  const [ userInfo, setUserInfo ] = useState<User>();
-  const userIDPlaceholder = "65d69c469d47c04d60421fdb";
-
-  const tempUser = {
-    username: "sunbagel",
-    name: "alex2",
-    email: "alex@gmail.com",
-    institution: "Queens University",
-    agreement: "i agree",
+  const defaultUser = {
+    username: "",
+    name: "",
+    email: "",
+    institution: "",
+    agreement: "",
     // participating: [],
     // judging: [],
     // hosting: []
   }
+
+  const [ userInfo, setUserInfo ] = useState<User>(defaultUser);
+  const userIDPlaceholder = "65d69c469d47c04d60421fdb";
+
+  
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: tempUser
+    // initially empty before fetch
+    defaultValues: userInfo
   })
 
   // monitor form edits
@@ -66,6 +68,7 @@ const UserProfile = () => {
       console.log(res.data);
       const userRes : User = res.data;
       setUserInfo(userRes);
+      form.reset(userRes);
     })
     .catch(err => console.log(err))
       
