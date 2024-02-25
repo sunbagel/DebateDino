@@ -2,8 +2,19 @@
 
 
 ## Users and Tournaments:
-Split into two endpoints:
 
+### Registering Users:
+```
+POST /tournaments/:id/registration
+
+Body: 
+{
+    "userID": "65db8527dc2cf06766de1572"
+}
+```
+
+### Get:
+Split into two endpoints
 #### Get a User's Tournaments:
 ```
 GET /users/:id/tournaments

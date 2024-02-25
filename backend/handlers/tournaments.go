@@ -157,3 +157,60 @@ func (handler *RouteHandler) UpdateTournament(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Tournament updated successfully"})
 }
+
+// Register User to Tournament
+func (handler *RouteHandler) RegisterUser(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// body struct for data validation
+	type RequestBody struct {
+		UserID string `json:"userID"`
+	}
+
+	// get body
+	var body RequestBody
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// get tournament id and user id strings
+	tournamentIDString := c.Param("id")
+	userIDString := body.UserID
+
+	// convert the type into ObjectIDs
+	tID, err := primitive.ObjectIDFromHex(tournamentIDString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid tournament ID format"})
+		return
+	}
+
+	uID, err := primitive.ObjectIDFromHex(userIDString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
+	filter := bson.M{"_id": tID}
+	update := bson.M{"$addToSet": bson.M{"registeredUsers": uID}}
+	result, err := handler.collection.UpdateOne(ctx, filter, update)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
+		return
+	}
+
+	if result.ModifiedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
+		return
+	}
+
+	message := fmt.Sprintf(
+		"User %s registered to tournament %s successfully",
+		userIDString,
+		tournamentIDString,
+	)
+	c.JSON(http.StatusOK, gin.H{"message": message})
+
+}
