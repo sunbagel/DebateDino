@@ -164,20 +164,32 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	defer cancel()
 
 	// body struct for data validation
-	type RequestBody struct {
-		UserID string `json:"userID"`
+	type RegistrationBody struct {
+		UserID string `json:"userID" validate:"required"`
+		Role   string `json:"role" validate:"required,oneof=Debater Judge"`
 	}
 
 	// get body
-	var body RequestBody
+	var body RegistrationBody
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// validate tournament variable
+	validationErr := handler.validate.Struct(body)
+
+	// check validation error
+	if validationErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
+		fmt.Println(validationErr)
 		return
 	}
 
 	// get tournament id and user id strings
 	tournamentIDString := c.Param("id")
 	userIDString := body.UserID
+	userRole := body.Role
 
 	// convert the type into ObjectIDs
 	tID, err := primitive.ObjectIDFromHex(tournamentIDString)
@@ -193,8 +205,8 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	}
 
 	filter := bson.M{"_id": tID}
-	update := bson.M{"$addToSet": bson.M{"registeredUsers": uID}}
-	result, err := handler.collection.UpdateOne(ctx, filter, update)
+	updateBody := bson.M{userRole: uID}
+	result, err := handler.collection.UpdateOne(ctx, filter, bson.M{"$addToSet": updateBody})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
