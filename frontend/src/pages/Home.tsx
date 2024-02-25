@@ -17,7 +17,7 @@ const Home = () => {
           </div>
         
           <div className="w-1/2 flex justify-center">
-            <img src="../../walterworth.png" alt="Debate Tournaments" className="max-w-sm"/>
+            <img src="../../debatedino.png" alt="Debate Tournaments" className="max-w-sm"/>
           </div>
         </div>
         </div>

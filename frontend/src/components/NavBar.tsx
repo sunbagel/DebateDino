@@ -14,7 +14,7 @@ const NavBar = () => {
     <nav className="bg-lime-200 bg-opacity-50 shadow-md">
       <div className="container mx-auto px-6 py-8 flex justify-between items-center">
         <Link to="/" className="flex items-center text-gray-800 text-xl font-bold">
-            <img src="../../walterworth.png" alt="Logo" className="h-8"/>
+            <img src="../../debatedino.png" alt="Logo" className="h-8"/>
             <span className="self-center whitespace-nowrap">DebateDino</span>
         </Link>
 

@@ -12,11 +12,13 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
   } from "@/shadcn-components/ui/dropdown-menu"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
 
 const UserDropdown = () => {
+
+    const navigate = useNavigate();
 
     return (
 
@@ -34,13 +36,13 @@ const UserDropdown = () => {
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem>
-                    <Link to="/profile">Profile</Link>
+                <DropdownMenuItem onSelect={()=> navigate('profile')}>
+                    Profile
                 </DropdownMenuItem>
 
                 {/* maybe make a separate view for personal tournaments */}
-                <DropdownMenuItem>
-                    <Link to="/tournaments">My Tournaments</Link>
+                <DropdownMenuItem onSelect={() => navigate('tournaments')}>
+                    My Tournaments
                 </DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
 
