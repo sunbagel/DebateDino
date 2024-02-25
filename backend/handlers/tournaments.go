@@ -189,7 +189,16 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	// get tournament id and user id strings
 	tournamentIDString := c.Param("id")
 	userIDString := body.UserID
-	userRole := body.Role
+
+	// set userGroup
+	var userGroup string
+	if body.Role == "Debater" {
+		userGroup = "debaters"
+	} else if body.Role == "Judge" {
+		userGroup = "judges"
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
+	}
 
 	// convert the type into ObjectIDs
 	tID, err := primitive.ObjectIDFromHex(tournamentIDString)
@@ -204,8 +213,9 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
+	// update userGroup field (debaters or judges)
 	filter := bson.M{"_id": tID}
-	updateBody := bson.M{userRole: uID}
+	updateBody := bson.M{userGroup: uID}
 	result, err := handler.collection.UpdateOne(ctx, filter, bson.M{"$addToSet": updateBody})
 
 	if err != nil {

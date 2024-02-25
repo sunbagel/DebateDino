@@ -14,7 +14,7 @@ type Tournament struct {
 	Location     string               `json:"location"`
 	Date         string               `json:"date"`
 	Image        string               `json:"image"`
-	Debaters     []primitive.ObjectID `json:"participants"`
+	Debaters     []primitive.ObjectID `json:"debaters"`
 	Judges       []primitive.ObjectID `json:"judges"`
 	RefundPolicy string               `json:"refundPolicy"`
 }
