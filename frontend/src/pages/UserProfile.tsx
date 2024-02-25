@@ -3,14 +3,13 @@ import axios from "@/lib/axios";
 import { useEffect, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { SubmitHandler, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { Button } from "@/shadcn-components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -49,7 +48,6 @@ const UserProfile = () => {
 
   const [ userInfo, setUserInfo ] = useState<User>(defaultUser);
   const [ isEditing, setIsEditing ] = useState<boolean>(false);
-  const [ isSubmitted, setIsSubmitted ] = useState<boolean>(false);
   const userIDPlaceholder = "65d69c469d47c04d60421fdb";
 
   
@@ -110,23 +108,22 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="container mx-auto flex min-h-screen flex-col">
-        <div className="flex pt-10 ">
-        <div className="flex flex-col space-y-3">
+    <div className="container mx-auto flex min-h-screen items-center justify-center">
+      <div className="w-11/12 md:w-2/3 lg:w-1/2 xl:max-w-lg flex flex-col bg-white rounded-lg p-5 shadow-lg space-y-5">
+        
+        <div className="flex flex-col items-center space-y-3">
             <img src="/walterworth.png"
               alt = "Avatar"
-              className="rounded-full"
-              height="100"
-              width="100"
+              className="rounded-full h-24 w-24"
             />
-            <h1 className="text-5xl font-bold">Profile</h1>
+            <h1 className="text-2xl font-bold">Profile</h1>
             <p className="text-sm text-muted-foreground">
               Hey Dino, here's your profile!
             </p>
-          </div>
         </div>
+        
         <Separator/>
-        <div className="pt-5">
+        <div className="space-y-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
@@ -181,20 +178,24 @@ const UserProfile = () => {
               )}
             />
             
-            {isEditing && isDirty && <Button type="submit" disabled={form.formState.isSubmitting}>Save Changes</Button>}
+            {
+              // if editing + fields have changed
+              isEditing && 
+              isDirty && 
+              <Button type="submit" disabled={form.formState.isSubmitting}>Save Changes</Button>
+            }
+
             </form>
           </Form>
-          <div className="my-6">
+          <div className="flex justify-center space-x-4">
             {!isEditing &&
               <Button type="button" onClick={() => setIsEditing(true)}>
                 Edit
               </Button>}
             {isEditing && <Button type="button" onClick={() => setIsEditing(false)}>Stop Editing</Button>}
           </div>
-          
-                
+        </div>
       </div>
-
     </div>
   )
 }
