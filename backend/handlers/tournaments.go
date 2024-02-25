@@ -15,7 +15,7 @@ import (
 // Create Tournament
 // POST   /api/tournaments/
 func (handler *RouteHandler) CreateTournament(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	var tournament models.Tournament
 
@@ -125,7 +125,7 @@ func (handler *RouteHandler) DeleteTournament(c *gin.Context) {
 // Update Tournament
 // PUT    /api/tournaments/:id
 func (handler *RouteHandler) UpdateTournament(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	tournamentId := c.Param("id")

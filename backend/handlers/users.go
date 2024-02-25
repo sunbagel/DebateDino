@@ -17,7 +17,7 @@ import (
 // indicates that we can call CreateUser on an instance of *RouteHandler
 // (it's like "this" when defining a class function in C++)
 func (handler *RouteHandler) CreateUser(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {
@@ -48,7 +48,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 }
 
 func (handler *RouteHandler) GetUsers(c *gin.Context) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var users []bson.M
@@ -78,7 +78,7 @@ func (handler *RouteHandler) GetUsers(c *gin.Context) {
 
 func (handler *RouteHandler) GetUserById(c *gin.Context) {
 
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	// passed in api call /users/:id
@@ -112,7 +112,7 @@ func (handler *RouteHandler) GetUserById(c *gin.Context) {
 // or verify identity through auth (retrieve user's id from authentication)
 func (handler *RouteHandler) UpdateUser(c *gin.Context) {
 
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	userID := c.Param("id")
