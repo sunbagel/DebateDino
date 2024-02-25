@@ -44,12 +44,13 @@ func main() {
 		})
 	})
 	// Users
-	router.POST("/api/user", userHandler.CreateUser)
 	// might want to add filtering options, ex. /users?name=John&institution=XYZ, can access the gin.Context with c.Query("name")
-	router.GET("/api/user", userHandler.GetUsers)
+	router.GET("/api/users", userHandler.GetUsers)
 	// get by id
-	router.GET("/api/user/:id", userHandler.GetUserById)
-	router.PUT("/api/user/:id", userHandler.UpdateUser)
+	router.GET("/api/users/:id", userHandler.GetUserById)
+	router.POST("/api/users", userHandler.CreateUser)
+	router.PUT("/api/users/:id", userHandler.UpdateUser)
+	router.DELETE("/api/users/:id", userHandler.DeleteUser)
 
 	// Tournaments
 	router.GET("/api/tournaments", tournamentsHandler.SearchTournament)
