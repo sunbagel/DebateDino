@@ -93,7 +93,7 @@ func (handler *RouteHandler) GetUserById(c *gin.Context) {
 
 	var user models.User
 	// find user
-	if err := handler.collection.FindOne(ctx, bson.M{"_id": objID}).Decode((&user)); err != nil {
+	if err := handler.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user); err != nil {
 
 		// handle errors
 		if err == mongo.ErrNoDocuments {
@@ -147,5 +147,33 @@ func (handler *RouteHandler) UpdateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
+
+}
+
+func (handler *RouteHandler) DeleteUser(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	userID := c.Param("id")
+	objID, err := primitive.ObjectIDFromHex(userID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
+	// we use collection.FindOneAndDelete() if we also want to return data about item deleted. otherwise use .DeleteOne()
+	var deletedUser bson.M
+	deleteErr := handler.collection.FindOneAndDelete(ctx, bson.M{"_id": objID}).Decode(&deletedUser)
+	if deleteErr != nil {
+		if deleteErr == mongo.ErrNoDocuments {
+			c.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("User with id %s not found", userID)})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": deleteErr.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully", "deletedUser": deletedUser})
 
 }
