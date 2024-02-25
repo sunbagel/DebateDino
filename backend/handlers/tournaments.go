@@ -157,3 +157,82 @@ func (handler *RouteHandler) UpdateTournament(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Tournament updated successfully"})
 }
+
+// Register User to Tournament
+func (handler *RouteHandler) RegisterUser(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// body struct for data validation
+	type RegistrationBody struct {
+		UserID string `json:"userID" validate:"required"`
+		Role   string `json:"role" validate:"required,oneof=Debater Judge"`
+	}
+
+	// get body
+	var body RegistrationBody
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// validate tournament variable
+	validationErr := handler.validate.Struct(body)
+
+	// check validation error
+	if validationErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
+		fmt.Println(validationErr)
+		return
+	}
+
+	// get tournament id and user id strings
+	tournamentIDString := c.Param("id")
+	userIDString := body.UserID
+
+	// set userGroup
+	var userGroup string
+	if body.Role == "Debater" {
+		userGroup = "debaters"
+	} else if body.Role == "Judge" {
+		userGroup = "judges"
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
+	}
+
+	// convert the type into ObjectIDs
+	tID, err := primitive.ObjectIDFromHex(tournamentIDString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid tournament ID format"})
+		return
+	}
+
+	uID, err := primitive.ObjectIDFromHex(userIDString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
+	// update userGroup field (debaters or judges)
+	filter := bson.M{"_id": tID}
+	updateBody := bson.M{userGroup: uID}
+	result, err := handler.collection.UpdateOne(ctx, filter, bson.M{"$addToSet": updateBody})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
+		return
+	}
+
+	if result.ModifiedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
+		return
+	}
+
+	message := fmt.Sprintf(
+		"User %s registered to tournament %s successfully",
+		userIDString,
+		tournamentIDString,
+	)
+	c.JSON(http.StatusOK, gin.H{"message": message})
+
+}
