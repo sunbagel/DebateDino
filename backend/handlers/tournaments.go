@@ -27,10 +27,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	}
 
 	// validate tournament variable
-	validationErr := handler.validate.Struct(tournament)
-
-	// check validation error
-	if validationErr != nil {
+	if validationErr := handler.validate.Struct(tournament); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
 		fmt.Println(validationErr)
 		return
