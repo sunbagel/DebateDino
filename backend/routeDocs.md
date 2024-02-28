@@ -49,9 +49,34 @@ GET /tournaments/:id/users?=role=judge
 ### Form Structure:
 
 Creating form structure should be part of tournament creation process
-`POST /tournaments`
+```
+POST /tournaments
+
+Example JSON Body:
+{
+  "name": "Annual Chess Tournament",
+  "form": {
+    "questions": [
+      {
+        "type": "text",
+        "text": "What is your name?"
+      },
+      {
+        "type": "choice", // NOT A THING YET
+        "text": "Which category are you interested in?",
+        "options": ["Beginner", "Intermediate", "Advanced"]
+      }
+
+    ]
+  }
+}
+
+
+```
 
 Editing form structure for a tournament (NOT DONE)
+NEED TO CONSIDER "LOCKING THE FORM", ex. after tournament has been posted, form should not be edited any further.
+To maintain data integrity for our form responses (depends how we implement ?)
 `PUT /tournaments/:id/form`
 
 Deleting form structure for a tournament (? though it should be mandatory) (NOT DONE)
