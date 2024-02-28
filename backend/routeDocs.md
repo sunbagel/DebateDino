@@ -4,12 +4,14 @@
 ## Users and Tournaments:
 
 ### Registering Users:
+Role is one of: "Debater", "Judge"
 ```
 POST /tournaments/:id/registration
 
 Body: 
 {
     "userID": "65db8527dc2cf06766de1572"
+    "role": "Debater"
 }
 ```
 
@@ -20,10 +22,10 @@ Split into two endpoints
 GET /users/:id/tournaments
 ```
 
-Filter by hosting, participating, or judging:
+Filter by hosting, debating, or judging:
 ```
 GET /users/:id/tournaments?role=host
-GET /users/:id/tournaments?role=participant
+GET /users/:id/tournaments?role=debater
 GET /users/:id/tournaments?role=judge
 ```
 
@@ -33,10 +35,10 @@ GET /users/:id/tournaments?role=judge
 GET /tournaments/:id/users
 ```
 
-Filter by host, participants, or judges
+Filter by host, debater, or judges
 ```
 GET /tournaments/:id/users?=role=host
-GET /tournaments/:id/users?=role=participant
+GET /tournaments/:id/users?=role=debater
 GET /tournaments/:id/users?=role=judge
 ```
 

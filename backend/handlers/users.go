@@ -177,3 +177,65 @@ func (handler *RouteHandler) DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully", "deletedUser": deletedUser})
 
 }
+
+func (handler *RouteHandler) GetUserTournaments(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// role is optional
+	role := c.Query("role")
+	// get user id
+	userID := c.Param("id")
+	objID, err := primitive.ObjectIDFromHex(userID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
+	// get user data
+	var user models.User
+	if err := handler.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
+		return
+	}
+
+	// extract tournament ids
+	// filter by role (if present)
+	var tournamentIDs []primitive.ObjectID
+
+	switch role {
+	case "Host":
+		tournamentIDs = user.Hosting
+
+	case "Debater":
+		tournamentIDs = user.Debating
+
+	case "Judge":
+		tournamentIDs = user.Judging
+
+	default:
+		tournamentIDs = append(user.Hosting, user.Debating...)
+		tournamentIDs = append(tournamentIDs, user.Judging...)
+
+	}
+
+	var tournaments []bson.D
+	filter := bson.M{"_id": bson.M{"$in": tournamentIDs}}
+
+	// find all tournaments from tournamentIDs
+	cursor, err := handler.collection.Find(ctx, filter)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tournaments"})
+		return
+	}
+
+	defer cursor.Close(ctx)
+	if err = cursor.All(ctx, &tournaments); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode tournaments"})
+		return
+	}
+
+	c.JSON(http.StatusOK, tournaments)
+}

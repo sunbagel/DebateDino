@@ -21,14 +21,14 @@ type Tournament struct {
 
 type User struct {
 	// ID            primitive.ObjectID   `json:"_id"`
-	Name          string               `json:"name"`
-	Password      string               `json:"password"`
-	Email         string               `json:"email"`
-	Institution   string               `json:"institution"`
-	Agreement     string               `json:"agreement"`
-	Participating []primitive.ObjectID `json:"participating"`
-	Judging       []primitive.ObjectID `json:"judging"`
-	Hosting       []primitive.ObjectID `json:"hosting"`
+	Name        string               `json:"name"`
+	Password    string               `json:"password"`
+	Email       string               `json:"email"`
+	Institution string               `json:"institution"`
+	Agreement   string               `json:"agreement"`
+	Debating    []primitive.ObjectID `json:"debating"`
+	Judging     []primitive.ObjectID `json:"judging"`
+	Hosting     []primitive.ObjectID `json:"hosting"`
 }
 
 type Question struct {

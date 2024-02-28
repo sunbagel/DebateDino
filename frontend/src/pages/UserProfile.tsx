@@ -64,7 +64,7 @@ const UserProfile = () => {
   // fetch initial user info
   useEffect(()=>{
     // api should not return password. may want to return id?
-    axios.get(`user/${userIDPlaceholder}`)
+    axios.get(`users/${userIDPlaceholder}`)
     .then(res => {
       console.log(res.data);
       const userRes : User = res.data;
@@ -93,7 +93,7 @@ const UserProfile = () => {
     });
 
     console.log(updatedValues);
-    axios.put(`user/${userIDPlaceholder}`, updatedValues)
+    axios.put(`users/${userIDPlaceholder}`, updatedValues)
       .then(res => {
         const test = res.data;
         console.log(test);

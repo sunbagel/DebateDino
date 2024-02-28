@@ -48,6 +48,7 @@ func main() {
 	router.GET("/api/users", userHandler.GetUsers)
 	// get by id
 	router.GET("/api/users/:id", userHandler.GetUserById)
+	router.GET("/api/users/:id/tournaments", userHandler.GetUserTournaments)
 	router.POST("/api/users", userHandler.CreateUser)
 	router.PUT("/api/users/:id", userHandler.UpdateUser)
 	router.DELETE("/api/users/:id", userHandler.DeleteUser)
