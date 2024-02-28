@@ -31,11 +31,12 @@ func main() {
 	// define collections
 	userCollection := client.Database(cfg.DBname).Collection("users")
 	tournamentCollection := client.Database((cfg.DBname)).Collection("tournaments")
-	// tournamentCollection := client.Database(cfg.DBname).Collection("tournaments")
+	formResponseCollection := client.Database(cfg.DBname).Collection("formResponses")
 
 	// create handlers
 	userHandler := handlers.NewRouteHandler(userCollection, validate)
 	tournamentsHandler := handlers.NewRouteHandler(tournamentCollection, validate)
+	formResponseHandler := handlers.NewRouteHandler(formResponseCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
@@ -59,6 +60,10 @@ func main() {
 	router.POST("/api/tournaments/:id/registration", tournamentsHandler.RegisterUser)
 	router.DELETE("/api/tournaments/:id", tournamentsHandler.DeleteTournament)
 	router.PUT("/api/tournaments/:id", tournamentsHandler.UpdateTournament)
+
+	// forms
+	router.GET("/api/tournaments/:id/responses", formResponseHandler.GetResponses)
+	router.POST("/api/tournaments/:id/responses", formResponseHandler.SubmitFormResponse)
 
 	router.Run("localhost:" + port)
 }

@@ -33,9 +33,9 @@ type User struct {
 }
 
 type Question struct {
-	// ID   primitive.ObjectID `json:"_id"`
-	Type string `json:"type" validate:"required,oneof=textarea input number"`
-	Text string `json:"text" validate:"required"`
+	ID   primitive.ObjectID `json:"_id" validate:"required"`
+	Type string             `json:"type" validate:"required,oneof=textarea input number"`
+	Text string             `json:"text" validate:"required"`
 }
 
 type Form struct {
@@ -45,13 +45,14 @@ type Form struct {
 
 type QuestionResponse struct {
 	// ID       primitive.ObjectID `json:"_id"`
-	Question primitive.ObjectID `json:"question" validate:"required"` // should this be a reference to the question, or just contain the question's text?
+	Question primitive.ObjectID `json:"questionId" validate:"required"` // should this be a reference to the question, or just contain the question's text?
 	Answer   string             `json:"answer" validate:"required"`
 }
 
 type FormResponse struct {
 	// ID            primitive.ObjectID `json:"_id"`
-	FormStructure primitive.ObjectID `json:"formId"`    // reference to the Form's structure
-	Participant   primitive.ObjectID `json:"userId"`    // submittant's id
-	Responses     []QuestionResponse `json:"responses"` // responses to questions (should be validated in frontend and backend)
+	TournamentID primitive.ObjectID `json:"tournamentId" validate:"required"` // reference to the Form's structure
+	Participant  primitive.ObjectID `json:"userId" validate:"required"`       // submittant's id
+	Responses    []QuestionResponse `json:"responses" validate:"required"`    // responses to questions
+	// (should be validated in frontend and backend)
 }

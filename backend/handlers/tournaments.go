@@ -26,6 +26,14 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 		return
 	}
 
+	if tournament.Form.Questions == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "The Form has no Questions"})
+		return
+	}
+	for i := range tournament.Form.Questions {
+		tournament.Form.Questions[i].ID = primitive.NewObjectID()
+	}
+
 	// validate tournament variable
 	if validationErr := handler.validate.Struct(tournament); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})

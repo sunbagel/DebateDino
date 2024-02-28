@@ -54,11 +54,12 @@ POST /tournaments
 
 Example JSON Body:
 {
-  "name": "Annual Chess Tournament",
+  "name": "Annual Debatemond Tournament",
+  ...
   "form": {
     "questions": [
       {
-        "type": "text",
+        "type": "input",
         "text": "What is your name?"
       },
       {
@@ -85,7 +86,28 @@ Deleting form structure for a tournament (? though it should be mandatory) (NOT 
 ### Form Response:
 
 Submitting Response:
-`POST /tournaments/:id/responses` (NOT DONE)
+```
+POST /tournaments/:id/responses
+{
+  "tournamentId": "123abc",
+  "userId": "456def",
+  "responses": [
+    {
+      "questionId": "<questionObjectId>",
+      "answer": "John Doe"
+    },
+    {
+      "questionId": "<questionObjectId>",
+      "answer": "Debate"
+    },
+    {
+      "questionId": "<questionObjectId>",
+      "answer": "john.doe@example.com"
+    }
+  ]
+}
+
+```
 
 Getting Responses: (NOT DONE)
 ```
