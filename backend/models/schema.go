@@ -33,9 +33,10 @@ type User struct {
 }
 
 type Question struct {
-	ID   primitive.ObjectID `json:"_id" validate:"required"`
-	Type string             `json:"type" validate:"required,oneof=textarea input number"`
-	Text string             `json:"text" validate:"required"`
+	ID         primitive.ObjectID `json:"_id" validate:"required"`
+	Type       string             `json:"type" validate:"required,oneof=textarea input number"`
+	Text       string             `json:"text" validate:"required"`
+	IsRequired bool               `json:"isRequired"`
 }
 
 type Form struct {

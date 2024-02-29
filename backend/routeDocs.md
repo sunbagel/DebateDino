@@ -61,11 +61,13 @@ Example JSON Body:
       {
         "type": "input",
         "text": "What is your name?"
+        "isRequired": true
       },
       {
         "type": "choice", // NOT A THING YET
         "text": "Which category are you interested in?",
         "options": ["Beginner", "Intermediate", "Advanced"]
+        "isRequired": false
       }
 
     ]
