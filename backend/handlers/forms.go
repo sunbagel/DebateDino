@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"server/models"
@@ -15,8 +16,40 @@ import (
 // validate form response
 // helper function
 // takes a FormResponse.Responses array and checks each question against the given question id
-func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, form *models.Form, responses []models.QuestionResponse) error {
-	// Function implementation
+func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tournamentId primitive.ObjectID, responses []models.QuestionResponse) error {
+	// IS NOT CALLED CURRENTLY
+
+	// need to query tournament id to get form object. handler doesn't support that yet.
+	//  will probably have to refactor handler to support multi collections (pass in entire client)
+
+	var form models.Form
+
+	// form questions
+	questionMap := make(map[primitive.ObjectID]models.Question)
+	for _, question := range form.Questions {
+		questionMap[question.ID] = question
+	}
+
+	answeredQuestions := make(map[primitive.ObjectID]bool)
+
+	// check if questions were responded to
+	for _, response := range responses {
+
+		// check if the response to the question even exists in the form
+		if _, exists := questionMap[response.Question]; !exists {
+			// throw
+			return errors.New("form response validation failed: response contains a question that is not part of the form")
+		}
+		answeredQuestions[response.Question] = true
+	}
+
+	for _, question := range form.Questions {
+		// check if question is required and if question was responded to
+		if question.IsRequired && !answeredQuestions[question.ID] {
+			return errors.New("form response validation failed: Answer to response was not found")
+		}
+	}
+
 	return nil
 }
 
@@ -45,6 +78,8 @@ func (handler *RouteHandler) SubmitFormResponse(c *gin.Context) {
 		return
 	}
 
+	// MAY NEED TO VALIDATE FOR DUPLICATE SUBMITS
+
 	// append tournment id to formResponse
 	formResponse.TournamentID = objId
 	fmt.Println("HELLO")
@@ -55,8 +90,10 @@ func (handler *RouteHandler) SubmitFormResponse(c *gin.Context) {
 		return
 	}
 
-	// validate Questions
-	// if err := handler.ValidateFormResponses(ctx,
+	// validate Questions DOESN'T WORK RN
+	// if err := handler.ValidateQuestionResponses(ctx, objId, formResponse.Responses); err != nil {
+
+	// }
 
 	// insert new response
 	result, insertErr := handler.collection.InsertOne(ctx, formResponse)
@@ -77,7 +114,17 @@ func (handler *RouteHandler) GetResponses(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := handler.collection.Find(ctx, bson.M{})
+	// the id is passed through the url
+	tournamentId := c.Param("id")
+
+	// Convert id (string) to mongoDB Objectid
+	objId, err := primitive.ObjectIDFromHex(tournamentId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	cursor, err := handler.collection.Find(ctx, bson.M{"tournamentid": objId})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
