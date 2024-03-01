@@ -168,6 +168,10 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	// define collections
+	// somehow need to bring in configs (cfg) from main
+	userCollection := handler.client.Database("debatedino").Collection("users")
+
 	// body struct for data validation
 	type RegistrationBody struct {
 		UserID string `json:"userID" validate:"required"`
@@ -195,16 +199,6 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	tournamentIDString := c.Param("id")
 	userIDString := body.UserID
 
-	// set userGroup
-	var userGroup string
-	if body.Role == "Debater" {
-		userGroup = "debaters"
-	} else if body.Role == "Judge" {
-		userGroup = "judges"
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
-	}
-
 	// convert the type into ObjectIDs
 	tID, err := primitive.ObjectIDFromHex(tournamentIDString)
 	if err != nil {
@@ -218,18 +212,44 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
+	// set updateBodies (the group to be updated)
+	var tourneyUpdateBody bson.M
+	var userUpdateBody bson.M
+
+	if body.Role == "Debater" {
+		tourneyUpdateBody = bson.M{"debaters": uID}
+		userUpdateBody = bson.M{"debating": tID}
+	} else if body.Role == "Judge" {
+		tourneyUpdateBody = bson.M{"judges": uID}
+		userUpdateBody = bson.M{"judging": tID}
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
+	}
+
 	// update userGroup field (debaters or judges)
-	filter := bson.M{"_id": tID}
-	updateBody := bson.M{userGroup: uID}
-	result, err := handler.collection.UpdateOne(ctx, filter, bson.M{"$addToSet": updateBody})
+	// update tourney
+	tourneyRes, err := handler.collection.UpdateOne(ctx, bson.M{"_id": tID}, bson.M{"$addToSet": tourneyUpdateBody})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if tourneyRes.ModifiedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
+		return
+	}
+
+	// update user
+	userRes, err := userCollection.UpdateOne(ctx, bson.M{"_id": uID}, bson.M{"$addToSet": userUpdateBody})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
 		return
 	}
 
-	if result.ModifiedCount == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
+	if userRes.ModifiedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
