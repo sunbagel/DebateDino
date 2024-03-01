@@ -8,15 +8,16 @@ import (
 
 type Tournament struct {
 	// ID           primitive.ObjectID   `json:"_id"`
-	Host         primitive.ObjectID   `json:"host"`
-	Name         string               `json:"name"`
-	Description  string               `json:"description"`
-	Location     string               `json:"location"`
-	Date         string               `json:"date"`
-	Image        string               `json:"image"`
-	Debaters     []primitive.ObjectID `json:"debaters"`
-	Judges       []primitive.ObjectID `json:"judges"`
-	RefundPolicy string               `json:"refundPolicy"`
+	Host         primitive.ObjectID   `json:"host" validate:"required"`
+	Name         string               `json:"name" validate:"required,min=2"`
+	Description  string               `json:"description" validate:"required,min=10"`
+	Location     string               `json:"location" validate:"required"`
+	Date         string               `json:"date" validate:"required"`  // could add datetime validation
+	Image        string               `json:"image" validate:"required"` // url validation
+	Debaters     []primitive.ObjectID `json:"debaters" validate:"dive,required"`
+	Judges       []primitive.ObjectID `json:"judges" validate:"dive,required"`    // dive checks for nested fields in map/array(slices)
+	Form         *Form                `json:"form" validate:"required,omitempty"` // no empty forms. recursively check subfields.
+	RefundPolicy string               `json:"refundPolicy" validate:"required"`   // could use oneof tag
 }
 
 type User struct {
@@ -32,25 +33,27 @@ type User struct {
 }
 
 type Question struct {
-	// ID   primitive.ObjectID `json:"_id"`
-	Type string   `json:"type"`
-	Text []string `json:"text"`
+	ID         primitive.ObjectID `json:"_id" validate:"required"`
+	Type       string             `json:"type" validate:"required,oneof=textarea input number"`
+	Text       string             `json:"text" validate:"required"`
+	IsRequired bool               `json:"isRequired"`
 }
 
 type Form struct {
 	// ID        primitive.ObjectID `json:"_id"`
-	Questions []Question `json:"questions"`
+	Questions []Question `json:"questions" validate:"required,dive"`
 }
 
 type QuestionResponse struct {
 	// ID       primitive.ObjectID `json:"_id"`
-	Question primitive.ObjectID `json:"question"` // should this be a reference to the question, or just contain the question's text?
-	Answer   string             `json:"answer"`
+	Question primitive.ObjectID `json:"questionId" validate:"required"` // should this be a reference to the question, or just contain the question's text?
+	Answer   string             `json:"answer" validate:"required"`
 }
 
 type FormResponse struct {
 	// ID            primitive.ObjectID `json:"_id"`
-	FormStructure primitive.ObjectID `json:"formId"`    // reference to the Form's structure
-	Participant   primitive.ObjectID `json:"userId"`    // submittant's id
-	Responses     []QuestionResponse `json:"responses"` // responses to questions (should be validated in frontend and backend)
+	TournamentID primitive.ObjectID `json:"tournamentId" validate:"required"` // reference to the Form's structure
+	Participant  primitive.ObjectID `json:"userId" validate:"required"`       // submittant's id
+	Responses    []QuestionResponse `json:"responses" validate:"required"`    // responses to questions
+	// (should be validated in frontend and backend)
 }
