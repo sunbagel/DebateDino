@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"server/models"
@@ -10,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Create Tournament
@@ -226,30 +228,57 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
 	}
 
-	// update userGroup field (debaters or judges)
-	// update tourney
-	tourneyRes, err := handler.collection.UpdateOne(ctx, bson.M{"_id": tID}, bson.M{"$addToSet": tourneyUpdateBody})
+	// START SESSION
+	session, err := handler.client.StartSession()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start session"})
+		return
+	}
+	defer session.EndSession(ctx)
+
+	err = mongo.WithSession(ctx, session, func(sessCtx mongo.SessionContext) error {
+
+		if err := session.StartTransaction(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return err
+		}
+
+		// update userGroup field (debaters or judges)
+		// update tourney
+		tourneyRes, err := handler.collection.UpdateOne(ctx, bson.M{"_id": tID}, bson.M{"$addToSet": tourneyUpdateBody})
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
+			return err
+		}
+
+		if tourneyRes.ModifiedCount == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
+			return errors.New("tournament not found")
+		}
+
+		// update user
+		userRes, err := userCollection.UpdateOne(ctx, bson.M{"_id": uID}, bson.M{"$addToSet": userUpdateBody})
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
+			return err
+		}
+
+		if userRes.ModifiedCount == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return errors.New("user not found")
+		}
+
+		if err := session.CommitTransaction(sessCtx); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return err
+		}
+
+		return nil
+	})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	if tourneyRes.ModifiedCount == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
-		return
-	}
-
-	// update user
-	userRes, err := userCollection.UpdateOne(ctx, bson.M{"_id": uID}, bson.M{"$addToSet": userUpdateBody})
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
-		return
-	}
-
-	if userRes.ModifiedCount == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
