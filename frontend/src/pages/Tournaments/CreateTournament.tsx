@@ -21,7 +21,7 @@ import { Calendar } from "@/shadcn-components/ui/calendar"
 import { Textarea } from "@/shadcn-components/ui/textarea"
 import axios from '@/lib/axios'
 import { useNavigate } from "react-router-dom"
-
+import { useEffect } from "react"
 
 const formSchema = z.object({
     name: z.string().min(2, {
@@ -37,9 +37,8 @@ const formSchema = z.object({
     // participants: z.array(z.string()).optional(),
     // image: z.string().url().optional()
 })
-   
 
-const CreateTournaments = ({navigation}) => {
+const CreateTournaments = () => {
     const navigate = useNavigate();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -58,138 +57,156 @@ const CreateTournaments = ({navigation}) => {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
         console.log(data)
-        axios.post(`/tournaments`, data)
-        .then(res => {
-            const test = res.data;
-            console.log(test);
-            navigate('/tournaments')
-        })
-        .catch(err => {
-            console.log(err);
-        })
-        
+        // axios.post(`/tournaments`, data)
+        // .then(res => {
+        //     const test = res.data;
+        //     console.log(test);
+        //     navigate('/tournaments')
+        // })
+        // .catch(err => {
+        //     console.log(err);
+        // })
+        navigate('/tournaments/create/form', {state: data})
     }
-
+    useEffect(() => {
+        const handleScroll = () => {
+          if (window.scrollY < 0) {
+            document.body.style.overflowY = 'hidden';
+          } else {
+            document.body.style.overflowY = 'auto';
+          }
+        };
+    
+        window.addEventListener('scroll', handleScroll);
+    
+        return () => {
+          window.removeEventListener('scroll', handleScroll);
+        };
+      }, []);
+    
 
 
     return (
         <div className="container mx-auto flex min-h-screen flex-col">
-            <div className="flex justify-between">
-                <div>
+            <div className="flex flex-col md:flex-row">
+                <div className="md:flex-1">
                     <div className="flex pt-10">
                         <div className="flex flex-col">
-                            <h1 className="text-5xl font-bold">Create a Tournament</h1>
+                            <h1 className="text-5xl font-bold">Here's where it all starts</h1>
+                            <br/>
+                            <h2 className="text-2xl text-gray-500">Create a tournament</h2>
                         </div>
                     </div>
                     <div className="pt-5">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                                 <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Tournament Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="How would you like to call it?" {...field} />
-                                        </FormControl>
-                                        <FormDescription>
-                                            This is your tournament name. You may change it later on.
-                                        </FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tournament Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="How would you like to call it?" {...field} />
+                                            </FormControl>
+                                            <FormDescription>
+                                                This is your tournament name. You may change it later on.
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
                                 <FormField
-                                control={form.control}
-                                name="description"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Description</FormLabel>
-                                        <FormControl>
-                                        <Textarea
-                                            placeholder="What's your tournament about?"
-                                            {...field}
-                                        />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                    control={form.control}
+                                    name="description"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Description</FormLabel>
+                                            <FormControl>
+                                            <Textarea
+                                                placeholder="What's your tournament about?"
+                                                {...field}
+                                            />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
                                 <FormField
-                                control={form.control}
-                                name="date"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                    <FormLabel>Date</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-[240px] pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            initialFocus
-                                        />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
+                                    control={form.control}
+                                    name="date"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                        <FormLabel>Date</FormLabel>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-[240px] pl-3 text-left font-normal",
+                                                    !field.value && "text-muted-foreground"
+                                                )}
+                                                >
+                                                {field.value ? (
+                                                    format(field.value, "PPP")
+                                                ) : (
+                                                    <span>Pick a date</span>
+                                                )}
+                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                initialFocus
+                                            />
+                                            </PopoverContent>
+                                        </Popover>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
                                 <FormField
-                                control={form.control}
-                                name="location"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Location</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Where will your tournament be held?" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                    control={form.control}
+                                    name="location"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Location</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Where will your tournament be held?" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
                                 <FormField
-                                control={form.control}
-                                name="refundPolicy"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Refund Policy</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                    control={form.control}
+                                    name="refundPolicy"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Refund Policy</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                                <Button type="submit">Create Tournament</Button>
+                                <Button type="submit">Next</Button>
                             </form>
                         </Form>
                     </div>
                 </div>
-                <div className="p-20">
-                    <img src="../../debatedino.png" alt="Debate Tournaments"/>
+                <div className="flex justify-center items-center z-0 w-full md:w-1/2 m-5">
+                    <img src="../../debaters1.jpg" className="w-full" alt="Debate Tournaments"/>
                 </div>
             </div>
         </div>
+    
     )
 
 }

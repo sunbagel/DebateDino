@@ -9,6 +9,7 @@ import About from './pages/About';
 import Tournaments from './pages/Tournaments/Tournaments';
 import UserProfile from './pages/UserProfile';
 import CreateTournaments from './pages/Tournaments/CreateTournament';
+import CreateTournamentForm from './pages/Tournaments/CreateTournamentForm';
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
           <Route path="/tournaments" element={<Tournaments/>}/>
           <Route path="/profile" element={<UserProfile/>}/>
           <Route path="/tournaments/create" element={<CreateTournaments/>}/>
+          <Route path="/tournaments/create/form" element={<CreateTournamentForm/>}/>
         </Routes>
       </Router>
       
