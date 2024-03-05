@@ -1,18 +1,5 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shadcn-components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/shadcn-components/ui/form";
-import { Input } from "@/shadcn-components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { UseFormGetValues, useFieldArray, useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
-import { z } from "zod";
-import { Switch } from "@/shadcn-components/ui/switch";
-import { Textarea } from "@/shadcn-components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/shadcn-components/ui/radio-group";
-import { Button } from "@/shadcn-components/ui/button";
-import ShortAnswer from "./questions/ShortAnswer";
-import LongAnswer from "./questions/LongAnswer";
-import MultipleChoice from "./questions/MultipleChoice";
 import Question from "./questions/Question";
 
 type initialTournament = {
