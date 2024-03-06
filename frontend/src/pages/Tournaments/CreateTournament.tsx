@@ -21,7 +21,8 @@ import { Calendar } from "@/shadcn-components/ui/calendar"
 import { Textarea } from "@/shadcn-components/ui/textarea"
 import axios from '@/lib/axios'
 import { useNavigate } from "react-router-dom"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shadcn-components/ui/pagination"
 
 const formSchema = z.object({
     name: z.string().min(2, {
@@ -39,6 +40,8 @@ const formSchema = z.object({
 })
 
 const CreateTournaments = () => {
+    const [activePage, setActivePage] = useState(1);
+
     const navigate = useNavigate();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -87,7 +90,27 @@ const CreateTournaments = () => {
 
 
     return (
-        <div className="container mx-auto flex min-h-screen flex-col">
+        <div className="container mx-auto flex min-h-screen flex-col pb-10">
+            {/* <div className="pt-5">
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious href="#" />
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink href="#">1</PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLink href="#" isActive>
+                                2
+                            </PaginationLink>
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationNext href="#" />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            </div> */}
             <div className="flex flex-col md:flex-row">
                 <div className="md:flex-1">
                     <div className="flex pt-10">
@@ -201,8 +224,10 @@ const CreateTournaments = () => {
                         </Form>
                     </div>
                 </div>
-                <div className="flex justify-center items-center z-0 w-full md:w-1/2 m-5">
-                    <img src="../../debaters1.jpg" className="w-full" alt="Debate Tournaments"/>
+                <div className="w-1/2"></div>
+
+                <div className="flex md:fixed justify-center items-center z-0 md:w-1/2 m-5 left-1/2 top-10">
+                    <img src="../../debaters1.png" className="w-full" alt="Debate Tournaments"/>
                 </div>
             </div>
         </div>
