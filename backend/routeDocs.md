@@ -45,6 +45,9 @@ GET /tournaments/:id/users?=role=judge
 - Could use multiquery filter to filter 2/3 of the roles maybe (?)
 
 ## Forms
+- FormStructures are embedded into Tournament documents
+- FormResponses are in their own collection "formResponses"
+  - Maybe there is a better way to collect FormResponses (current solution requires filtering based on tournament/user)
 
 ### Form Structure:
 
@@ -68,6 +71,11 @@ Example JSON Body:
         "text": "Which category are you interested in?",
         "options": ["Beginner", "Intermediate", "Advanced"]
         "isRequired": false
+      },
+      {
+        "type": "select",
+        "text": "select a fruit",
+        "options": ["blueberry", "peach", "watermelon"]
       }
 
     ]
@@ -82,7 +90,7 @@ NEED TO CONSIDER "LOCKING THE FORM", ex. after tournament has been posted, form 
 To maintain data integrity for our form responses (depends how we implement ?)
 `PUT /tournaments/:id/form`
 
-Deleting form structure for a tournament (? though it should be mandatory) (NOT DONE)
+Deleting form structure for a tournament (? though a tournament should always have a form) (NOT DONE)
 `DELETE /tournaments/:id/form`
 
 ### Form Response:

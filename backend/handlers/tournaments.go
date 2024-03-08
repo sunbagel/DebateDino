@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"server/models"
@@ -11,6 +12,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+// validate question
+func validateQuestion(q models.Question) error {
+	if q.Type == "select" && (q.Options == nil || len(q.Options) == 0) {
+		return errors.New("select type questions must have options")
+	}
+
+	return nil
+}
 
 // Create Tournament
 // POST   /api/tournaments/
@@ -32,6 +42,13 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	}
 	for i := range tournament.Form.Questions {
 		tournament.Form.Questions[i].ID = primitive.NewObjectID()
+
+		// check if options are given correctly
+		err := validateQuestion(tournament.Form.Questions[i])
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			return
+		}
 	}
 
 	// validate tournament variable
@@ -40,9 +57,6 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 		fmt.Println(validationErr)
 		return
 	}
-
-	// set ID field (?)
-	// tournament.ID = primitive.NewObjectID()
 
 	// get collection from the handler
 	result, insertErr := handler.collection.InsertOne(ctx, tournament)
