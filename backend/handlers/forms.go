@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"server/models"
+	"slices"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -32,17 +33,28 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 
 	answeredQuestions := make(map[primitive.ObjectID]bool)
 
-	// check if questions were responded to
+	// check if a response doesn't match question
 	for _, response := range responses {
 
-		// check if the response to the question even exists in the form
+		// check if the QuestionResponse exists in the form
 		if _, exists := questionMap[response.Question]; !exists {
 			// throw
 			return errors.New("form response validation failed: response contains a question that is not part of the form")
 		}
+
+		// check if the QuestionResponse has a valid option
+		if questionMap[response.Question].Type == "select" {
+
+			if !slices.Contains(questionMap[response.Question].Options, response.Answer) {
+				return errors.New("form response validation failed: invalid option found in response")
+			}
+
+		}
+
 		answeredQuestions[response.Question] = true
 	}
 
+	// check if question is missing a response
 	for _, question := range form.Questions {
 		// check if question is required and if question was responded to
 		if question.IsRequired && !answeredQuestions[question.ID] {
@@ -82,7 +94,7 @@ func (handler *RouteHandler) SubmitFormResponse(c *gin.Context) {
 
 	// append tournment id to formResponse
 	formResponse.TournamentID = objId
-	fmt.Println("HELLO")
+
 	// validate form response
 	if validationErr := handler.validate.Struct(formResponse); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
