@@ -258,33 +258,32 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 
 		// update userGroup field (debaters or judges)
 		// update tourney
-		tourneyRes, err := handler.collection.UpdateOne(ctx, bson.M{"_id": tID}, bson.M{"$addToSet": tourneyUpdateBody})
+		tourneyRes, err := handler.collection.UpdateOne(sessCtx, bson.M{"_id": tID}, bson.M{"$addToSet": tourneyUpdateBody})
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
+			session.AbortTransaction(sessCtx)
 			return err
 		}
 
 		if tourneyRes.ModifiedCount == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
+			session.AbortTransaction(sessCtx)
 			return errors.New("tournament not found")
 		}
 
 		// update user
-		userRes, err := userCollection.UpdateOne(ctx, bson.M{"_id": uID}, bson.M{"$addToSet": userUpdateBody})
+		userRes, err := userCollection.UpdateOne(sessCtx, bson.M{"_id": uID}, bson.M{"$addToSet": userUpdateBody})
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
+			session.AbortTransaction(sessCtx)
 			return err
 		}
 
 		if userRes.ModifiedCount == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			session.AbortTransaction(sessCtx)
 			return errors.New("user not found")
 		}
 
 		if err := session.CommitTransaction(sessCtx); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return err
 		}
 
@@ -292,6 +291,12 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	})
 
 	if err != nil {
+		if err.Error() == "tournament not found" || err.Error() == "user not found" {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+
 		return
 	}
 
