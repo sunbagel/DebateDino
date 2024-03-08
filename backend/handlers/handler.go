@@ -11,12 +11,13 @@ import (
 
 // if we need more fields in the future, we can use struct embedding to "extend" (like a subclass) the RouteHandler
 type RouteHandler struct {
+	client     *mongo.Client
 	collection *mongo.Collection
 	validate   *validator.Validate
 }
 
 // "constructor"
 // returns an instance of RouteHandler struct
-func NewRouteHandler(collection *mongo.Collection, validate *validator.Validate) *RouteHandler {
-	return &RouteHandler{collection: collection, validate: validate}
+func NewRouteHandler(client *mongo.Client, collection *mongo.Collection, validate *validator.Validate) *RouteHandler {
+	return &RouteHandler{client: client, collection: collection, validate: validate}
 }

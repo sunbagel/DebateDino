@@ -14,22 +14,22 @@ type Tournament struct {
 	Location     string               `json:"location" validate:"required"`
 	Date         string               `json:"date" validate:"required"`  // could add datetime validation
 	Image        string               `json:"image" validate:"required"` // url validation
-	Debaters     []primitive.ObjectID `json:"debaters" validate:"dive,required"`
-	Judges       []primitive.ObjectID `json:"judges" validate:"dive,required"`    // dive checks for nested fields in map/array(slices)
+	Debaters     []primitive.ObjectID `json:"debaters" validate:"required,dive"`
+	Judges       []primitive.ObjectID `json:"judges" validate:"required,dive"`    // dive checks for nested fields in map/array(slices)
 	Form         *Form                `json:"form" validate:"required,omitempty"` // no empty forms. recursively check subfields.
 	RefundPolicy string               `json:"refundPolicy" validate:"required"`   // could use oneof tag
 }
 
 type User struct {
 	// ID            primitive.ObjectID   `json:"_id"`
-	Name        string               `json:"name"`
-	Password    string               `json:"password"`
-	Email       string               `json:"email"`
-	Institution string               `json:"institution"`
-	Agreement   string               `json:"agreement"`
-	Debating    []primitive.ObjectID `json:"debating"`
-	Judging     []primitive.ObjectID `json:"judging"`
-	Hosting     []primitive.ObjectID `json:"hosting"`
+	Name        string               `json:"name" validate:"required"`
+	Password    string               `json:"password" validate:"required"`
+	Email       string               `json:"email" validate:"required"`
+	Institution string               `json:"institution" validate:"required"`
+	Agreement   string               `json:"agreement" validate:"required"`
+	Debating    []primitive.ObjectID `json:"debating" validate:"required,dive"`
+	Judging     []primitive.ObjectID `json:"judging" validate:"required,dive"`
+	Hosting     []primitive.ObjectID `json:"hosting" validate:"required,dive"`
 }
 
 type Question struct {
