@@ -8,7 +8,7 @@ export type Tournament = {
     location: string,
     refundPolicy: string,
     judges: Array<string>,
-    participants: Array<string>,
+    debaters: Array<string>,
     image: string,
     form: {
         questions: [
@@ -41,7 +41,7 @@ export const tournamentSchema = z.object({
         message: 'Refund Policy is required'
     }),
     judges: z.array(z.string()).optional(),
-    participants: z.array(z.string()).optional(),
+    debaters: z.array(z.string()).optional(),
     image: z.string().optional(),
     form: z.object({
         questions: z.array(z.object({
@@ -62,15 +62,15 @@ export const tournamentSchema = z.object({
 })
 
 export const defaultTournament: Tournament = {
-    host: "",
+    host: "65d69c469d47c04d60421fdb",
     name: "",
     description: "",
     date: "",
     location: "",
     refundPolicy: "",
     judges: [],
-    participants: [],
-    image: "",
+    debaters: [],
+    image: "image url placeholder?",
     form: {
         questions: [
             {

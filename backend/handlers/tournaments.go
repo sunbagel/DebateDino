@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"server/models"
@@ -10,7 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+// validate question
+func validateQuestion(q models.Question) error {
+	if q.Type == "select" && (q.Options == nil || len(q.Options) == 0) {
+		return errors.New("select type questions must have options")
+	}
+
+	return nil
+}
 
 // Create Tournament
 // POST   /api/tournaments/
@@ -32,6 +43,13 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	}
 	for i := range tournament.Form.Questions {
 		tournament.Form.Questions[i].ID = primitive.NewObjectID()
+
+		// check if options are given correctly
+		err := validateQuestion(tournament.Form.Questions[i])
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			return
+		}
 	}
 
 	// validate tournament variable
@@ -40,9 +58,6 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 		fmt.Println(validationErr)
 		return
 	}
-
-	// set ID field (?)
-	// tournament.ID = primitive.NewObjectID()
 
 	// get collection from the handler
 	result, insertErr := handler.collection.InsertOne(ctx, tournament)
@@ -168,6 +183,10 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	// define collections
+	// somehow need to bring in configs (cfg) from main
+	userCollection := handler.client.Database("debatedino").Collection("users")
+
 	// body struct for data validation
 	type RegistrationBody struct {
 		UserID string `json:"userID" validate:"required"`
@@ -195,16 +214,6 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	tournamentIDString := c.Param("id")
 	userIDString := body.UserID
 
-	// set userGroup
-	var userGroup string
-	if body.Role == "Debater" {
-		userGroup = "debaters"
-	} else if body.Role == "Judge" {
-		userGroup = "judges"
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
-	}
-
 	// convert the type into ObjectIDs
 	tID, err := primitive.ObjectIDFromHex(tournamentIDString)
 	if err != nil {
@@ -218,18 +227,76 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	// update userGroup field (debaters or judges)
-	filter := bson.M{"_id": tID}
-	updateBody := bson.M{userGroup: uID}
-	result, err := handler.collection.UpdateOne(ctx, filter, bson.M{"$addToSet": updateBody})
+	// set updateBodies (the group to be updated)
+	var tourneyUpdateBody bson.M
+	var userUpdateBody bson.M
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not register user to tournament"})
-		return
+	if body.Role == "Debater" {
+		tourneyUpdateBody = bson.M{"debaters": uID}
+		userUpdateBody = bson.M{"debating": tID}
+	} else if body.Role == "Judge" {
+		tourneyUpdateBody = bson.M{"judges": uID}
+		userUpdateBody = bson.M{"judging": tID}
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role"})
 	}
 
-	if result.ModifiedCount == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
+	// START SESSION
+	session, err := handler.client.StartSession()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start session"})
+		return
+	}
+	defer session.EndSession(ctx)
+
+	err = mongo.WithSession(ctx, session, func(sessCtx mongo.SessionContext) error {
+
+		if err := session.StartTransaction(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return err
+		}
+
+		// update userGroup field (debaters or judges)
+		// update tourney
+		tourneyRes, err := handler.collection.UpdateOne(sessCtx, bson.M{"_id": tID}, bson.M{"$addToSet": tourneyUpdateBody})
+
+		if err != nil {
+			session.AbortTransaction(sessCtx)
+			return err
+		}
+
+		if tourneyRes.ModifiedCount == 0 {
+			session.AbortTransaction(sessCtx)
+			return errors.New("tournament not found")
+		}
+
+		// update user
+		userRes, err := userCollection.UpdateOne(sessCtx, bson.M{"_id": uID}, bson.M{"$addToSet": userUpdateBody})
+
+		if err != nil {
+			session.AbortTransaction(sessCtx)
+			return err
+		}
+
+		if userRes.ModifiedCount == 0 {
+			session.AbortTransaction(sessCtx)
+			return errors.New("user not found")
+		}
+
+		if err := session.CommitTransaction(sessCtx); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		if err.Error() == "tournament not found" || err.Error() == "user not found" {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+
 		return
 	}
 

@@ -34,9 +34,9 @@ func main() {
 	formResponseCollection := client.Database(cfg.DBname).Collection("formResponses")
 
 	// create handlers
-	userHandler := handlers.NewRouteHandler(userCollection, validate)
-	tournamentsHandler := handlers.NewRouteHandler(tournamentCollection, validate)
-	formResponseHandler := handlers.NewRouteHandler(formResponseCollection, validate)
+	userHandler := handlers.NewRouteHandler(client, userCollection, validate)
+	tournamentsHandler := handlers.NewRouteHandler(client, tournamentCollection, validate)
+	formResponseHandler := handlers.NewRouteHandler(client, formResponseCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {

@@ -6,23 +6,32 @@ import (
 	"fmt"
 	"net/http"
 	"server/models"
+	"slices"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // validate form response
 // helper function
 // takes a FormResponse.Responses array and checks each question against the given question id
 func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tournamentId primitive.ObjectID, responses []models.QuestionResponse) error {
-	// IS NOT CALLED CURRENTLY
 
-	// need to query tournament id to get form object. handler doesn't support that yet.
-	//  will probably have to refactor handler to support multi collections (pass in entire client)
+	// query tourney collection for tournament form
+	tournamentCollection := handler.client.Database("debatedino").Collection("tournaments")
 
-	var form models.Form
+	var tournament models.Tournament
+	if err := tournamentCollection.FindOne(ctx, bson.M{"_id": tournamentId}).Decode(&tournament); err != nil {
+		return err
+	}
+
+	form := tournament.Form
+	if err := handler.validate.Struct(form); err != nil {
+		return err
+	}
 
 	// form questions
 	questionMap := make(map[primitive.ObjectID]models.Question)
@@ -32,17 +41,29 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 
 	answeredQuestions := make(map[primitive.ObjectID]bool)
 
-	// check if questions were responded to
+	// check if a response doesn't match question
 	for _, response := range responses {
 
-		// check if the response to the question even exists in the form
+		// check if the QuestionResponse exists in the form
 		if _, exists := questionMap[response.Question]; !exists {
 			// throw
+			fmt.Println(response.Question)
 			return errors.New("form response validation failed: response contains a question that is not part of the form")
 		}
+
+		// check if the QuestionResponse has a valid option
+		if questionMap[response.Question].Type == "select" {
+
+			if !slices.Contains(questionMap[response.Question].Options, response.Answer) {
+				return errors.New("form response validation failed: invalid option found in response")
+			}
+
+		}
+
 		answeredQuestions[response.Question] = true
 	}
 
+	// check if question is missing a response
 	for _, question := range form.Questions {
 		// check if question is required and if question was responded to
 		if question.IsRequired && !answeredQuestions[question.ID] {
@@ -82,7 +103,7 @@ func (handler *RouteHandler) SubmitFormResponse(c *gin.Context) {
 
 	// append tournment id to formResponse
 	formResponse.TournamentID = objId
-	fmt.Println("HELLO")
+
 	// validate form response
 	if validationErr := handler.validate.Struct(formResponse); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
@@ -91,9 +112,14 @@ func (handler *RouteHandler) SubmitFormResponse(c *gin.Context) {
 	}
 
 	// validate Questions DOESN'T WORK RN
-	// if err := handler.ValidateQuestionResponses(ctx, objId, formResponse.Responses); err != nil {
-
-	// }
+	if err := handler.ValidateQuestionResponses(ctx, objId, formResponse.Responses); err != nil {
+		if err == mongo.ErrNoDocuments {
+			c.JSON(http.StatusNotFound, gin.H{"error": "tournament not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	// insert new response
 	result, insertErr := handler.collection.InsertOne(ctx, formResponse)

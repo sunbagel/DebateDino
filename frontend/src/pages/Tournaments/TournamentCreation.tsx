@@ -54,6 +54,7 @@ const steps = [
 ];
 
 const CreateTournaments = () => {
+    const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(0);
 
     const form = useForm<Inputs>({
@@ -67,9 +68,14 @@ const CreateTournaments = () => {
     })
 
     const processForm: SubmitHandler<Inputs> = (values: z.infer<typeof tournamentSchema>) => {
-        axios.post(`tournaments`, values)
+        let tournamentId;
+        console.log(values);
+        axios.post('tournaments', values)
         .then(res => {
-            
+            tournamentId = res.data.InsertedID;
+            console.log(tournamentId);
+            form.reset();
+            navigate('/tournaments')
         })
         .catch(err => {
             console.log(err);
