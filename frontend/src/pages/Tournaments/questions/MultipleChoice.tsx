@@ -18,84 +18,75 @@ const multipleChoiceSchema = z.object({
     ).nonempty({message: "This question must have choices"})
 })
   
-function MultipleChoice() {
+function MultipleChoice({form, idx}) {
 
-    const multipleChoiceForm = useForm<z.infer<typeof multipleChoiceSchema>>({
-        resolver: zodResolver(multipleChoiceSchema),
-        defaultValues: {
-            isrequired: false,
-            text: "",
-            choices: []
-        },
-      })
-    
-      const {fields, append, remove} = useFieldArray({
-        name: "choices",
-        control: multipleChoiceForm.control
-      })
+    const {fields, append, remove} = useFieldArray({
+        name: `form.questions.${idx}.options`,
+        control: form.control
+    })
     return (
         <Card className='pt-5 mt-5'>
             <CardContent>
-                <Form {...multipleChoiceForm}>
-                    <FormField
-                        control={multipleChoiceForm.control}
-                        name="text"
-                        render={({ field }) => (
-                            <FormItem>
+                <FormField
+                    control={form.control}
+                    name={`form.questions.${idx}.text`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Question</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Unnamed Question" {...field} />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+                <div className="pt-5">
+                    <FormLabel className="pt-5 pb-0">Choices</FormLabel>
+                </div>
+                <RadioGroup className='pt-5'>
+                    {fields.map((item, index) => {
+                        return (
+                        <div key={item.id} className="pt-2 pb-2 flex-row flex items-center gap-3">
+                            <RadioGroupItem value="default" id="r1" disabled/>
+                            <FormField 
+                                control={form.control}
+                                name={`form.questions.${idx}.options.${index}`}
+                                render={({field}) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <Button onClick={() => remove(index)}>Delete</Button>
+                        </div>
+                        )
+                    })}
+                </RadioGroup>
+                <div className="pt-2">
+                    <FormField 
+                        control={form.control}
+                        name="choices"
+                        render={() => (
+                            <Button onClick={() => append("")}>Add New Choice</Button>
+                        )}
+                    />
+                </div>
+                <FormField
+                    control={form.control}
+                    name="isrequired"
+                    render={({ field }) => (
+                        <FormItem>
+                            <div className="pt-4 space-y-0.5 flex flex-row items-center gap-3">
+                                <FormLabel>Required</FormLabel>
+                                
                                 <FormControl>
-                                    <Input placeholder="Unnamed Question" {...field} />
+                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                                 </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <RadioGroup>
-                        {fields.map((item, index) => {
-                            return (
-                            <div key={item.id} className="pt-2 pb-2 flex-row flex items-center gap-3">
-                                <RadioGroupItem value="default" id="r1" disabled/>
-                                <FormField 
-                                    control={multipleChoiceForm.control}
-                                    name={`choices.${index}.text`}
-                                    render={({field}) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <Input {...field} defaultValue={item.text}/>
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-                                <Button onClick={() => remove(index)}>Delete</Button>
                             </div>
-                            )
-                        })}
-                    </RadioGroup>
-                    <div className="pt-2">
-                        <FormField 
-                            control={multipleChoiceForm.control}
-                            name="choices"
-                            render={() => (
-                                <Button onClick={() => append({
-                                    text: ''
-                                })}>Add New Choice</Button>
-                            )}
-                        />
-                    </div>
-                    <FormField
-                        control={multipleChoiceForm.control}
-                        name="isrequired"
-                        render={({ field }) => (
-                            <FormItem>
-                                <div className="pt-4 space-y-0.5 flex flex-row items-center gap-3">
-                                    <FormLabel>Required</FormLabel>
-                                    
-                                    <FormControl>
-                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                    </FormControl>
-                                </div>
-                            </FormItem>
-                        )}
-                    />
-                </Form>
+                        </FormItem>
+                    )}
+                />
             </CardContent>
         </Card>
     )
