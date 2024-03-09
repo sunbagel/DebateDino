@@ -8,7 +8,7 @@ import NavBar from './components/NavBar'
 import About from './pages/About';
 import Tournaments from './pages/Tournaments/Tournaments';
 import UserProfile from './pages/UserProfile';
-import CreateTournaments from './pages/Tournaments/CreateTournament';
+import CreateTournaments from './pages/Tournaments/TournamentCreation';
 import CreateTournamentForm from './pages/Tournaments/CreateTournamentForm';
 
 function App() {

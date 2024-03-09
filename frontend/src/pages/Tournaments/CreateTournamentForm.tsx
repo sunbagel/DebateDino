@@ -12,13 +12,6 @@ type initialTournament = {
   refundPolicy: string;
 }
 
-interface Question {
-  type: string;
-  id: number;
-}
-
-
-
 const CreateTournamentForm = () => {
   const location = useLocation();
   const locationState = (location.state as {data? : initialTournament})
@@ -78,51 +71,48 @@ const CreateTournamentForm = () => {
   }
 
   return (
-    <div className="container mx-auto flex min-h-screen flex-col">
-      <div className="flex flex-col md:flex-row">
-        <div className="w-1/2"></div>
-        <div className="flex md:fixed justify-center items-center z-0 w-full md:w-1/2 m-5 left-0 top-10">
-          <img src="../../survey.png" className="w-full" alt="Debate Tournaments"/>
-        </div>
-        <div className="md:flex-1">
-          <div className="flex pt-10">
-            <div className="flex flex-col">
-              <h1 className="text-5xl font-bold">What do you want to ask your participants?</h1>
-              <br/>
-              <h2 className="text-2xl text-gray-500">Create a Form</h2>
-            </div>
-          </div>
-          <div className="pt-5">
-
-            <DragDropContext onDragEnd={handleOnDragEnd}>
-              <Droppable droppableId="questions">
-                {(provided) => (
-                  <ul className="questions" {...provided.droppableProps} ref={provided.innerRef}>
-                    {questions.map(({id}, index) => {
-                      return (
-                        <Draggable key={id.toString()} draggableId={id.toString()} index={index}>
-                          {(provided) => (
-                            <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                              <div key={id}>
-                                <Question deleteQuestion={deleteQuestion} id={id} questions={questions} editQuestion={editQuestion} />
-                              </div>
-                            </li>
-                          )}
-                        </Draggable>
-                      )
-                    })}
-                  </ul>
-                )}
-              </Droppable>
-            </DragDropContext>
-
-
-          </div>
-          <div className="pt-5 flex justify-center">
-            <Button onClick={addNewQuestion} className="w-full">Add</Button>
+    <div className="flex flex-col md:flex-row">
+      <div className="md:flex-1">
+        <div className="flex pt-10">
+          <div className="flex flex-col">
+            <h1 className="text-5xl font-bold">What do you want to ask your participants?</h1>
+            <br/>
+            <h2 className="text-2xl text-gray-500">Create a Form</h2>
           </div>
         </div>
-        
+        <div className="pt-5">
+
+          <DragDropContext onDragEnd={handleOnDragEnd}>
+            <Droppable droppableId="questions">
+              {(provided) => (
+                <ul className="questions" {...provided.droppableProps} ref={provided.innerRef}>
+                  {questions.map(({id}, index) => {
+                    return (
+                      <Draggable key={id.toString()} draggableId={id.toString()} index={index}>
+                        {(provided) => (
+                          <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                            <div key={id}>
+                              <Question deleteQuestion={deleteQuestion} id={id} questions={questions} editQuestion={editQuestion} />
+                            </div>
+                          </li>
+                        )}
+                      </Draggable>
+                    )
+                  })}
+                </ul>
+              )}
+            </Droppable>
+          </DragDropContext>
+
+
+        </div>
+        <div className="pt-5 flex justify-center">
+          <Button onClick={addNewQuestion} className="w-full">Add</Button>
+        </div>
+      </div>
+      <div className='md:w-1/2'></div>
+      <div className="flex md:fixed justify-center items-center z-0 md:w-1/2 m-5 left-1/2 top-10">
+        <img src="../../survey.png" className="w-full" alt="Debate Tournaments"/>
       </div>
     </div>
   );
