@@ -1,22 +1,10 @@
 import { Button } from '@/shadcn-components/ui/button'
 import { Card, CardContent } from '@/shadcn-components/ui/card'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/shadcn-components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel } from '@/shadcn-components/ui/form'
 import { Input } from '@/shadcn-components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/shadcn-components/ui/radio-group'
 import { Switch } from '@/shadcn-components/ui/switch'
-import { zodResolver } from '@hookform/resolvers/zod'
-import React from 'react'
-import { useFieldArray, useForm } from 'react-hook-form'
-import { z } from 'zod'
-const multipleChoiceSchema = z.object({
-    isrequired: z.boolean(),
-    text: z.string(),
-    choices: z.array(
-        z.object({
-            text: z.string()
-        })
-    ).nonempty({message: "This question must have choices"})
-})
+import { useFieldArray } from 'react-hook-form'
   
 function MultipleChoice({form, idx}) {
 

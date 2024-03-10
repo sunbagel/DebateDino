@@ -1,9 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form"
 import { z } from "zod"
-import {motion} from 'framer-motion'
 import { format } from "date-fns"
-
 import { Button } from "@/shadcn-components/ui/button"
 import {
   Form,
@@ -22,15 +20,14 @@ import { Calendar } from "@/shadcn-components/ui/calendar"
 import { Textarea } from "@/shadcn-components/ui/textarea"
 import axios from '@/lib/axios'
 import { useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shadcn-components/ui/pagination"
-import CreateTournamentStart from "./CreateTournamentStart"
-import CreateTournamentForm from "./CreateTournamentForm"
-import { Tournament, defaultTournament, tournamentSchema } from "@/types/tournaments"
+import { defaultTournament, tournamentSchema } from "@/types/tournaments"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shadcn-components/ui/select"
-import { Card, CardContent, CardHeader } from "@/shadcn-components/ui/card"
-import { Switch } from "@/shadcn-components/ui/switch"
+import { Card, CardContent } from "@/shadcn-components/ui/card"
 import MultipleChoice from "./questions/MultipleChoice"
+import LongAnswer from "./questions/LongAnswer"
+import ShortAnswer from "./questions/ShortAnswer"
 
 
 type Inputs = z.infer<typeof tournamentSchema>
@@ -315,7 +312,7 @@ const CreateTournaments = () => {
                                                                     <SelectContent>
                                                                         <SelectItem value="input">Short Answer</SelectItem>
                                                                         <SelectItem value="textarea">Long Answer</SelectItem>
-                                                                        <SelectItem value="select">Multi-Select</SelectItem>
+                                                                        <SelectItem value="select">Multiple Choice</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                                 <FormMessage />
@@ -327,79 +324,11 @@ const CreateTournaments = () => {
                                                     </Button>
                                                 </div>
                                                 {type === 'input' && (
-                                                    <Card className='pt-5 mt-5'>
-                                                        <CardContent>
-                                                            <FormField
-                                                                control={form.control}
-                                                                name={`form.questions.${index}.text`}
-                                                                render={({ field }) => (
-                                                                    <FormItem>
-                                                                        <FormControl>
-                                                                            <Input placeholder="Unnamed Question" {...field} />
-                                                                        </FormControl>
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormItem>
-                                                                <FormLabel></FormLabel>
-                                                                <FormControl>
-                                                                    <Input placeholder="Short Answer Text" disabled />
-                                                                </FormControl>
-                                                            </FormItem>
-                                                            <FormField
-                                                                control={form.control}
-                                                                name={`form.questions.${index}.isRequired`}
-                                                                render={({ field }) => (
-                                                                    <FormItem>
-                                                                        <div className="pt-4 space-y-0.5 flex flex-row items-center gap-3">
-                                                                            <FormLabel>Required</FormLabel>
-                                                                            <FormControl>
-                                                                                <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                                                            </FormControl>
-                                                                        </div>
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                        </CardContent>
-                                                    </Card>
+                                                    <ShortAnswer form={form} idx={index} />
                                                 )}
 
                                                 {type === 'textarea' && (
-                                                    <Card className='pt-5 mt-5'>
-                                                        <CardContent>
-                                                            <FormField
-                                                                control={form.control}
-                                                                name={`form.questions.${index}.text`}
-                                                                render={({ field }) => (
-                                                                <FormItem>
-                                                                    <FormControl>
-                                                                        <Input placeholder="Unnamed Question" {...field} />
-                                                                    </FormControl>
-                                                                </FormItem>
-                                                            )}
-                                                            />
-                                                            <FormItem>
-                                                                <FormLabel></FormLabel>
-                                                                <FormControl>
-                                                                    <Textarea placeholder="Long Answer Text" disabled />
-                                                                </FormControl>
-                                                            </FormItem>
-                                                            <FormField
-                                                                control={form.control}
-                                                                name={`form.questions.${index}.isRequired`}
-                                                                render={({ field }) => (
-                                                                <FormItem>
-                                                                    <div className="pt-4 space-y-0.5 flex flex-row items-center gap-3">
-                                                                        <FormLabel>Required</FormLabel>
-                                                                        <FormControl>
-                                                                            <Switch checked={field.value} onCheckedChange={field.onChange} />
-                                                                        </FormControl>
-                                                                    </div>
-                                                                </FormItem>
-                                                            )}
-                                                            />
-                                                        </CardContent>
-                                                    </Card>
+                                                    <LongAnswer form={form} idx={index} />
                                                 )}
 
                                                 {type === 'select' && (
