@@ -5,13 +5,15 @@
 
 ### Registering Users:
 Role is one of: "Debater", "Judge"
+**Edit: Debaters should be registered via form submission**
+
 ```
 POST /tournaments/:id/registration
 
 Body: 
 {
     "userID": "65db8527dc2cf06766de1572"
-    "role": "Debater"
+    "role": "Judge"
 }
 ```
 
@@ -93,11 +95,11 @@ To maintain data integrity for our form responses (depends how we implement ?)
 Deleting form structure for a tournament (? though a tournament should always have a form) (NOT DONE)
 `DELETE /tournaments/:id/form`
 
-### Form Response:
+### Registration:
 
-Submitting Response:
+Submitting a Registration
 ```
-POST /tournaments/:id/responses
+POST /tournaments/:id/registrations
 {
   "tournamentId": "123abc",
   "userId": "456def",
@@ -119,16 +121,16 @@ POST /tournaments/:id/responses
 
 ```
 
-Getting Responses: (NOT DONE)
+Getting Registrations: (NOT DONE)
 ```
-Get all responses:
-GET /tournaments/:id/responses
+Get all Registrations:
+GET /tournaments/:id/registrations
 
 Filter by user (? possible)
-GET /tournaments/:id/responses/?user=BOBBY WOBBY CHO
+GET /tournaments/:id/registrations/?user=BOBBY WOBBY CHO
 
 Get specific response:
-GET /tournaments/:id/responses/:responseID
+GET /tournaments/:id/registrations/:registrationsId
 ```
 
 

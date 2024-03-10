@@ -8,12 +8,15 @@ import (
 
 type Tournament struct {
 	// ID           primitive.ObjectID   `json:"_id"`
-	Host         primitive.ObjectID   `json:"host" validate:"required"`
-	Name         string               `json:"name" validate:"required,min=2"`
-	Description  string               `json:"description" validate:"required,min=10"`
-	Location     string               `json:"location" validate:"required"`
-	Date         string               `json:"date" validate:"required"`  // could add datetime validation
-	Image        string               `json:"image" validate:"required"` // url validation
+	Host            primitive.ObjectID `json:"host" validate:"required"`
+	Name            string             `json:"name" validate:"required,min=2"`
+	Description     string             `json:"description" validate:"required,min=10"`
+	Location        string             `json:"location" validate:"required"`
+	Date            string             `json:"date" validate:"required"`  // could add datetime validation
+	Image           string             `json:"image" validate:"required"` // url validation
+	DebatersPerTeam int                `json:"debatersPerTeam" validate:"required,min=1"`
+	MaxTeams        int                `json:"maxTeams" validate:"required,min=2"` // could be optional?
+	// MaxTeamsPerRegistrant
 	Debaters     []primitive.ObjectID `json:"debaters" validate:"required,dive"`
 	Judges       []primitive.ObjectID `json:"judges" validate:"required,dive"`    // dive checks for nested fields in map/array(slices)
 	Form         *Form                `json:"form" validate:"required,omitempty"` // no empty forms. recursively check subfields.
@@ -51,10 +54,10 @@ type QuestionResponse struct {
 	Answer   string             `json:"answer" validate:"required"`
 }
 
-type FormResponse struct {
+type Registration struct {
 	// ID            primitive.ObjectID `json:"_id"`
-	TournamentID primitive.ObjectID `json:"tournamentId" validate:"required"` // reference to the Form's structure
-	Participant  primitive.ObjectID `json:"userId" validate:"required"`       // submittant's id
-	Responses    []QuestionResponse `json:"responses" validate:"required"`    // responses to questions
+	TournamentID  primitive.ObjectID `json:"tournamentId" validate:"required"` // reference to the Form's structure
+	ParticipantID primitive.ObjectID `json:"userId" validate:"required"`       // submittant's id
+	Responses     []QuestionResponse `json:"responses" validate:"required"`    // responses to questions
 	// (should be validated in frontend and backend)
 }
