@@ -1,17 +1,60 @@
 # Documentation for Endpoints:
 
+## Tournaments:
+
+```
+POST /tournaments/
+{
+    "host" : "65d69c469d47c04d60421fdb",
+    "name" : "Tournament Registration Test",
+    "description" : "TESTING REGISTRATION",
+    "location" : "kings",
+    "date" : "2/26/2024",
+    "debatersPerTeam": 2,
+    "maxTeams": 20,
+    "maxTeamSlots": 4,
+    "image" : "image url placeholder?",
+    "form": {
+        "questions" : [
+            {
+                "type": "textarea",
+                "text": "wassup?",
+                "isRequired": true
+            },
+
+            {
+                "type": "input",
+                "text": "whats ur name"
+            },
+
+            {
+                "type": "select",
+                "text": "select a fruit",
+                "options": ["blueberry", "peach", "watermelon"],
+                "isRequired": true
+            }
+        ]
+    },
+    "debaters" : [],
+    "judges" : [],
+    "refundPolicy" : "NO REFUNDMOND"
+}
+
+```
 
 ## Users and Tournaments:
 
 ### Registering Users:
 Role is one of: "Debater", "Judge"
+**Edit: Debaters should be registered via form submission**
+
 ```
 POST /tournaments/:id/registration
 
 Body: 
 {
     "userID": "65db8527dc2cf06766de1572"
-    "role": "Debater"
+    "role": "Judge"
 }
 ```
 
@@ -93,42 +136,136 @@ To maintain data integrity for our form responses (depends how we implement ?)
 Deleting form structure for a tournament (? though a tournament should always have a form) (NOT DONE)
 `DELETE /tournaments/:id/form`
 
-### Form Response:
+### Registration:
 
-Submitting Response:
+Submitting a Registration
 ```
-POST /tournaments/:id/responses
+POST /tournaments/:id/registrations
 {
-  "tournamentId": "123abc",
-  "userId": "456def",
-  "responses": [
+  "userId": "65e2331c8ff69d41e5674747", // alex3
+  "generalResponses": [
     {
-      "questionId": "<questionObjectId>",
-      "answer": "John Doe"
+      "questionId": "65ee474c89202005ee1e085e",
+      "answer": "not much, up dog?"
     },
     {
-      "questionId": "<questionObjectId>",
-      "answer": "Debate"
+      "questionId": "65ee474c89202005ee1e085f",
+      "answer": "signing up team! (ALEX 3)"
     },
     {
-      "questionId": "<questionObjectId>",
-      "answer": "john.doe@example.com"
+      "questionId": "65ee474c89202005ee1e0860",
+      "answer": "peach"
+    }
+  ],
+  "teams": [
+    // team gentlemen (1)
+    {
+        // general responses
+        "teamResponses": [
+            {
+                "questionId": "65ee474c89202005ee1e0861",
+                "answer": "team gentlemen"
+            },
+            {
+                "questionId": "65ee474c89202005ee1e0862",
+                "answer": "top hat"
+            }
+
+        ],
+        //members
+        "members": [
+            // member 1
+            {
+                
+                "memberResponses": [
+                    {
+                        "questionId": "65ee474c89202005ee1e0863",
+                        "answer": "Bobby Wobby Cho"
+                    },
+                    {
+                        "questionId": "65ee474c89202005ee1e0864",
+                        "answer": "orange"
+                    }
+                ]
+            },
+            // member 2
+            {
+                
+                "memberResponses": [
+                    {
+                        "questionId": "65ee474c89202005ee1e0863",
+                        "answer": "Alex"
+                    },
+                    {
+                        "questionId": "65ee474c89202005ee1e0864",
+                        "answer": "blue"
+                    }
+                ]
+            }
+            
+
+        ]
+    },
+    // team cool guys (2)
+    {
+        "teamResponses": [
+             {
+                "questionId": "65ee474c89202005ee1e0861",
+                "answer": "team cool guys"
+            },
+            {
+                "questionId": "65ee474c89202005ee1e0862",
+                "answer": "bucket hat"
+            }
+
+        ],
+        // members
+        "members": [
+            // member 3
+            {
+                
+                "memberResponses": [
+                    {
+                        "questionId": "65ee474c89202005ee1e0863",
+                        "answer": "Raymond"
+                    },
+                    {
+                        "questionId": "65ee474c89202005ee1e0864",
+                        "answer": "orange"
+                    }
+                ]
+            },
+            // member 4
+            {
+                
+                "memberResponses": [
+                    {
+                        "questionId": "65ee474c89202005ee1e0863",
+                        "answer": "Kevin"
+                    },
+                    {
+                        "questionId": "65ee474c89202005ee1e0864",
+                        "answer": "blue"
+                    }
+                ]
+            }
+        ]
     }
   ]
 }
 
 ```
 
-Getting Responses: (NOT DONE)
+Getting Registrations: (NOT DONE)
 ```
-Get all responses:
-GET /tournaments/:id/responses
+Get all Registrations:
+GET /tournaments/:id/registrations
 
 Filter by user (? possible)
-GET /tournaments/:id/responses/?user=BOBBY WOBBY CHO
+GET /tournaments/:id/registrations/?user=BOBBY WOBBY CHO
 
 Get specific response:
-GET /tournaments/:id/responses/:responseID
+GET /tournaments/:id/registrations/:registrationsId
 ```
 
 
