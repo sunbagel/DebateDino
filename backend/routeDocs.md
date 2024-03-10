@@ -1,5 +1,46 @@
 # Documentation for Endpoints:
 
+## Tournaments:
+
+```
+POST /tournaments/
+{
+    "host" : "65d69c469d47c04d60421fdb",
+    "name" : "Tournament Registration Test",
+    "description" : "TESTING REGISTRATION",
+    "location" : "kings",
+    "date" : "2/26/2024",
+    "debatersPerTeam": 2,
+    "maxTeams": 20,
+    "maxTeamSlots": 4,
+    "image" : "image url placeholder?",
+    "form": {
+        "questions" : [
+            {
+                "type": "textarea",
+                "text": "wassup?",
+                "isRequired": true
+            },
+
+            {
+                "type": "input",
+                "text": "whats ur name"
+            },
+
+            {
+                "type": "select",
+                "text": "select a fruit",
+                "options": ["blueberry", "peach", "watermelon"],
+                "isRequired": true
+            }
+        ]
+    },
+    "debaters" : [],
+    "judges" : [],
+    "refundPolicy" : "NO REFUNDMOND"
+}
+
+```
 
 ## Users and Tournaments:
 
@@ -117,6 +158,55 @@ POST /tournaments/:id/registrations
       "answer": "john.doe@example.com"
     }
   ]
+}
+
+NEW:
+{
+  "userId": "65d6a0f92774d72d8f6d95a8", // alex2
+  "generalResponses": [
+    {
+      "questionId": "65ee3094b087ce3a4519c88c",
+      "answer": "not much, up dog?"
+    },
+    {
+      "questionId": "65ee3094b087ce3a4519c88d",
+      "answer": "alex2 is my name. rhymes with alex lu"
+    },
+    {
+      "questionId": "65ee3094b087ce3a4519c88e",
+      "answer": "peach"
+    }
+  ],
+  "teams": [
+    {
+        "teamResponses": [],
+        "members": [
+            {
+                "memberResponses": []
+            },
+            {
+                "memberResponses": []
+            }
+            
+
+        ]
+    },
+    {
+        "teamResponses": [],
+        "members": [
+            {
+                "memberResponses": []
+            },
+            {
+                "memberResponses": []
+            }
+            
+
+        ]
+    }
+
+  ]
+  
 }
 
 ```

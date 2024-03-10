@@ -14,6 +14,25 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// validate array of questions
+func initializeQuestions(questions []models.Question) error {
+
+	if questions == nil {
+		return errors.New("the form is missing questions")
+	}
+	for i := range questions {
+		questions[i].ID = primitive.NewObjectID()
+
+		// check if options are given correctly
+		err := validateQuestion(questions[i])
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // validate question
 func validateQuestion(q models.Question) error {
 	if q.Type == "select" && (q.Options == nil || len(q.Options) == 0) {
@@ -37,19 +56,41 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 		return
 	}
 
-	if tournament.Form.Questions == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "The Form has no Questions"})
-		return
-	}
-	for i := range tournament.Form.Questions {
-		tournament.Form.Questions[i].ID = primitive.NewObjectID()
-
-		// check if options are given correctly
-		err := validateQuestion(tournament.Form.Questions[i])
-		if err != nil {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+	// intialize general questions
+	if err := initializeQuestions(tournament.Form.Questions); err != nil {
+		message := "Failed to initialize general questions"
+		if err.Error() == "select type questions must have options" {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"message": message, "error": err.Error()})
 			return
 		}
+
+		c.JSON(http.StatusBadRequest, gin.H{"message": message, "error": err.Error()})
+		return
+	}
+
+	// intialize team questions
+	if err := initializeQuestions(tournament.Form.TeamQuestions); err != nil {
+		message := "Failed to initialize team questions"
+		if err.Error() == "select type questions must have options" {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"message": message, "error": err.Error()})
+			return
+		}
+		fmt.Println(tournament.Form.TeamQuestions)
+
+		c.JSON(http.StatusBadRequest, gin.H{"message": message, "error": err.Error()})
+		return
+	}
+
+	// intialize member questions
+	if err := initializeQuestions(tournament.Form.MemberQuestions); err != nil {
+		message := "Failed to initialize member questions"
+		if err.Error() == "select type questions must have options" {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"message": message, "error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusBadRequest, gin.H{"message": message, "error": err.Error()})
+		return
 	}
 
 	// validate tournament variable

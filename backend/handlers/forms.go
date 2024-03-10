@@ -117,7 +117,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 	}
 
 	// validate Questions DOESN'T WORK RN
-	if err := handler.ValidateQuestionResponses(ctx, tID, registration.Responses); err != nil {
+	if err := handler.ValidateQuestionResponses(ctx, tID, registration.GeneralResponses); err != nil {
 		if err == mongo.ErrNoDocuments {
 			c.JSON(http.StatusNotFound, gin.H{"error": "tournament not found"})
 			return
