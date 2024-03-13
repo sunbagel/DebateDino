@@ -18,24 +18,53 @@ import (
 // validate form response
 // helper function
 // takes a registration.Responses array and checks each question against the given question id
-func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tournamentId primitive.ObjectID, responses []models.QuestionResponse) error {
+func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tournamentId primitive.ObjectID, registration models.Registration) error {
 
 	// query tourney collection for tournament form
 	tournamentCollection := handler.client.Database("debatedino").Collection("tournaments")
 
 	var tournament models.Tournament
 	if err := tournamentCollection.FindOne(ctx, bson.M{"_id": tournamentId}).Decode(&tournament); err != nil {
+		fmt.Printf("Couldn't find tournament %s", tournamentId)
 		return err
 	}
 
+	// validate form structure data
 	form := tournament.Form
 	if err := handler.validate.Struct(form); err != nil {
 		return err
 	}
 
+	// validate form responses
+	if err := ValidateResponses(form.Questions, registration.GeneralResponses); err != nil {
+		return err
+	}
+
+	// validate team responses
+	for _, team := range registration.Teams {
+
+		// validate general team responses
+		if err := ValidateResponses(form.TeamQuestions, team.TeamResponses); err != nil {
+			return err
+		}
+
+		// validate member responses for each team
+		for _, member := range team.Members {
+
+			if err := ValidateResponses(form.MemberQuestions, member.MemberResponses); err != nil {
+				return err
+			}
+
+		}
+	}
+
+	return nil
+}
+
+func ValidateResponses(questions []models.Question, responses []models.QuestionResponse) error {
 	// form questions
 	questionMap := make(map[primitive.ObjectID]models.Question)
-	for _, question := range form.Questions {
+	for _, question := range questions {
 		questionMap[question.ID] = question
 	}
 
@@ -64,10 +93,10 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 	}
 
 	// check if question is missing a response
-	for _, question := range form.Questions {
+	for _, question := range questions {
 		// check if question is required and if question was responded to
 		if question.IsRequired && !answeredQuestions[question.ID] {
-			return errors.New("form response validation failed: Answer to response was not found")
+			return errors.New("form response validation failed: answer to a response was not found")
 		}
 	}
 
@@ -116,10 +145,12 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 		return
 	}
 
-	// validate Questions DOESN'T WORK RN
-	if err := handler.ValidateQuestionResponses(ctx, tID, registration.GeneralResponses); err != nil {
-		if err == mongo.ErrNoDocuments {
-			c.JSON(http.StatusNotFound, gin.H{"error": "tournament not found"})
+	// validate Questions
+	if err := handler.ValidateQuestionResponses(ctx, tID, registration); err != nil {
+
+		// using errors.Is() to compare error types
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "tournament not found when validating"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -145,13 +176,12 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 	err = mongo.WithSession(ctx, session, func(sessCtx mongo.SessionContext) error {
 
 		if err := session.StartTransaction(); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return err
 		}
 
 		// create new registration document
 		var insertErr error
-		insertResult, insertErr = handler.collection.InsertOne(ctx, registration)
+		insertResult, insertErr = handler.collection.InsertOne(sessCtx, registration)
 		if insertErr != nil {
 			session.AbortTransaction(sessCtx)
 			return insertErr
@@ -167,7 +197,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 
 		if tourneyRes.ModifiedCount == 0 {
 			session.AbortTransaction(sessCtx)
-			return errors.New("tournament not found")
+			return errors.New("tournament not updated")
 		}
 
 		// update user
@@ -180,7 +210,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 
 		if userRes.ModifiedCount == 0 {
 			session.AbortTransaction(sessCtx)
-			return errors.New("user not found")
+			return errors.New("user not updated")
 		}
 
 		if err := session.CommitTransaction(sessCtx); err != nil {
@@ -191,7 +221,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 	})
 
 	if err != nil {
-		if err.Error() == "tournament not found" || err.Error() == "user not found" {
+		if err.Error() == "tournament not updated" || err.Error() == "user not updated" {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

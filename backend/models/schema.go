@@ -66,15 +66,15 @@ type QuestionResponse struct {
 
 // data of member
 type MemberData struct {
-	// MemberID        primitive.ObjectID `json:"memberId"`
-	MemberResponses []QuestionResponse `json:"memberResponses"`
+	// ID        primitive.ObjectID `json:"_id"`
+	MemberResponses []QuestionResponse `json:"memberResponses" validate:"required,dive"`
 }
 
 // data of team
 type TeamData struct {
-	// TeamID        primitive.ObjectID `json:"teamId"`
-	TeamResponses []QuestionResponse `json:"teamResponses"`
-	Members       []MemberData       `json:"memberData"`
+	// ID        primitive.ObjectID `json:"_id"`
+	TeamResponses []QuestionResponse `json:"teamResponses" validate:"required,dive"`
+	Members       []MemberData       `json:"members" validate:"required,dive"`
 }
 
 // registration data
