@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 export type Tournament = {
+    _id?: string;
     host: string,
     name: string,
     description: string,

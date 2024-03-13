@@ -30,7 +30,7 @@ import LongAnswer from "./questions/LongAnswer"
 import ShortAnswer from "./questions/ShortAnswer"
 
 
-type Inputs = z.infer<typeof tournamentSchema>
+export type Inputs = z.infer<typeof tournamentSchema>
 
 const steps = [
     {
@@ -50,7 +50,7 @@ const steps = [
     }
 ];
 
-const CreateTournaments = () => {
+const TournamentCreation = () => {
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(0);
 
@@ -389,4 +389,4 @@ const CreateTournaments = () => {
 }
 
 
-export default CreateTournaments;
+export default TournamentCreation;

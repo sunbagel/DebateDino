@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import './styles/App.css'
@@ -8,8 +6,8 @@ import NavBar from './components/NavBar'
 import About from './pages/About';
 import Tournaments from './pages/Tournaments/Tournaments';
 import UserProfile from './pages/UserProfile';
-import CreateTournaments from './pages/Tournaments/TournamentCreation';
-import CreateTournamentForm from './pages/Tournaments/CreateTournamentForm';
+import TournamentCreation from './pages/Tournaments/TournamentCreation';
+import TournamentView from './pages/Tournaments/TournamentView';
 
 function App() {
 
@@ -23,8 +21,8 @@ function App() {
           <Route path="/about" element={<About/>}/>
           <Route path="/tournaments" element={<Tournaments/>}/>
           <Route path="/profile" element={<UserProfile/>}/>
-          <Route path="/tournaments/create" element={<CreateTournaments/>}/>
-          <Route path="/tournaments/create/form" element={<CreateTournamentForm/>}/>
+          <Route path="/tournaments/create" element={<TournamentCreation/>}/>
+          <Route path="/tournaments/view/:id" element={<TournamentView/>}/>
         </Routes>
       </Router>
       
