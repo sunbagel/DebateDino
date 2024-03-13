@@ -58,7 +58,7 @@ const Tournaments = () => {
                                     <div className="flex flex-col">
                                         {filters[category].map((f: string) => {
                                             return (
-                                                <div className="flex flex-row items-center gap-1">
+                                                <div key={f} className="flex flex-row items-center gap-1">
                                                     <Checkbox key={f} id={f} />
                                                     <label htmlFor={f}>
                                                         {f}
@@ -74,8 +74,8 @@ const Tournaments = () => {
                     <div className="flex flex-col gap-3">
                         {tournaments.map(t => {
                             return (
-                                <div className="hover:cursor-pointer hover:border-transparent border-2 border-l-4 hover:border-green-600 transition duration-300 ease-in-out" onClick={() => goToTournament(t._id ? t._id : "0")}>
-                                    <Card className="flex flex-row p-3 rounded-none" key={t._id}>
+                                <div key={t._id} className="hover:cursor-pointer hover:border-transparent border-2 border-l-4 hover:border-green-600 transition duration-300 ease-in-out" onClick={() => goToTournament(t._id ? t._id : "0")}>
+                                    <Card className="flex flex-row p-3 rounded-none" >
                                         <CardContent>
                                             <img className="max-w-48 rounded-lg" src="../../public/walterworth.png" />
                                         </CardContent>
