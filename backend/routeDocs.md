@@ -142,71 +142,116 @@ Submitting a Registration
 ```
 POST /tournaments/:id/registrations
 {
-  "tournamentId": "123abc",
-  "userId": "456def",
-  "responses": [
-    {
-      "questionId": "<questionObjectId>",
-      "answer": "John Doe"
-    },
-    {
-      "questionId": "<questionObjectId>",
-      "answer": "Debate"
-    },
-    {
-      "questionId": "<questionObjectId>",
-      "answer": "john.doe@example.com"
-    }
-  ]
-}
-
-NEW:
-{
-  "userId": "65d6a0f92774d72d8f6d95a8", // alex2
+  "userId": "65e2331c8ff69d41e5674747", // alex3
   "generalResponses": [
     {
-      "questionId": "65ee3094b087ce3a4519c88c",
+      "questionId": "65ee474c89202005ee1e085e",
       "answer": "not much, up dog?"
     },
     {
-      "questionId": "65ee3094b087ce3a4519c88d",
-      "answer": "alex2 is my name. rhymes with alex lu"
+      "questionId": "65ee474c89202005ee1e085f",
+      "answer": "signing up team! (ALEX 3)"
     },
     {
-      "questionId": "65ee3094b087ce3a4519c88e",
+      "questionId": "65ee474c89202005ee1e0860",
       "answer": "peach"
     }
   ],
   "teams": [
+    // team gentlemen (1)
     {
-        "teamResponses": [],
-        "members": [
+        // general responses
+        "teamResponses": [
             {
-                "memberResponses": []
+                "questionId": "65ee474c89202005ee1e0861",
+                "answer": "team gentlemen"
             },
             {
-                "memberResponses": []
+                "questionId": "65ee474c89202005ee1e0862",
+                "answer": "top hat"
+            }
+
+        ],
+        //members
+        "members": [
+            // member 1
+            {
+                
+                "memberResponses": [
+                    {
+                        "questionId": "65ee474c89202005ee1e0863",
+                        "answer": "Bobby Wobby Cho"
+                    },
+                    {
+                        "questionId": "65ee474c89202005ee1e0864",
+                        "answer": "orange"
+                    }
+                ]
+            },
+            // member 2
+            {
+                
+                "memberResponses": [
+                    {
+                        "questionId": "65ee474c89202005ee1e0863",
+                        "answer": "Alex"
+                    },
+                    {
+                        "questionId": "65ee474c89202005ee1e0864",
+                        "answer": "blue"
+                    }
+                ]
             }
             
 
         ]
     },
+    // team cool guys (2)
     {
-        "teamResponses": [],
-        "members": [
-            {
-                "memberResponses": []
+        "teamResponses": [
+             {
+                "questionId": "65ee474c89202005ee1e0861",
+                "answer": "team cool guys"
             },
             {
-                "memberResponses": []
+                "questionId": "65ee474c89202005ee1e0862",
+                "answer": "bucket hat"
             }
-            
 
+        ],
+        // members
+        "members": [
+            // member 3
+            {
+                
+                "memberResponses": [
+                    {
+                        "questionId": "65ee474c89202005ee1e0863",
+                        "answer": "Raymond"
+                    },
+                    {
+                        "questionId": "65ee474c89202005ee1e0864",
+                        "answer": "orange"
+                    }
+                ]
+            },
+            // member 4
+            {
+                
+                "memberResponses": [
+                    {
+                        "questionId": "65ee474c89202005ee1e0863",
+                        "answer": "Kevin"
+                    },
+                    {
+                        "questionId": "65ee474c89202005ee1e0864",
+                        "answer": "blue"
+                    }
+                ]
+            }
         ]
     }
-
   ]
-  
 }
 
 ```
