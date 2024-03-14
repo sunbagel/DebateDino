@@ -32,6 +32,8 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 	// validate form structure data
 	form := tournament.Form
 	if err := handler.validate.Struct(form); err != nil {
+		fmt.Println("Form invalid")
+		fmt.Println(form)
 		return err
 	}
 
@@ -40,9 +42,30 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 		return err
 	}
 
-	// validate team responses
-	for _, team := range registration.Teams {
+	maxTeamSlots := tournament.MaxTeamSlots
+	fmt.Printf("%d, %d", len(registration.Teams), maxTeamSlots)
+	// validate # teams registered
+	// would be good to return 404/422 on these instead of 500
+	if len(registration.Teams) > maxTeamSlots {
+		msg := fmt.Sprintf("limit of %d teams per registration. currently registering %d teams.",
+			maxTeamSlots, len(registration.Teams))
 
+		return errors.New(msg)
+
+	} else if len(registration.Teams) <= 0 {
+		msg := fmt.Sprintf("invalid number of teams. currently registering %d teams.", len(registration.Teams))
+
+		return errors.New(msg)
+	}
+	debatersPerTeam := tournament.DebatersPerTeam
+	// validate team responses
+	for i, team := range registration.Teams {
+
+		// validate # members per team
+		if len(team.Members) != debatersPerTeam {
+			msg := fmt.Sprintf("each team requires %d member(s). team %d has %d member(s).", debatersPerTeam, i, len(team.Members))
+			return errors.New(msg)
+		}
 		// validate general team responses
 		if err := ValidateResponses(form.TeamQuestions, team.TeamResponses); err != nil {
 			return err
