@@ -59,12 +59,13 @@ func main() {
 	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
 	// to be refactored (for judge sign up)
 	// router.POST("/api/tournaments/:id/registration", tournamentsHandler.RegisterUser)
-	router.DELETE("/api/tournaments/:id", tournamentsHandler.DeleteTournament)
-	router.PUT("/api/tournaments/:id", tournamentsHandler.UpdateTournament)
+	router.DELETE("/api/tournaments/:tId", tournamentsHandler.DeleteTournament)
+	router.PUT("/api/tournaments/:tId", tournamentsHandler.UpdateTournament)
 
 	// forms
-	router.GET("/api/tournaments/:id/registrations", registrationHandler.GetResponses)
-	router.POST("/api/tournaments/:id/registrations", registrationHandler.SubmitRegistration)
+	router.GET("/api/tournaments/:tId/registrations", registrationHandler.GetRegistrations)
+	router.POST("/api/tournaments/:tId/registrations", registrationHandler.SubmitRegistration)
+	router.DELETE(("/api/tournaments/:tId/registrations/:uId"), registrationHandler.UnregisterUser)
 
 	router.Run("localhost:" + port)
 }

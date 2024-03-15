@@ -131,21 +131,20 @@ func ValidateResponses(questions []models.Question, responses []models.QuestionR
 }
 
 // Submit Form Response
-// POST /tournaments/:id/responses
+// POST /tournaments/:tId/responses
 func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	// define collections
 	userCollection := handler.client.Database("debatedino").Collection("users")
-
 	tournamentCollection := handler.client.Database("debatedino").Collection("tournaments")
 
 	// the id is passed through the url
-	tournamentIdString := c.Param("id")
+	tournamentIdString := c.Param("tId")
 
 	// Convert id (string) to mongoDB Objectid
-	tID, err := primitive.ObjectIDFromHex(tournamentIdString)
+	tournamentId, err := primitive.ObjectIDFromHex(tournamentIdString)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
@@ -163,7 +162,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 	// MAY NEED TO VALIDATE FOR DUPLICATE SUBMITS
 
 	// append tournament id to registration
-	registration.TournamentID = tID
+	registration.TournamentID = tournamentId
 
 	// validate form response
 	if validationErr := handler.validate.Struct(registration); validationErr != nil {
@@ -173,7 +172,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 	}
 
 	// validate Questions
-	if err := handler.ValidateQuestionResponses(ctx, tID, registration); err != nil {
+	if err := handler.ValidateQuestionResponses(ctx, tournamentId, registration); err != nil {
 
 		// using errors.Is() to compare error types
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -275,14 +274,135 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 
 }
 
-// Get Form Responses
-// GET /tournaments/:id/responses
-func (handler *RouteHandler) GetResponses(c *gin.Context) {
+// /tournaments/:tId/registrations/:uId
+func (handler *RouteHandler) UnregisterUser(c *gin.Context) {
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// define collections
+	userCollection := handler.client.Database("debatedino").Collection("users")
+	tournamentCollection := handler.client.Database("debatedino").Collection("tournaments")
+	registrationCollection := handler.client.Database("debatedino").Collection("registrations")
+
+	tournamentIdString := c.Param("tId")
+	userIdString := c.Param("uId")
+
+	tournamentId, err := primitive.ObjectIDFromHex(tournamentIdString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Tournament ID"})
+		return
+	}
+
+	userId, err := primitive.ObjectIDFromHex(userIdString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
+		return
+	}
+
+	// START SESSION
+	session, err := handler.client.StartSession()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start session"})
+		return
+	}
+	defer session.EndSession(ctx)
+
+	err = mongo.WithSession(ctx, session, func(sessCtx mongo.SessionContext) error {
+
+		if err := session.StartTransaction(); err != nil {
+			return err
+		}
+
+		// get # teams removed
+		regFilter := bson.M{"tournamentId": tournamentId, "userId": userId}
+		var registration models.Registration
+		if err := registrationCollection.FindOne(sessCtx, regFilter).Decode(&registration); err != nil {
+			// c.JSON(http.StatusNotFound, gin.H{"error": ""})
+			session.AbortTransaction(sessCtx)
+			return errors.New("registration not found - couldn't retrieve document")
+		}
+
+		numTeamsRemoved := len(registration.Teams)
+
+		// update tournament
+		tRes, err := tournamentCollection.UpdateByID(sessCtx, tournamentId, bson.M{
+			"$pull": bson.M{"debaters": userId},
+			"$inc":  bson.M{"currentTeams": -numTeamsRemoved},
+		})
+
+		if err != nil {
+			// c.JSON(http.StatusInternalServerError, gin.H{"error": })
+			session.AbortTransaction(sessCtx)
+			return errors.New("failed to remove user from tournament")
+		}
+
+		// should this even be checked for?
+		// if others are triggered and this one isn't, there is something very wrong and data needs to be cleaned up regardless
+		if tRes.ModifiedCount == 0 {
+			// no tournaments were modified
+			// c.JSON(http.StatusNotFound, gin.H{"message": })
+			session.AbortTransaction(sessCtx)
+			return errors.New("tournament not found/not updated")
+		}
+
+		// remove tournament from participant
+		uRes, err := userCollection.UpdateByID(sessCtx, userId, bson.M{
+			"$pull": bson.M{"debating": tournamentId},
+		})
+
+		if err != nil {
+			// c.JSON(http.StatusInternalServerError, gin.H{"error": })
+			session.AbortTransaction(sessCtx)
+			return errors.New("failed to remove user from tournament")
+		}
+
+		if uRes.ModifiedCount == 0 {
+			// no tournaments were modified
+			// c.JSON(http.StatusNotFound, gin.H{"message": })
+			session.AbortTransaction(sessCtx)
+			return errors.New("user not found/not updated")
+		}
+
+		// delete registration
+		regRes, err := registrationCollection.DeleteOne(sessCtx, regFilter)
+
+		if err != nil {
+			// c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete registration"})
+			session.AbortTransaction(sessCtx)
+			return errors.New("failed to delete registration")
+		}
+
+		if regRes.DeletedCount == 0 {
+			// c.JSON(http.StatusNotFound, gin.H{"error": "Registration not found - no registrations were deleted"})
+			session.AbortTransaction(sessCtx)
+			return errors.New("registration not found - no registrations were deleted")
+		}
+
+		if err := session.CommitTransaction(sessCtx); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	// more detailed response status needed
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	msg := fmt.Sprintf("Registration betweeen user %s and tournament %s deleted successfully", userIdString, tournamentIdString)
+
+	c.JSON(http.StatusOK, gin.H{"message": msg})
+}
+
+// Get Registrations
+// GET /tournaments/:tId/registrations
+func (handler *RouteHandler) GetRegistrations(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	// the id is passed through the url
-	tournamentId := c.Param("id")
+	tournamentId := c.Param("tId")
 
 	// Convert id (string) to mongoDB Objectid
 	objId, err := primitive.ObjectIDFromHex(tournamentId)

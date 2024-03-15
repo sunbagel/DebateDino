@@ -270,10 +270,10 @@ GET /tournaments/:id/registrations/:registrationsId
 
 
 Edit Response: (NOT DONE)
-` PUT /tournaments/:id/responses/:responseID `
+` PUT /tournaments/:id/registrations/:userId `
 
 Delete Response: (NOT DONE)
-` DELETE /tournaments/:id/responses/:responseID `
+` DELETE /tournaments/:id/registrations/:userId `
 
 
 

@@ -157,13 +157,13 @@ func (handler *RouteHandler) SearchTournament(c *gin.Context) {
 }
 
 // Delete Tournament
-// DELETE   /api/tournaments/:id
+// DELETE   /api/tournaments/:tId
 func (handler *RouteHandler) DeleteTournament(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	// the id is passed through the url
-	id := c.Param("id")
+	id := c.Param("tId")
 
 	// Convert id (string) to mongoDB Objectid
 	objId, err := primitive.ObjectIDFromHex(id)
@@ -184,12 +184,12 @@ func (handler *RouteHandler) DeleteTournament(c *gin.Context) {
 }
 
 // Update Tournament
-// PUT    /api/tournaments/:id
+// PUT    /api/tournaments/:tId
 func (handler *RouteHandler) UpdateTournament(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	tournamentId := c.Param("id")
+	tournamentId := c.Param("tId")
 	objID, err := primitive.ObjectIDFromHex(tournamentId)
 
 	if err != nil {
@@ -253,7 +253,7 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	}
 
 	// get tournament id and user id strings
-	tournamentIDString := c.Param("id")
+	tournamentIDString := c.Param("tId")
 	userIDString := body.UserID
 
 	// convert the type into ObjectIDs
