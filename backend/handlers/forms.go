@@ -56,6 +56,10 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 		msg := fmt.Sprintf("invalid number of teams. currently registering %d teams.", len(registration.Teams))
 
 		return errors.New(msg)
+	} else if len(registration.Teams)+tournament.CurrentTeams > tournament.MaxTeams {
+		msg := fmt.Sprintf("maximum of %d teams allowed in tournament. currently at %d teams, user is attempting to register %d teams.", tournament.MaxTeams, tournament.CurrentTeams, len(registration.Teams))
+
+		return errors.New(msg)
 	}
 	debatersPerTeam := tournament.DebatersPerTeam
 	// validate team responses
@@ -180,12 +184,6 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 		return
 	}
 
-	var tourneyUpdateBody bson.M
-	var userUpdateBody bson.M
-
-	tourneyUpdateBody = bson.M{"debaters": registration.ParticipantID}
-	userUpdateBody = bson.M{"debating": registration.TournamentID}
-
 	// START SESSION
 	session, err := handler.client.StartSession()
 	if err != nil {
@@ -210,8 +208,21 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 			return insertErr
 		}
 
+		// get tournament.CurrentTeams
+		var tournament models.Tournament
+		if err := tournamentCollection.FindOne(sessCtx, bson.M{"_id": registration.TournamentID}).Decode(&tournament); err != nil {
+			return err
+		}
+
+		newCurrentTeams := tournament.CurrentTeams + len(registration.Teams)
+
+		tourneyUpdate := bson.M{
+			"$addToSet": bson.M{"debaters": registration.ParticipantID},
+			"$set":      bson.M{"currentTeams": newCurrentTeams},
+		}
+
 		// update tourney
-		tourneyRes, err := tournamentCollection.UpdateOne(sessCtx, bson.M{"_id": registration.TournamentID}, bson.M{"$addToSet": tourneyUpdateBody})
+		tourneyRes, err := tournamentCollection.UpdateOne(sessCtx, bson.M{"_id": registration.TournamentID}, tourneyUpdate)
 
 		if err != nil {
 			session.AbortTransaction(sessCtx)
@@ -224,7 +235,9 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 		}
 
 		// update user
-		userRes, err := userCollection.UpdateOne(sessCtx, bson.M{"_id": registration.ParticipantID}, bson.M{"$addToSet": userUpdateBody})
+		userUpdate := bson.M{"$addToSet": bson.M{"debating": registration.TournamentID}}
+
+		userRes, err := userCollection.UpdateOne(sessCtx, bson.M{"_id": registration.ParticipantID}, userUpdate)
 
 		if err != nil {
 			session.AbortTransaction(sessCtx)
