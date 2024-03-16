@@ -31,12 +31,12 @@ func main() {
 	// define collections
 	userCollection := client.Database(cfg.DBname).Collection("users")
 	tournamentCollection := client.Database((cfg.DBname)).Collection("tournaments")
-	formResponseCollection := client.Database(cfg.DBname).Collection("formResponses")
+	registrationCollection := client.Database(cfg.DBname).Collection("registrations")
 
 	// create handlers
 	userHandler := handlers.NewRouteHandler(client, userCollection, validate)
 	tournamentsHandler := handlers.NewRouteHandler(client, tournamentCollection, validate)
-	formResponseHandler := handlers.NewRouteHandler(client, formResponseCollection, validate)
+	registrationHandler := handlers.NewRouteHandler(client, registrationCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
@@ -57,13 +57,15 @@ func main() {
 	// Tournaments
 	router.GET("/api/tournaments", tournamentsHandler.SearchTournament)
 	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
-	router.POST("/api/tournaments/:id/registration", tournamentsHandler.RegisterUser)
-	router.DELETE("/api/tournaments/:id", tournamentsHandler.DeleteTournament)
-	router.PUT("/api/tournaments/:id", tournamentsHandler.UpdateTournament)
+	// to be refactored (for judge sign up)
+	// router.POST("/api/tournaments/:id/registration", tournamentsHandler.RegisterUser)
+	router.DELETE("/api/tournaments/:tId", tournamentsHandler.DeleteTournament)
+	router.PUT("/api/tournaments/:tId", tournamentsHandler.UpdateTournament)
 
 	// forms
-	router.GET("/api/tournaments/:id/responses", formResponseHandler.GetResponses)
-	router.POST("/api/tournaments/:id/responses", formResponseHandler.SubmitFormResponse)
+	router.GET("/api/tournaments/:tId/registrations", registrationHandler.GetRegistrations)
+	router.POST("/api/tournaments/:tId/registrations", registrationHandler.SubmitRegistration)
+	router.DELETE(("/api/tournaments/:tId/registrations/:uId"), registrationHandler.UnregisterUser)
 
 	router.Run("localhost:" + port)
 }
