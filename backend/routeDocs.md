@@ -264,15 +264,17 @@ GET /tournaments/:id/registrations
 Filter by user (? possible)
 GET /tournaments/:id/registrations/?user=BOBBY WOBBY CHO
 
-Get specific response:
+Get specific Registration:
 GET /tournaments/:id/registrations/:registrationsId
 ```
 
 
-Edit Response: (NOT DONE)
+Edit Registration: (NOT DONE)
 ` PUT /tournaments/:id/registrations/:userId `
+- should be able to delete specific teams/modify specific members
+- form data modification? maybe...
 
-Delete Response: (NOT DONE)
+Delete Registration:
 ` DELETE /tournaments/:id/registrations/:userId `
 
 
