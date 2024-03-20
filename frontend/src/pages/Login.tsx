@@ -1,4 +1,4 @@
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useState } from "react";
 
 const Login = () => {
@@ -31,6 +31,33 @@ const Login = () => {
                 console.log(errorMessage);
             })
     }
+
+    const signIn = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        console.log(email);
+        console.log(password);
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then(userCredential => {
+                console.log(userCredential.user)
+            })
+            .catch(err => {
+                const errorCode = err.code;
+                const errorMessage = err.message;
+                console.log(errorCode);
+                console.log(errorMessage);
+            })
+    }
+
+
+    const logOut = () => {
+        signOut(auth)
+            .then(()=>{
+                console.log("signed out");
+            }).catch(err => {
+                console.log(err);
+            })
+    }
     return (
         <div className="space-y-5">
             <div className="bg-blue-300 rounded-md p-5">
@@ -56,7 +83,7 @@ const Login = () => {
 
 
             <div className="bg-green-300 rounded-md p-5">
-                <form className="flex flex-col" onSubmit={register}>
+                <form className="flex flex-col" onSubmit={signIn}>
                     <label htmlFor="name">Email:</label>
                     <input
                         type="text"
@@ -71,8 +98,14 @@ const Login = () => {
                         value={password}
                         onChange={handlePasswordChange}
                     />
-                    <button type="submit">Login</button>
+                    <button type="submit">Log In</button>
                 </form>
+
+            </div>
+
+
+            <div className="bg-red-300 rounded-md p-5">
+                    <button type="button" onClick={logOut}>Logout</button>
 
             </div>
         </div>
