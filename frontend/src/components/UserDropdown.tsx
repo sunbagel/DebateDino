@@ -1,3 +1,4 @@
+import useAuth from "@/hooks/useAuth";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -12,13 +13,24 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
   } from "@/shadcn-components/ui/dropdown-menu"
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 
 const UserDropdown = () => {
 
     const navigate = useNavigate();
+
+    const {signout} = useAuth();
+
+    const onSignOut = () => {
+        signout()
+            .then(() => {
+                console.log("signed out");
+            }).catch(err => {
+                console.log(err);
+            })
+    }
 
     return (
 
@@ -48,7 +60,7 @@ const UserDropdown = () => {
 
                 <DropdownMenuSeparator/>
 
-                <DropdownMenuItem>Sign Out</DropdownMenuItem>
+                <DropdownMenuItem onSelect={onSignOut}>Sign Out</DropdownMenuItem>
 
             </DropdownMenuContent>
         </DropdownMenu>

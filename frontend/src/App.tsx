@@ -10,6 +10,7 @@ import UserProfile from './pages/UserProfile';
 import CreateTournaments from './pages/Tournaments/CreateTournament';
 import Login from './pages/Login';
 import { AuthProvider } from './context/AuthContext';
+import Registration from './pages/Registration';
 
 function App() {
 
@@ -26,6 +27,7 @@ function App() {
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/tournaments/create" element={<CreateTournaments />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/registration" element={<Registration/>}/>
           </Routes>
         </Router>
       </AuthProvider>
