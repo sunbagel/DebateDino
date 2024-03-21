@@ -1,12 +1,12 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useState } from "react";
+import useAuth from "@/hooks/useAuth"
 
 const Login = () => {
 
+    const { signup, signin, signout } = useAuth();
+
     const [ email, setEmail ] = useState<string>("");
     const [ password, setPassword ] = useState<string>("");
-
-    const auth = getAuth();
 
     const handleEmailChange = (e : React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
@@ -20,7 +20,7 @@ const Login = () => {
         console.log(email);
         console.log(password);
 
-        createUserWithEmailAndPassword(auth, email, password)
+        signup( email, password)
             .then(userCredential => {
                 console.log(userCredential.user)
             })
@@ -37,7 +37,7 @@ const Login = () => {
         console.log(email);
         console.log(password);
 
-        signInWithEmailAndPassword(auth, email, password)
+        signin(email, password)
             .then(userCredential => {
                 console.log(userCredential.user)
             })
@@ -51,7 +51,7 @@ const Login = () => {
 
 
     const logOut = () => {
-        signOut(auth)
+        signout()
             .then(()=>{
                 console.log("signed out");
             }).catch(err => {
