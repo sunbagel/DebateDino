@@ -1,5 +1,6 @@
 import { useState } from "react";
 import useAuth from "@/hooks/useAuth"
+import { Button } from "@/shadcn-components/ui/button";
 
 const Registration = () => {
     const { signup } = useAuth();
@@ -52,7 +53,7 @@ const Registration = () => {
                         value={password}
                         onChange={handlePasswordChange}
                     />
-                    <button className="my-4 text-sm rounded-md bg-blue-300" type="submit">Register</button>
+                    <Button className="my-4 text-sm rounded-md bg-blue-300" type="submit">Register</Button>
                 </form>
 
             </div>
