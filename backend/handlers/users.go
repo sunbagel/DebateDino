@@ -19,12 +19,37 @@ import (
 func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	// jwt token
+	fbIdToken := c.GetHeader("Authorization")
+	decodedToken, err := handler.authClient.VerifyIDToken(ctx, fbIdToken)
+
+	// if token is correct format, not expired, and properly signed (doesn't check for revocation)
+	// only check for revocation for important security (it is an expensive operation)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "error validating firebase token"})
+		fmt.Println(err)
+		return
+	}
+
+	firebaseUID := decodedToken.UID
+
+	// Check if a user with this Firebase UID already exists
+	existingUser := handler.collection.FindOne(ctx, bson.M{"firebaseUID": firebaseUID})
+	if existingUser.Err() != mongo.ErrNoDocuments {
+		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
+		return
+	}
+
+	// bind user
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		fmt.Println(err)
 		return
 	}
+
+	user.FbID = firebaseUID
 
 	validationErr := handler.validate.Struct(user)
 	if validationErr != nil {
@@ -36,7 +61,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	// get collection from the handler
 	result, insertErr := handler.collection.InsertOne(ctx, user)
 	if insertErr != nil {
-		msg := fmt.Sprintf("User was not created")
+		msg := fmt.Sprint("User was not created")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		fmt.Println(insertErr)
 		return
