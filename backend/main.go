@@ -25,6 +25,7 @@ func main() {
 		DBname: "debatedino",
 	}
 	client := db.DBinstance()
+	authClient := db.InitFirebaseAuth()
 
 	var validate = validator.New()
 
@@ -34,9 +35,9 @@ func main() {
 	registrationCollection := client.Database(cfg.DBname).Collection("registrations")
 
 	// create handlers
-	userHandler := handlers.NewRouteHandler(client, userCollection, validate)
-	tournamentsHandler := handlers.NewRouteHandler(client, tournamentCollection, validate)
-	registrationHandler := handlers.NewRouteHandler(client, registrationCollection, validate)
+	userHandler := handlers.NewRouteHandler(client, authClient, userCollection, validate)
+	tournamentsHandler := handlers.NewRouteHandler(client, authClient, tournamentCollection, validate)
+	registrationHandler := handlers.NewRouteHandler(client, authClient, registrationCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
