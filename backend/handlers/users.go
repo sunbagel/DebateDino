@@ -33,8 +33,6 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	// user.ID = primitive.NewObjectID()
-
 	// get collection from the handler
 	result, insertErr := handler.collection.InsertOne(ctx, user)
 	if insertErr != nil {
