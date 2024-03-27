@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     const signout = () => {
+        // DOES NOT REVOKE TOKEN - ONLY CLEARS USER SESSION
         return signOut(auth);
     }
     

@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"log"
+	"os"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
@@ -14,7 +15,9 @@ func InitFirebaseAuth() *auth.Client {
 
 	ctx := context.Background()
 
-	opt := option.WithCredentialsFile("./serviceAccountKey.json")
+	// enter full path of serviceAccountKey.json
+	fbConfigPath := os.Getenv("FBCONFIG_PATH")
+	opt := option.WithCredentialsFile(fbConfigPath + "serviceAccountKey.json")
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)

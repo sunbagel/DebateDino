@@ -49,8 +49,20 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
+	// verify email in body against Firebase email
+	email, ok := decodedToken.Claims["email"].(string)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "error retrieving email"})
+		return
+	}
+	if user.Email != email {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "emails do not match"})
+		return
+	}
+
 	user.FbID = firebaseUID
 
+	// validate user object
 	validationErr := handler.validate.Struct(user)
 	if validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
