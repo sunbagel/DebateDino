@@ -1,9 +1,14 @@
 import { useState } from "react";
 import useAuth from "@/hooks/useAuth"
 import { Button } from "@/shadcn-components/ui/button";
+import axios from "@/lib/axios";
+import { auth } from "@/lib/firebase-config";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Registration = () => {
     const { signup } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
@@ -23,23 +28,39 @@ const Registration = () => {
 
         signup(email, password)
             .then(userCredential => {
-                console.log(userCredential.user)
-                const token = userCredential.user.getIdToken();
-
+                // console.log(userCredential.user)
+                return userCredential.user.getIdToken();
+            })
+            .then(token => {
+                // console.log("token: ", token)
                 const userData = {
-
-                }
+                    fb_id: auth.currentUser?.uid,
+                    name: "test fb",
+                    password: password,
+                    email: email,
+                    institution: "University of Waterloo",
+                    agreement: "NO I DON'T agree",
+                    debating: [],
+                    judging: [],
+                    hosting: []
+                };
 
                 const config = {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
-                }
-                axios.post('users', {})
-                    
+                };
+                return axios.post('users', userData, config)
+            })
+            .then(res => {
+                console.log(res);
+                const from = location.state?.from?.pathname || "/";
 
+                // replace : true ensures the user cannot navigate back to the login page after already logging in
+                navigate(from, { replace: true });
             })
             .catch(err => {
+                console.log(err);
                 const errorCode = err.code;
                 const errorMessage = err.message;
                 console.log(errorCode);

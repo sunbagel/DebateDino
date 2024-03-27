@@ -6,6 +6,7 @@ import (
 	"server/config"
 	"server/db"
 	"server/handlers"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,17 @@ func main() {
 	}
 	router := gin.New()
 	router.Use(gin.Logger())
-	router.Use(cors.Default())
+
+	corsConfig := cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		// AllowAllOrigins: false,
+		MaxAge: 12 * time.Hour, // Preflight requests can be cached for 12 hours
+	}
+	router.Use(cors.New(corsConfig))
 
 	cfg := config.Config{
 		DBname: "debatedino",
