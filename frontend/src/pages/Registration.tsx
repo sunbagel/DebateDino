@@ -24,6 +24,20 @@ const Registration = () => {
         signup(email, password)
             .then(userCredential => {
                 console.log(userCredential.user)
+                const token = userCredential.user.getIdToken();
+
+                const userData = {
+
+                }
+
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+                axios.post('users', {})
+                    
+
             })
             .catch(err => {
                 const errorCode = err.code;

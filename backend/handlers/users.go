@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"server/models"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -20,8 +21,15 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// jwt token
-	fbIdToken := c.GetHeader("Authorization")
+	// extract jwt token
+	authHeader := c.GetHeader("Authorization")
+	splitToken := strings.Split(authHeader, "Bearer ")
+	if len(splitToken) != 2 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Authorization header format must be \"Bearer <token>\""})
+		return
+	}
+	// get token
+	fbIdToken := splitToken[1]
 	decodedToken, err := handler.authClient.VerifyIDToken(ctx, fbIdToken)
 
 	// if token is correct format, not expired, and properly signed (doesn't check for revocation)

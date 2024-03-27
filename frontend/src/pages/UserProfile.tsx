@@ -65,12 +65,12 @@ const UserProfile = () => {
   useEffect(()=>{
     // api should not return password. may want to return id?
     axios.get(`users/${userIDPlaceholder}`)
-    .then(res => {
-      console.log(res.data);
-      const userRes : User = res.data;
-      setUserInfo(userRes);
-    })
-    .catch(err => console.log(err))
+      .then(res => {
+        console.log(res.data);
+        const userRes : User = res.data;
+        setUserInfo(userRes);
+      })
+      .catch(err => console.log(err))
       
   }, [form, setUserInfo])
 
