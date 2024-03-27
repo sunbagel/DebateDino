@@ -27,7 +27,7 @@ function App() {
             <Route path="/tournaments" element={<Tournaments />} />
 
             <Route path="/login" element={<Login />} />
-            <Route path="/registration" element={<Registration />} />
+            <Route path="/register" element={<Registration />} />
             
             {/* Requires login to access.  */}
             <Route element={<AuthRouter/>}>

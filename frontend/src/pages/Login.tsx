@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useAuth from "@/hooks/useAuth";
 import { Button } from "@/shadcn-components/ui/button";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Login = () => {
 
@@ -66,7 +66,11 @@ const Login = () => {
                 />
                 <Button className="mt-4" type="submit">Log In</Button>
             </form>
-
+            <div className="flex">
+                <div>Don't have an account?</div>
+                <Link to="/register" className="mx-3 underline hover:text-cyan-400">Register</Link>
+            </div>
+            
         </div>
     )
 }

@@ -34,7 +34,7 @@ const Registration = () => {
     }
     return (
         <div>
-            <div className="flex flex-col items-center min-h-screen space-y-5">
+            <div className="flex flex-col mx-auto rounded items-center mt-5 py-5 max-w-sm space-y-5 bg-blue-300">
                 <h1 className=" text-5xl font-bold">Register:</h1>
                 <form className="flex flex-col max-w-lg" onSubmit={register}>
                     <label className="text-xl" htmlFor="name">Email:</label>
@@ -53,7 +53,7 @@ const Registration = () => {
                         value={password}
                         onChange={handlePasswordChange}
                     />
-                    <Button className="my-4 text-sm rounded-md bg-blue-300" type="submit">Register</Button>
+                    <Button className="my-4 text-sm rounded-md" type="submit">Register</Button>
                 </form>
 
             </div>
