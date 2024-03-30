@@ -30,6 +30,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	}
 	// get token
 	fbIdToken := splitToken[1]
+	fmt.Println(fbIdToken)
 	decodedToken, err := handler.authClient.VerifyIDToken(ctx, fbIdToken)
 
 	// if token is correct format, not expired, and properly signed (doesn't check for revocation)
@@ -41,6 +42,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	}
 
 	firebaseUID := decodedToken.UID
+	fmt.Println(firebaseUID)
 
 	// Check if a user with this Firebase UID already exists
 	existingUser := handler.collection.FindOne(ctx, bson.M{"firebaseUID": firebaseUID})
@@ -59,6 +61,8 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 
 	// verify email in body against Firebase email
 	email, ok := decodedToken.Claims["email"].(string)
+
+	fmt.Println(email)
 	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "error retrieving email"})
 		return
@@ -119,6 +123,7 @@ func (handler *RouteHandler) GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+// GET BY FIREBASE UID
 func (handler *RouteHandler) GetUserById(c *gin.Context) {
 
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
@@ -127,16 +132,9 @@ func (handler *RouteHandler) GetUserById(c *gin.Context) {
 	// passed in api call /users/:id
 	userID := c.Param("id")
 
-	// Convert userID from string to ObjectID if your database uses MongoDB's ObjectID
-	objID, err := primitive.ObjectIDFromHex(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
-		return
-	}
-
 	var user models.User
 	// find user
-	if err := handler.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user); err != nil {
+	if err := handler.collection.FindOne(ctx, bson.M{"fbId": userID}).Decode(&user); err != nil {
 
 		// handle errors
 		if err == mongo.ErrNoDocuments {

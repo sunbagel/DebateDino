@@ -17,6 +17,7 @@ import {
 } from "@/shadcn-components/ui/form"
 import { Separator } from "@/shadcn-components/ui/separator";
 import { Input } from "@/shadcn-components/ui/input"
+import useAuth from "@/hooks/useAuth";
 
 
 const formSchema = z.object({
@@ -46,6 +47,7 @@ const UserProfile = () => {
     // hosting: []
   }
 
+  const { currentUser : fbUser } = useAuth();
   const [ userInfo, setUserInfo ] = useState<User>(defaultUser);
   const [ isEditing, setIsEditing ] = useState<boolean>(false);
   const userIDPlaceholder = "65d69c469d47c04d60421fdb";
@@ -64,13 +66,17 @@ const UserProfile = () => {
   // fetch initial user info
   useEffect(()=>{
     // api should not return password. may want to return id?
-    axios.get(`users/${userIDPlaceholder}`)
-      .then(res => {
-        console.log(res.data);
-        const userRes : User = res.data;
-        setUserInfo(userRes);
-      })
-      .catch(err => console.log(err))
+    if(fbUser){
+      axios.get(`users/${fbUser.uid}`)
+        .then(res => {
+          console.log(res.data);
+          const userRes: User = res.data;
+          setUserInfo(userRes);
+        })
+        .catch(err => console.log(err))
+
+    }
+    
       
   }, [form, setUserInfo])
 
