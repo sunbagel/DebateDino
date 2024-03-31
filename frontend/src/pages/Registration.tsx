@@ -74,10 +74,10 @@ const Registration = () => {
     }
     return (
         <div>
-            <div className="flex flex-col mx-auto rounded items-center mt-5 py-5 max-w-sm space-y-5 bg-blue-300">
-                <h1 className=" text-5xl font-bold">Register:</h1>
+            <div className="container mx-auto flex flex-col min-h-screen space-y-5">
+                <h1 className="mt-10 text-5xl font-bold">Register:</h1>
                 <Form {...form}>
-                    <form className="flex flex-col max-w-lg" onSubmit={form.handleSubmit(register)}>
+                    <form className="flex flex-col max-w-lg space-y-2" onSubmit={form.handleSubmit(register)}>
                         <FormField
                             control={form.control}
                             name="email"
