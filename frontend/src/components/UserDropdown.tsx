@@ -21,7 +21,8 @@ const UserDropdown = () => {
 
     const navigate = useNavigate();
 
-    const {signout} = useAuth();
+    const {signout, currentUser} = useAuth();
+    
 
     const onSignOut = () => {
         signout()
@@ -44,7 +45,7 @@ const UserDropdown = () => {
 
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-                <DropdownMenuLabel>Mount Ashwort</DropdownMenuLabel>
+                <DropdownMenuLabel>{currentUser ? (currentUser?.displayName || "User") : "User"}</DropdownMenuLabel>
 
                 <DropdownMenuSeparator />
 
