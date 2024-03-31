@@ -5,25 +5,36 @@ import axios from "@/lib/axios";
 import { auth } from "@/lib/firebase-config";
 import { updateProfile } from "firebase/auth"
 import { useLocation, useNavigate } from "react-router-dom";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shadcn-components/ui/form";
+import { Input } from "@/shadcn-components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const formSchema = z.object({
+    // name: z.string().min(2, {
+    //     message: "Name must be between 2 to 20 characters.",
+    // }).max(20),
+    email: z.string().email("This is not a valid email").max(50),
+    password: z.string()
+})
 
 const Registration = () => {
     const { signup } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            email: "",
+            password: ""
+        }
+    })
 
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value);
-    }
+    const register = async (data: z.infer<typeof formSchema>) => {
 
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(e.target.value);
-    }
-
-    const register = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+        const { email, password } = data;
         console.log(email);
         console.log(password);
 
@@ -65,25 +76,45 @@ const Registration = () => {
         <div>
             <div className="flex flex-col mx-auto rounded items-center mt-5 py-5 max-w-sm space-y-5 bg-blue-300">
                 <h1 className=" text-5xl font-bold">Register:</h1>
-                <form className="flex flex-col max-w-lg" onSubmit={register}>
-                    <label className="text-xl" htmlFor="name">Email:</label>
-                    <input
-                        className="rounded-md outline outline-2"
-                        type="text"
-                        id="email"
-                        value={email}
-                        onChange={handleEmailChange}
-                    />
-                    <label className="text-xl" htmlFor="password">Password:</label>
-                    <input
-                        className="rounded-md outline outline-2"
-                        type="text"
-                        id="password"
-                        value={password}
-                        onChange={handlePasswordChange}
-                    />
-                    <Button className="my-4 text-sm rounded-md" type="submit">Register</Button>
-                </form>
+                <Form {...form}>
+                    <form className="flex flex-col max-w-lg" onSubmit={form.handleSubmit(register)}>
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email:</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="ex. barry.allen@gmail.com"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Password:</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Password"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <Button className="my-4 text-sm rounded-md" type="submit">Register</Button>
+                    </form>
+
+                </Form>
+                
 
             </div>
         
