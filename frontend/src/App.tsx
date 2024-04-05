@@ -8,6 +8,7 @@ import Tournaments from './pages/Tournaments/Tournaments';
 import UserProfile from './pages/UserProfile';
 import TournamentCreation from './pages/Tournaments/TournamentCreation';
 import TournamentView from './pages/Tournaments/TournamentView';
+import TournamentRegister from './pages/Tournaments/TournamentRegister';
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
           <Route path="/profile" element={<UserProfile/>}/>
           <Route path="/tournaments/create" element={<TournamentCreation/>}/>
           <Route path="/tournaments/view/:id" element={<TournamentView/>}/>
+          <Route path="/tournaments/register/:id" element={<TournamentRegister/>}/>
         </Routes>
       </Router>
       

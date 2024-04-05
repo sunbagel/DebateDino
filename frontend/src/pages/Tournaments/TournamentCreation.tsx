@@ -23,11 +23,7 @@ import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shadcn-components/ui/pagination"
 import { defaultTournament, tournamentSchema } from "@/types/tournaments"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shadcn-components/ui/select"
-import { Card, CardContent } from "@/shadcn-components/ui/card"
-import MultipleChoice from "./questions/MultipleChoice"
-import LongAnswer from "./questions/LongAnswer"
-import ShortAnswer from "./questions/ShortAnswer"
+import Question from "./questions/Question"
 
 
 export type Inputs = z.infer<typeof tournamentSchema>
@@ -36,12 +32,12 @@ const steps = [
     {
         id: 'Step 1',
         name: 'Basic Information',
-        fields: ['name', 'description', 'date', 'location', 'refundPolicy']
+        fields: ['name', 'description', 'date', 'location', 'refundPolicy', 'debatersPerTeam', 'maxTeams', 'maxTeamSlots']
     },
     {
         id: 'Step 2',
         name: 'Form Creation',
-        fields: ['form']
+        fields: ['questions', 'teamQuestions', 'memberQuestions']
     },
     {
         id: 'Step 3',
@@ -59,8 +55,16 @@ const TournamentCreation = () => {
         defaultValues: defaultTournament as unknown as Inputs
     })
 
-    const {fields, append, remove} = useFieldArray({
+    const {fields: questionFields, append: questionAppend, remove: questionRemove} = useFieldArray({
         name: "form.questions",
+        control: form.control
+    })
+    const {fields: teamFields, append: teamAppend, remove: teamRemove} = useFieldArray({
+        name: "form.teamQuestions",
+        control: form.control
+    })
+    const {fields: memberFields, append: memberAppend, remove: memberRemove} = useFieldArray({
+        name: "form.memberQuestions",
         control: form.control
     })
 
@@ -84,6 +88,11 @@ const TournamentCreation = () => {
     const fullValidation = async () => {
         for (let i = 0; i < steps.length - 1; i++) {
             const fields = steps[i].fields;
+            if (fields.indexOf('maxTeams') > -1) {
+                form.setValue(`debatersPerTeam`, parseFloat(form.getValues("debatersPerTeam")))
+                form.setValue(`maxTeams`, parseFloat(form.getValues("maxTeams")))
+                form.setValue(`maxTeamSlots`, parseFloat(form.getValues("maxTeamSlots")))
+            }
             const output = await form.trigger(fields as FieldName[], {shouldFocus: true});
             if (!output) return 0;
             if (fields.length > 0 && fields[0] === 'form') {
@@ -107,6 +116,11 @@ const TournamentCreation = () => {
 
     const next = async (index = -1) => {
         const fields = steps[currentStep].fields;
+        if (fields.indexOf('maxTeams') > -1) {
+            form.setValue(`debatersPerTeam`, parseFloat(form.getValues("debatersPerTeam")))
+            form.setValue(`maxTeams`, parseFloat(form.getValues("maxTeams")))
+            form.setValue(`maxTeamSlots`, parseFloat(form.getValues("maxTeamSlots")))
+        }
         const output = await form.trigger(fields as FieldName[], { shouldFocus: true });
         if (!output) return;
 
@@ -141,6 +155,11 @@ const TournamentCreation = () => {
 
     const prev = async () => {
         const fields = steps[currentStep].fields;
+        if (fields.indexOf('maxTeams') > -1) {
+            form.setValue(`debatersPerTeam`, parseFloat(form.getValues("debatersPerTeam")))
+            form.setValue(`maxTeams`, parseFloat(form.getValues("maxTeams")))
+            form.setValue(`maxTeamSlots`, parseFloat(form.getValues("maxTeamSlots")))
+        }
         const output = await form.trigger(fields as FieldName[], { shouldFocus: true });
         if (!output) return;
 
@@ -280,6 +299,45 @@ const TournamentCreation = () => {
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={form.control}
+                                name="debatersPerTeam"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Debaters per Team</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="maxTeams"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Maximum Number of Teams</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="maxTeamSlots"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Maximum Number of Team Slots</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" placeholder="" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </>
                     )}
                     
@@ -290,62 +348,9 @@ const TournamentCreation = () => {
                                 <br/>
                                 <h2 className="text-2xl text-gray-500">Create a Form</h2>
                             </div>
-                            {fields.map((f, index) => {
-                                const type = form.watch(`form.questions.${index}.type`);
-                                return (
-                                    <div key={f.id}>
-                                        <Card>
-                                            <CardContent className="pt-5">
-                                                <div className="flex flex-row justify-between">
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`form.questions.${index}.type`}
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <FormLabel>Type</FormLabel>
-                                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                    <FormControl>
-                                                                        <SelectTrigger>
-                                                                            <SelectValue placeholder="Select Question Type" />
-                                                                        </SelectTrigger>
-                                                                    </FormControl>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="input">Short Answer</SelectItem>
-                                                                        <SelectItem value="textarea">Long Answer</SelectItem>
-                                                                        <SelectItem value="select">Multiple Choice</SelectItem>
-                                                                    </SelectContent>
-                                                                </Select>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <Button variant="ghost" onClick={() => {remove(index)}}>
-                                                        <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
-                                                    </Button>
-                                                </div>
-                                                {type === 'input' && (
-                                                    <ShortAnswer form={form} idx={index} />
-                                                )}
-
-                                                {type === 'textarea' && (
-                                                    <LongAnswer form={form} idx={index} />
-                                                )}
-
-                                                {type === 'select' && (
-                                                    <MultipleChoice form={form} idx={index} />
-                                                )}
-                                            </CardContent>
-                                        </Card>
-                                    </div>
-                                )
-                            })}
-                            <div className="pt-5 flex justify-center">
-                                <Button onClick={() => append({
-                                    type: "",
-                                    text: "",
-                                    isRequired: false
-                                })} className="w-full">Add Question</Button>
-                            </div>
+                            <Question fields={questionFields} append={questionAppend} remove={questionRemove} form={form} section="questions" title="General Questions" />
+                            <Question fields={teamFields} append={teamAppend} remove={teamRemove} form={form} section="teamQuestions" title="Team Questions" />
+                            <Question fields={memberFields} append={memberAppend} remove={memberRemove} form={form} section="memberQuestions" title="Member Questions" />
                         </>
                     )}
 

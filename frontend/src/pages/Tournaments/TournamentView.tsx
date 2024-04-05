@@ -1,11 +1,12 @@
 import axios from '@/lib/axios'
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Tournament } from "@/types/tournaments";
 import { Card, CardContent, CardHeader } from '@/shadcn-components/ui/card';
 import { Button } from '@/shadcn-components/ui/button';
 
 const TournamentView = () => {
+    const navigate = useNavigate();
 
     const {id} = useParams();
 
@@ -22,12 +23,16 @@ const TournamentView = () => {
         })
     }, [id])
 
+    const register = () => {
+        navigate(`/tournaments/register/${id}`);
+    };
+
     return (
         <div className="container mx-auto flex min-h-screen flex-col pb-10">
             <div className="flex pt-10 h-96 justify-center relative items-center" >
                 <div className="rounded-3xl w-full h-full absolute bg-cover bg-cente" style={{backgroundImage: 'url("../../public/walterworth.png")'}}/>
                 <div className="z-0 w-full h-full absolute bg-gray-300 blur-md opacity-80"></div>
-                <img className="h-96 z-10" src="../../public/walterworth.png"></img>
+                <img className="h-96 z-10" src="../../walterworth.png"></img>
             </div>
             <div className="pt-10 flex flex-row justify-between">
                 <div className='flex flex-col gap-10'>
@@ -58,7 +63,7 @@ const TournamentView = () => {
                     <Card className="fixed bottom-0 left-0 w-full bg-gray-200 p-4 sm:static sm:bottom-auto sm:left-auto sm:w-auto sm:bg-transparent sm:p-0">
                         <CardHeader>Price: </CardHeader>
                         <CardContent>
-                            <Button>Register</Button>
+                            <Button onClick={register}>Register</Button>
                         </CardContent>
                     </Card>
                 </div>

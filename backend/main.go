@@ -61,7 +61,7 @@ func main() {
 	// router.POST("/api/tournaments/:id/registration", tournamentsHandler.RegisterUser)
 	router.DELETE("/api/tournaments/:tId", tournamentsHandler.DeleteTournament)
 	router.PUT("/api/tournaments/:tId", tournamentsHandler.UpdateTournament)
-	router.GET("/api/tournaments/:id", tournamentsHandler.GetTournamentById)
+	router.GET("/api/tournaments/:tId", tournamentsHandler.GetTournamentById)
 
 	// forms
 	router.GET("/api/tournaments/:tId/registrations", registrationHandler.GetRegistrations)

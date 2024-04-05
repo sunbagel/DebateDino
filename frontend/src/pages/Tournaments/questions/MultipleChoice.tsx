@@ -6,10 +6,10 @@ import { RadioGroup, RadioGroupItem } from '@/shadcn-components/ui/radio-group'
 import { Switch } from '@/shadcn-components/ui/switch'
 import { useFieldArray } from 'react-hook-form'
   
-function MultipleChoice({form, idx}) {
+function MultipleChoice({form, idx, section}) {
 
     const {fields, append, remove} = useFieldArray({
-        name: `form.questions.${idx}.options`,
+        name: `form.${section}.${idx}.options`,
         control: form.control
     })
     return (
@@ -17,7 +17,7 @@ function MultipleChoice({form, idx}) {
             <CardContent>
                 <FormField
                     control={form.control}
-                    name={`form.questions.${idx}.text`}
+                    name={`form.${section}.${idx}.text`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Question</FormLabel>
@@ -37,7 +37,7 @@ function MultipleChoice({form, idx}) {
                             <RadioGroupItem value="default" id="r1" disabled/>
                             <FormField 
                                 control={form.control}
-                                name={`form.questions.${idx}.options.${index}`}
+                                name={`form.${section}.${idx}.options.${index}`}
                                 render={({field}) => (
                                     <FormItem>
                                         <FormControl>

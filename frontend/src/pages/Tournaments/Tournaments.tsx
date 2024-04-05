@@ -77,7 +77,7 @@ const Tournaments = () => {
                                 <div key={t._id} className="hover:cursor-pointer hover:border-transparent border-2 border-l-4 hover:border-green-600 transition duration-300 ease-in-out" onClick={() => goToTournament(t._id ? t._id : "0")}>
                                     <Card className="flex flex-row p-3 rounded-none" >
                                         <CardContent>
-                                            <img className="max-w-48 rounded-lg" src="../../public/walterworth.png" />
+                                            <img className="max-w-48 rounded-lg" src="../../walterworth.png" />
                                         </CardContent>
                                         <CardContent>
                                             <h1 className="text-2xl font-bold">{t.name}</h1>

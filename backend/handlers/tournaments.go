@@ -357,7 +357,7 @@ func (handler *RouteHandler) GetTournamentById(c *gin.Context) {
 	defer cancel()
 
 	// passed in api call /tournaments/:id
-	tournamentID := c.Param("id")
+	tournamentID := c.Param("tId")
 
 	// Convert tournamentID from string to ObjectID if your database uses MongoDB's ObjectID
 	objID, err := primitive.ObjectIDFromHex(tournamentID)
