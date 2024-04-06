@@ -1,9 +1,9 @@
 import { ReactNode, createContext, useEffect, useState } from "react"
 import { auth } from "@/lib/firebase-config"
-import { User, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { User as FBUser, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 type AuthContextType = {
-    currentUser : User | null;
+    currentUser: FBUser | null;
     signup: (email: string, password: string) => Promise<UserCredential>;
     signin: (email: string, password: string) => Promise<UserCredential>;
     signout: () => Promise<void>;
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
 
-    const [ currentUser, setCurrentUser ] = useState<User|null>(null);
+    const [currentUser, setCurrentUser] = useState<FBUser |null>(null);
 
     const signup = (email : string, password : string) => {
         return createUserWithEmailAndPassword(auth, email, password);

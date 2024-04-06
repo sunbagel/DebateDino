@@ -21,10 +21,14 @@ import useAuth from "@/hooks/useAuth";
 
 
 const formSchema = z.object({
-    name: z.string().min(2, {
-      message: "Name must be between 2 to 20 characters.",
-    }).max(20),
-    email: z.string().email("This is not a valid email").max(50),
+    username: z.string().trim().min(1, {
+      message: "Name must be between 1 to 30 characters.",
+    }).max(30),
+    name: z.string().trim().min(1, {
+      message: "Name must be between 1 to 30 characters.",
+    }).max(30),
+    email: z.string().trim().email("This is not a valid email").max(50),
+    phoneNumber: z.string().trim(),
     institution: z.string(),
     agreement: z.string().max(2000),
 
@@ -36,7 +40,10 @@ const formSchema = z.object({
 
 
 const UserProfile = () => {
-  const defaultUser : BaseUser = {
+
+
+  const { currentUser : fbUser } = useAuth();
+  const defaultUser: BaseUser = {
     username: "",
     name: "",
     email: "",
@@ -45,11 +52,8 @@ const UserProfile = () => {
     agreement: "",
   }
 
-  const { currentUser : fbUser } = useAuth();
-  const [ userInfo, setUserInfo ] = useState<BaseUser>(defaultUser);
-  const [ isEditing, setIsEditing ] = useState<boolean>(false);
-
-  
+  const [userInfo, setUserInfo] = useState<BaseUser>(defaultUser);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,14 +72,20 @@ const UserProfile = () => {
         .then(res => {
           console.log(res.data);
           const userRes: BaseUser = res.data;
+
+          if(fbUser.displayName){
+            userRes.username = fbUser?.displayName;
+          }
+          
           setUserInfo(userRes);
         })
         .catch(err => console.log(err))
-
+    } else {
+      console.error("Couldn't fetch profile - User not signed in, or user id not found")
     }
     
       
-  }, [form, setUserInfo])
+  }, [fbUser, form, setUserInfo])
 
   // set form default everytime userInfo is changed
   useEffect(() => {
@@ -97,6 +107,7 @@ const UserProfile = () => {
 
     console.log(updatedValues);
     if(fbUser){
+      console.log("EDITING", fbUser.uid)
       axios.put(`users/${fbUser.uid}`, updatedValues)
         .then(res => {
           const test = res.data;
@@ -108,7 +119,7 @@ const UserProfile = () => {
         })
 
     } else {
-      console.log("User not signed in or user id not found")
+      console.error("Couldn't update user profile - User not signed in or user id not found")
     }
     
 
@@ -135,6 +146,25 @@ const UserProfile = () => {
         <div className="space-y-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+              {/* EDITING USERNAME DOESN'T DO ANYTHING RN */}
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        readOnly={!isEditing}
+                        placeholder="username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="name"
@@ -162,6 +192,23 @@ const UserProfile = () => {
                       <Input
                         readOnly={!isEditing}
                         placeholder="Email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone</FormLabel>
+                    <FormControl>
+                      <Input
+                        readOnly={!isEditing}
+                        placeholder="Phone Number"
                         {...field}
                       />
                     </FormControl>
