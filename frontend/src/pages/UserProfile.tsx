@@ -1,4 +1,4 @@
-import { User } from "@/types/users"
+import { BaseUser } from "@/types/users"
 import axios from "@/lib/axios";
 import { useEffect, useState } from "react";
 
@@ -36,21 +36,18 @@ const formSchema = z.object({
 
 
 const UserProfile = () => {
-  const defaultUser = {
+  const defaultUser : BaseUser = {
     username: "",
     name: "",
     email: "",
+    phoneNumber: "",
     institution: "",
     agreement: "",
-    // participating: [],
-    // judging: [],
-    // hosting: []
   }
 
   const { currentUser : fbUser } = useAuth();
-  const [ userInfo, setUserInfo ] = useState<User>(defaultUser);
+  const [ userInfo, setUserInfo ] = useState<BaseUser>(defaultUser);
   const [ isEditing, setIsEditing ] = useState<boolean>(false);
-  const userIDPlaceholder = "65d69c469d47c04d60421fdb";
 
   
   
@@ -70,7 +67,7 @@ const UserProfile = () => {
       axios.get(`users/${fbUser.uid}`)
         .then(res => {
           console.log(res.data);
-          const userRes: User = res.data;
+          const userRes: BaseUser = res.data;
           setUserInfo(userRes);
         })
         .catch(err => console.log(err))
@@ -99,15 +96,21 @@ const UserProfile = () => {
     });
 
     console.log(updatedValues);
-    axios.put(`users/${userIDPlaceholder}`, updatedValues)
-      .then(res => {
-        const test = res.data;
-        console.log(test);
-        setUserInfo(userInfo => ({...userInfo, ...updatedValues}))
-      })
-      .catch(err => {
-        console.log(err);
-      })
+    if(fbUser){
+      axios.put(`users/${fbUser.uid}`, updatedValues)
+        .then(res => {
+          const test = res.data;
+          console.log(test);
+          setUserInfo(userInfo => ({ ...userInfo, ...updatedValues }))
+        })
+        .catch(err => {
+          console.log(err);
+        })
+
+    } else {
+      console.log("User not signed in or user id not found")
+    }
+    
 
     setIsEditing(false);
     

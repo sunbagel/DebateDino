@@ -1,4 +1,3 @@
-import { useState } from "react";
 import useAuth from "@/hooks/useAuth"
 import { Button } from "@/shadcn-components/ui/button";
 import axios from "@/lib/axios";
@@ -10,13 +9,25 @@ import { Input } from "@/shadcn-components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { RegisterUser } from "@/types/users";
 
 const formSchema = z.object({
     // name: z.string().min(2, {
     //     message: "Name must be between 2 to 20 characters.",
     // }).max(20),
     email: z.string().email("This is not a valid email").max(50),
-    password: z.string()
+    password: z.string(),
+    name: z.string().trim().min(1, {
+        message: "Name cannot be empty"
+    }),
+    username: z.string().trim().min(1, {
+        message: "Username cannot be empty"
+    }),
+    phoneNumber: z.string(), // NEED BETTER VALIDATION LATER
+    institution: z.string().trim().min(1, {
+        message: "Institution cannot be empty"
+    }),
+    agreement: z.string()
 })
 
 const Registration = () => {
@@ -28,32 +39,42 @@ const Registration = () => {
         resolver: zodResolver(formSchema),
         defaultValues: {
             email: "",
-            password: ""
+            password: "",
+            name: "",
+            username: "",
+            phoneNumber: "",
+            institution: "",
+            agreement: ""
         }
     })
 
     const register = async (data: z.infer<typeof formSchema>) => {
 
-        const { email, password } = data;
+        console.log(data);
+        const { email, password, name, username, phoneNumber, institution, agreement } = data;
         console.log(email);
         console.log(password);
 
         try{
             const userCredential = await signup(email, password);
-            await updateProfile(userCredential.user, { displayName: "test display" });
+            await updateProfile(userCredential.user, { displayName: username });
 
             const userToken = await userCredential.user.getIdToken();
-            const userData = {
+            const userData : RegisterUser = {
                 fb_id: auth.currentUser?.uid,
-                name: "test fb",
-                password: password,
-                email: email,
-                institution: "University of Waterloo",
-                agreement: "NO I DON'T agree",
+                username,
+                name,
+                password,
+                email,
+                phoneNumber,
+                institution,
+                agreement,
                 debating: [],
                 judging: [],
                 hosting: []
             };
+
+            console.log(userData);
 
             const config = {
                 headers: {
@@ -78,6 +99,41 @@ const Registration = () => {
                 <h1 className="mt-10 text-5xl font-bold">Register:</h1>
                 <Form {...form}>
                     <form className="flex flex-col max-w-lg space-y-2" onSubmit={form.handleSubmit(register)}>
+
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Full Name:</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Barry Allen"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="username"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Username:</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="FattestManAlive"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
                         <FormField
                             control={form.control}
                             name="email"
@@ -103,6 +159,59 @@ const Registration = () => {
                                     <FormControl>
                                         <Input
                                             placeholder="Password"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        
+
+                        <FormField
+                            control={form.control}
+                            name="phoneNumber"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Phone Number:</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="647-xxx-xxxx"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="institution"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Institution:</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="ex. Queens University"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="agreement"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Agreement:</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="YES (lol idk)"
                                             {...field}
                                         />
                                     </FormControl>
