@@ -56,28 +56,34 @@ func main() {
 			"message": "hello world",
 		})
 	})
+
+	apiGroup := router.Group("/api")
+	publicRoutes := apiGroup.Group("/public")
+	// can give better name. just didn't want to refactor all endpoint calls
+	protectedRoutes := apiGroup.Group("/")
+
 	// Users
 	// might want to add filtering options, ex. /users?name=John&institution=XYZ, can access the gin.Context with c.Query("name")
-	router.GET("/api/users", userHandler.GetUsers)
+	publicRoutes.GET("/users", userHandler.GetUsers)
 	// get by id
-	router.GET("/api/users/:id", userHandler.GetUserById)
-	router.GET("/api/users/:id/tournaments", userHandler.GetUserTournaments)
-	router.POST("/api/users", userHandler.CreateUser)
-	router.PUT("/api/users/:id", userHandler.UpdateUser)
-	router.DELETE("/api/users/:id", userHandler.DeleteUser)
+	protectedRoutes.GET("/users/:id", userHandler.GetUserById)
+	protectedRoutes.GET("/users/:id/tournaments", userHandler.GetUserTournaments)
+	protectedRoutes.POST("/users", userHandler.CreateUser)
+	protectedRoutes.PUT("/users/:id", userHandler.UpdateUser)
+	protectedRoutes.DELETE("/users/:id", userHandler.DeleteUser)
 
 	// Tournaments
-	router.GET("/api/tournaments", tournamentsHandler.SearchTournament)
-	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
+	publicRoutes.GET("/tournaments", tournamentsHandler.SearchTournament)
+	protectedRoutes.POST("/tournaments", tournamentsHandler.CreateTournament)
 	// to be refactored (for judge sign up)
-	// router.POST("/api/tournaments/:id/registration", tournamentsHandler.RegisterUser)
-	router.DELETE("/api/tournaments/:tId", tournamentsHandler.DeleteTournament)
-	router.PUT("/api/tournaments/:tId", tournamentsHandler.UpdateTournament)
+	// protectedRoutes.POST("/tournaments/:id/registration", tournamentsHandler.RegisterUser)
+	protectedRoutes.DELETE("/tournaments/:tId", tournamentsHandler.DeleteTournament)
+	protectedRoutes.PUT("/tournaments/:tId", tournamentsHandler.UpdateTournament)
 
 	// forms
-	router.GET("/api/tournaments/:tId/registrations", registrationHandler.GetRegistrations)
-	router.POST("/api/tournaments/:tId/registrations", registrationHandler.SubmitRegistration)
-	router.DELETE(("/api/tournaments/:tId/registrations/:uId"), registrationHandler.UnregisterUser)
+	protectedRoutes.GET("/tournaments/:tId/registrations", registrationHandler.GetRegistrations)
+	protectedRoutes.POST("/tournaments/:tId/registrations", registrationHandler.SubmitRegistration)
+	protectedRoutes.DELETE(("/tournaments/:tId/registrations/:uId"), registrationHandler.UnregisterUser)
 
 	router.Run("localhost:" + port)
 }
