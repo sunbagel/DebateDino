@@ -2,11 +2,15 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
+	"github.com/gin-gonic/gin"
 
 	"google.golang.org/api/option"
 )
@@ -30,4 +34,31 @@ func InitFirebaseAuth() *auth.Client {
 
 	return authClient
 
+}
+
+func VerifyTokenMiddleware(auth *auth.Client) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		splitToken := strings.Split(authHeader, "Bearer ")
+		if len(splitToken) != 2 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Authorization header format must be \"Bearer <token>\""})
+			return
+		}
+		// get token
+		fbIdToken := splitToken[1]
+		// fmt.Println(fbIdToken)
+		decodedToken, err := auth.VerifyIDToken(context.Background(), fbIdToken)
+
+		// if token is correct format, not expired, and properly signed (doesn't check for revocation)
+		// only check for revocation for important security (it is an expensive operation)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "error validating firebase token"})
+			fmt.Println(err)
+			return
+		}
+
+		// attach token to context
+		c.Set("firebaseToken", decodedToken)
+		c.Next()
+	}
 }

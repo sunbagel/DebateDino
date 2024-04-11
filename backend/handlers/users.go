@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"server/models"
-	"strings"
 	"time"
 
+	"firebase.google.com/go/v4/auth"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -21,28 +21,21 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// extract jwt token
-	authHeader := c.GetHeader("Authorization")
-	splitToken := strings.Split(authHeader, "Bearer ")
-	if len(splitToken) != 2 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Authorization header format must be \"Bearer <token>\""})
-		return
-	}
-	// get token
-	fbIdToken := splitToken[1]
-	fmt.Println(fbIdToken)
-	decodedToken, err := handler.authClient.VerifyIDToken(ctx, fbIdToken)
-
-	// if token is correct format, not expired, and properly signed (doesn't check for revocation)
-	// only check for revocation for important security (it is an expensive operation)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "error validating firebase token"})
-		fmt.Println(err)
+	// get token from context
+	tokenInterface, exists := c.Get("firebaseToken")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 		return
 	}
 
-	firebaseUID := decodedToken.UID
-	fmt.Println(firebaseUID)
+	// assert token type
+	firebaseToken, ok := tokenInterface.(*auth.Token)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid token data"})
+		return
+	}
+
+	firebaseUID := firebaseToken.UID
 
 	// Check if a user with this Firebase UID already exists
 	existingUser := handler.collection.FindOne(ctx, bson.M{"firebaseUID": firebaseUID})
@@ -60,7 +53,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	}
 
 	// verify email in body against Firebase email
-	email, ok := decodedToken.Claims["email"].(string)
+	email, ok := firebaseToken.Claims["email"].(string)
 
 	fmt.Println(email)
 	if !ok {
