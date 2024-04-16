@@ -61,6 +61,7 @@ func main() {
 	publicRoutes := apiGroup.Group("/public")
 	// can give better name. just didn't want to refactor all endpoint calls
 	protectedRoutes := apiGroup.Group("/")
+	protectedRoutes.Use(db.VerifyTokenMiddleware(authClient))
 
 	// Users
 	// might want to add filtering options, ex. /users?name=John&institution=XYZ, can access the gin.Context with c.Query("name")
