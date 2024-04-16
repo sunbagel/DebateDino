@@ -67,24 +67,38 @@ const UserProfile = () => {
   // fetch initial user info
   useEffect(()=>{
     // api should not return password. may want to return id?
-    if(fbUser){
-      axios.get(`users/${fbUser.uid}`)
-        .then(res => {
-          console.log(res.data);
-          const userRes: BaseUser = res.data;
 
-          if(fbUser.displayName){
-            userRes.username = fbUser?.displayName;
-          }
-          
-          setUserInfo(userRes);
-        })
-        .catch(err => console.log(err))
-    } else {
-      console.error("Couldn't fetch profile - User not signed in, or user id not found")
-    }
-    
+    const fetchUser = async () => {
+      if(!fbUser){
+        console.error("Couldn't fetch profile - User not signed in, or user id not found");
+        return;
+      }
+
+      try{
+        const token = await fbUser.getIdToken();
       
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        };
+
+        const res = await axios.get(`users/${fbUser.uid}`, config)
+        console.log(res.data);
+        const userRes: BaseUser = res.data;
+
+        if (fbUser.displayName) {
+          userRes.username = fbUser?.displayName;
+        }
+        setUserInfo(userRes);
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchUser();
+    
   }, [fbUser, form, setUserInfo])
 
   // set form default everytime userInfo is changed
