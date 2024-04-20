@@ -21,6 +21,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	// FB VALIDATION
 	// get token from context
 	tokenInterface, exists := c.Get("firebaseToken")
 	if !exists {
@@ -35,16 +36,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	firebaseUID := firebaseToken.UID
-
-	// Check if a user with this Firebase UID already exists
-	existingUser := handler.collection.FindOne(ctx, bson.M{"firebaseUID": firebaseUID})
-	if existingUser.Err() != mongo.ErrNoDocuments {
-		c.JSON(http.StatusConflict, gin.H{"error": "User already exists"})
-		return
-	}
-
-	// bind user
+	// get request data
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -52,7 +44,22 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	// verify email in body against Firebase email
+	firebaseUID := firebaseToken.UID
+	username := user.Username
+
+	// VALIDATION 1: Check if a user with this Firebase UID OR username already exists
+	existingUser := handler.collection.FindOne(ctx, bson.M{"$or": []bson.M{
+		{"firebaseUID": firebaseUID},
+		{"username": username},
+	}})
+
+	if existingUser.Err() != mongo.ErrNoDocuments {
+		// returns error 409
+		c.JSON(http.StatusConflict, gin.H{"error": "User already exists. Please pick a different username."})
+		return
+	}
+
+	// VALIDATION 2: verify email in body against Firebase email
 	email, ok := firebaseToken.Claims["email"].(string)
 
 	fmt.Println(email)
@@ -67,7 +74,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 
 	user.FbID = firebaseUID
 
-	// validate user object
+	// FINAL VALIDATION: Validate user object against schema
 	validationErr := handler.validate.Struct(user)
 	if validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
@@ -75,7 +82,7 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	// get collection from the handler
+	// Create user
 	result, insertErr := handler.collection.InsertOne(ctx, user)
 	if insertErr != nil {
 		msg := fmt.Sprint("User was not created")
@@ -157,6 +164,7 @@ func (handler *RouteHandler) UpdateUser(c *gin.Context) {
 	var updateData map[string]interface{}
 
 	// BindJSON() takes HTTP request and marshals it into Go struct or map
+	// Extra fields are ignored - only fields present in the schema are added
 	if err := c.BindJSON(&updateData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

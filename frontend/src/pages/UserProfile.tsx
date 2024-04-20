@@ -76,7 +76,7 @@ const UserProfile = () => {
 
       try{
         const token = await fbUser.getIdToken();
-      
+        // console.log(token);
         const config = {
           headers: {
             Authorization: `Bearer ${token}`
@@ -84,7 +84,7 @@ const UserProfile = () => {
         };
 
         const res = await axios.get(`users/${fbUser.uid}`, config)
-        console.log(res.data);
+        // console.log(res.data);
         const userRes: BaseUser = res.data;
 
         if (fbUser.displayName) {

@@ -31,7 +31,7 @@ const formSchema = z.object({
 })
 
 const Registration = () => {
-    const { signup } = useAuth();
+    const { signup, deleteUser } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -82,7 +82,7 @@ const Registration = () => {
                 }
             };
 
-            const res = await axios.post('users', userData, config)
+            const res = await axios.post('/users', userData, config)
             console.log(res);
             const from = location.state?.from?.pathname || "/";
 
@@ -90,7 +90,21 @@ const Registration = () => {
             navigate(from, { replace: true });
 
         }catch(err){
-            console.log(err);
+            console.log("Failed to register user:", err);
+            // if FB registration went through, but Mongo-side user creation failed
+            // delete newly created user
+            deleteUser();
+
+            form.setError("username", 
+                {
+                    type: "manual",
+                    message: "The username already exists. Pick a new username."
+                }, 
+                
+                {shouldFocus: true}
+            );
+
+            
         }
     }
     return (
@@ -120,7 +134,7 @@ const Registration = () => {
                         <FormField
                             control={form.control}
                             name="username"
-                            render={({ field }) => (
+                            render={({ field, fieldState: { error } }) => (
                                 <FormItem>
                                     <FormLabel>Username:</FormLabel>
                                     <FormControl>
@@ -129,7 +143,7 @@ const Registration = () => {
                                             {...field}
                                         />
                                     </FormControl>
-                                    <FormMessage />
+                                    <FormMessage>{error?.message}</FormMessage>
                                 </FormItem>
                             )}
                         />
