@@ -52,7 +52,7 @@ const TournamentRegister = () => {
     const processForm: SubmitHandler<Inputs> = (values: z.infer<typeof formResponseSchema>) => {
         console.log(JSON.stringify(values));
         axios.post(`tournaments/${id}/registrations`, values);
-        // navigate('/tournaments')
+        navigate('/tournaments')
     }
 
     useEffect(() => {
@@ -75,13 +75,13 @@ const TournamentRegister = () => {
                 <div className="z-0 w-full h-full absolute bg-gray-300 blur-md opacity-80"></div>
                 <img className="h-96 z-10" src="../../walterworth.png"></img>
             </div>
-            <h1 className="text-3xl font-bold pt-10">Registering for {tournament?.name}</h1>
+            <h1 className="text-3xl font-bold pt-10">{tournament?.name}</h1>
             <div className="pt-10 justify-between">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(processForm)} className="space-y-8">
                         <Card>
                             <CardHeader>
-                                <h1 className="text-2xl font-bold">Section 1: General Questions</h1>
+                                <h1 className="text-2xl font-bold">General Questions</h1>
                             </CardHeader>
                             <CardContent>
                                 {tournament?.form.questions.map((question, index) => {
@@ -111,14 +111,11 @@ const TournamentRegister = () => {
                                 })}
                             </CardContent>
                         </Card>
-                        <Card>
-                            <CardHeader>
-                                <h1 className="text-2xl font-bold">Section 2: Team Information</h1>
-                            </CardHeader>
-                            <CardContent className="flex flex-col">
+                        <div>
+                            <div className="flex flex-col">
                                 {teamsFields.map((f, teamIdx) => {
                                     return (
-                                        <Card key={f.id}>
+                                        <Card key={f.id} className="mb-8">
                                             <CardHeader className="flex flex-row justify-between">
                                                 <h1 className="text-xl font-bold">Team #{teamIdx+1}</h1>
                                                 <Button variant="ghost" onClick={() => {teamRemove(teamIdx)}}>
@@ -158,16 +155,23 @@ const TournamentRegister = () => {
                                         </Card>
                                     )
                                 })}
-                            </CardContent>
-                            <CardFooter>
-                                <Button onClick={() => teamAppend({
+                            </div>
+                            <div>
+                                <Button disabled={!(tournament && form.getValues('teams').length < tournament.maxTeams)} onClick={() => teamAppend({
                                     teamResponses: [],
                                     members: [{
                                         memberResponses: []
                                     }]
-                                })} type="button" className="w-full">Add Team</Button>
-                            </CardFooter>
-                        </Card>
+                                })} type="button" className="w-full">
+                                    {tournament && form.getValues('teams').length < tournament.maxTeams && (
+                                        <p>Add Team</p>
+                                    )}
+                                    {!(tournament && form.getValues('teams').length < tournament.maxTeams) && (
+                                        <p>You have reached the maximum number of teams.</p>
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
                         <Button type="submit">Register</Button>
                     </form>
                 </Form>

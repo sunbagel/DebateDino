@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tournament } from "@/types/tournaments";
 import { Checkbox } from "@/shadcn-components/ui/checkbox";
 import { Button } from "@/shadcn-components/ui/button";
+import { Skeleton } from "@/shadcn-components/ui/skeleton";
 
 interface Options {
     [key: string]: string[]; // Index signature
@@ -72,7 +73,16 @@ const Tournaments = () => {
                         })}
                     </div>
                     <div className="flex flex-col gap-3">
-                        {tournaments.map(t => {
+                        {!tournaments && (
+                            <div className="flex flex-col space-y-3">
+                                <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-[250px]" />
+                                    <Skeleton className="h-4 w-[200px]" />
+                                </div>
+                            </div>
+                        )}
+                        {tournaments && tournaments.map(t => {
                             return (
                                 <div key={t._id} className="hover:cursor-pointer hover:border-transparent border-2 border-l-4 hover:border-green-600 transition duration-300 ease-in-out" onClick={() => goToTournament(t._id ? t._id : "0")}>
                                     <Card className="flex flex-row p-3 rounded-none" >
