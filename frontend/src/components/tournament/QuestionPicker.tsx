@@ -4,18 +4,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/shadcn-components/ui/textarea'
 import React from 'react'
 
-const QuestionPicker = ({field, type, options}) => {
+const QuestionPicker = ({field, type, options, isRequired=false}) => {
 
     return (
         <>
             {type === 'input' && (
-                <Input {...field} />
+                <Input {...field} required={isRequired} />
             )}
             {type === 'textarea' && (
-                <Textarea {...field} />
+                <Textarea {...field} required={isRequired} />
             )}
             {type === 'select' && (
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} required={isRequired}>
                     <FormControl>
                         <SelectTrigger>
                             <SelectValue placeholder="None" />

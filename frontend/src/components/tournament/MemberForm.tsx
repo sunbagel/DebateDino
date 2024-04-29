@@ -38,9 +38,9 @@ const MemberForm = ({teamIdx, form, tournament}: {teamIdx: number, form: unknown
                                         name={`teams.${teamIdx}.members.${memberIdx}.memberResponses.${memberQuestionIdx}.answer`}
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>{memberQuestion.text}</FormLabel>
+                                                <FormLabel>{memberQuestion.text} {memberQuestion.isRequired && '*'}</FormLabel>
                                                 <FormControl>
-                                                    <QuestionPicker field={field} type={memberQuestion.type} options={memberQuestion.options ? memberQuestion.options : []} />
+                                                    <QuestionPicker field={field} type={memberQuestion.type} options={memberQuestion.options ? memberQuestion.options : []} isRequired={memberQuestion.isRequired} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
