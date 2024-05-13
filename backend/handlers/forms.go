@@ -411,7 +411,7 @@ func (handler *RouteHandler) GetRegistrations(c *gin.Context) {
 		return
 	}
 
-	cursor, err := handler.collection.Find(ctx, bson.M{"tournamentid": objId})
+	cursor, err := handler.collection.Find(ctx, bson.M{"tournamentId": objId})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})

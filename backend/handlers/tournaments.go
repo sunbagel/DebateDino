@@ -350,3 +350,35 @@ func (handler *RouteHandler) RegisterUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": message})
 
 }
+
+func (handler *RouteHandler) GetTournamentById(c *gin.Context) {
+
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// passed in api call /tournaments/:id
+	tournamentID := c.Param("tId")
+
+	// Convert tournamentID from string to ObjectID if your database uses MongoDB's ObjectID
+	objID, err := primitive.ObjectIDFromHex(tournamentID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Tournament ID format"})
+		return
+	}
+
+	var tournament models.Tournament
+	// find tournament
+	if err := handler.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&tournament); err != nil {
+
+		// handle errors
+		if err == mongo.ErrNoDocuments {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Tournament not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching Tournament"})
+		return
+	}
+
+	// return user
+	c.JSON(http.StatusOK, tournament)
+}
