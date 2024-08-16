@@ -56,6 +56,11 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 		return
 	}
 
+	if tournament.Form == nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Missing form data", "message": "A complete Form object is required for submitting a tournament."})
+		return
+	}
+
 	// intialize general questions
 	if err := initializeQuestions(tournament.Form.Questions); err != nil {
 		message := "Failed to initialize general questions"

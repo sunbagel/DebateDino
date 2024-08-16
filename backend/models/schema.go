@@ -20,7 +20,7 @@ type Tournament struct {
 	MaxTeamSlots    int                  `bson:"maxTeamSlots" json:"maxTeamSlots" validate:"required"`
 	Debaters        []primitive.ObjectID `bson:"debaters" json:"debaters" validate:"required,dive"`
 	Judges          []primitive.ObjectID `bson:"judges" json:"judges" validate:"required,dive"`        // dive checks for nested fields in map/array(slices)
-	Form            *Form                `bson:"form" json:"form" validate:"required,omitempty"`       // no empty forms. recursively check subfields.
+	Form            *Form                `bson:"form" json:"form" validate:"required"`                 // no empty forms. recursively check subfields.
 	RefundPolicy    string               `bson:"refundPolicy" json:"refundPolicy" validate:"required"` // could use oneof tag
 }
 

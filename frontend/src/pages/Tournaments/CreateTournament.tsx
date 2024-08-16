@@ -21,6 +21,7 @@ import { Calendar } from "@/shadcn-components/ui/calendar"
 import { Textarea } from "@/shadcn-components/ui/textarea"
 import axios from '@/lib/axios'
 import { useNavigate } from "react-router-dom"
+import useAuth from "@/hooks/useAuth"
 
 
 const formSchema = z.object({
@@ -41,6 +42,9 @@ const formSchema = z.object({
 
 const CreateTournaments = ({navigation}) => {
     const navigate = useNavigate();
+
+    const { currentUser: fbUser } = useAuth();
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -54,11 +58,22 @@ const CreateTournaments = ({navigation}) => {
         },
     })
      
-    function onSubmit(data: z.infer<typeof formSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(data)
-        axios.post(`/tournaments`, data)
+    async function onSubmit(data: z.infer<typeof formSchema>) {
+        console.log(data);
+        if (!fbUser) {
+            console.error("Couldn't fetch profile - User not signed in, or user id not found");
+            return;
+        }
+        // get token
+        const token = await fbUser.getIdToken();
+        // console.log(token);
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        };
+
+        axios.post(`/tournaments`, data, config)
         .then(res => {
             const test = res.data;
             console.log(test);
