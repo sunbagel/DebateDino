@@ -40,7 +40,7 @@ func VerifyTokenMiddleware(auth *auth.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		splitToken := strings.Split(authHeader, "Bearer ")
-		fmt.Println(splitToken)
+		// fmt.Println(splitToken)
 		if len(splitToken) != 2 {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Authorization header format must be \"Bearer <token>\""})
 			c.Abort()
