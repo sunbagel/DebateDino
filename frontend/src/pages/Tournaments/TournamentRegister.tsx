@@ -26,6 +26,7 @@ import { Toaster } from "@/shadcn-components/ui/toaster";
 import { loadStripe } from "@stripe/stripe-js";
 import CheckoutForm from "@/components/CheckoutForm";
 import FormView from "@/components/FormView";
+import useAuth from "@/hooks/useAuth";
 
 export type Inputs = z.infer<typeof formResponseSchema>
 
@@ -50,6 +51,7 @@ const TournamentRegister = () => {
     const { toast } = useToast();
 
     const {id} = useParams();
+    const { currentUser: fbUser } = useAuth();
 
     const form = useForm<Inputs>({
         resolver: zodResolver(formResponseSchema),
@@ -146,28 +148,67 @@ const TournamentRegister = () => {
     }
 
     useEffect(() => {
-        axios.get(`tournaments/${id}`)
-        .then(res => {
-            console.log(res.data);
-            setTournament(res.data);
-        })
-        .catch(err => {
-            console.log(err);
-        })
-    }, [id])
+        // note this exact same code is in TournamentView lol
+        async function fetchTournament() {
+            try {
+                if (!fbUser) {
+                    console.error("Couldn't fetch profile - User not signed in, or user id not found");
+                    return;
+                }
+
+                const token = await fbUser.getIdToken();
+                // console.log(token);
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                };
+
+                const res = await axios.get(`tournaments/${id}`, config);
+                setTournament(res.data);
+
+            } catch (err) {
+                console.error(err);
+            }
+
+        }
+
+        fetchTournament();
+    }, [fbUser, id])
 
     useEffect(() => {
         console.log(currentStep);
-        if (currentStep == 1 && !clientSecret) {
-            console.log('payment intent');
-            axios.post('payment-intent', {amount: 1000}) // change the price when price is implemented
-            .then(res => {
-                setClientSecret(res.data.client_secret);
-            })
-            .catch(err => {
-                console.log(err);
-            })
+        async function postPaymentIntent(){
+
+            try{
+                
+                if (currentStep == 1 && !clientSecret) {
+                    if (!fbUser) {
+                        console.error("Couldn't fetch profile - User not signed in, or user id not found");
+                        return;
+                    }
+
+                    const token = await fbUser.getIdToken();
+                    // console.log(token);
+                    const config = {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    };
+
+                    console.log('payment intent');
+                    const res = axios.post('payment-intent', { amount: 1000 }, config); // change the price when price is implemented
+                    setClientSecret(res.data.client_secret);
+
+                }
+            } catch(err){
+                console.error(err);
+            }
+
         }
+
+        postPaymentIntent();
+        
     }, [currentStep, clientSecret])
 
     

@@ -83,7 +83,7 @@ const UserProfile = () => {
           }
         };
 
-        const res = await axios.get(`users/${fbUser.uid}`, config)
+        const res = await axios.get(`users/${fbUser.uid}`, config);
         // console.log(res.data);
         const userRes: BaseUser = res.data;
 

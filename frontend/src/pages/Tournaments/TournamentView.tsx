@@ -4,24 +4,45 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Tournament } from "@/types/tournaments";
 import { Card, CardContent, CardHeader } from '@/shadcn-components/ui/card';
 import { Button } from '@/shadcn-components/ui/button';
+import useAuth from '@/hooks/useAuth';
 
 const TournamentView = () => {
     const navigate = useNavigate();
 
     const {id} = useParams();
 
-
+    // authentication details
+    const { currentUser: fbUser } = useAuth();
     const [tournament, setTournament] = useState<Tournament>()
     useEffect(() => {
-        axios.get(`tournaments/${id}`)
-        .then(res => {
-            console.log(res.data);
-            setTournament(res.data);
-        })
-        .catch(err => {
-            console.log(err);
-        })
-    }, [id])
+
+        async function fetchTournament(){
+            try{
+                if (!fbUser) {
+                    console.error("Couldn't fetch profile - User not signed in, or user id not found");
+                    return;
+                }
+
+                const token = await fbUser.getIdToken();
+                // console.log(token);
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                };
+
+                const res = await axios.get(`tournaments/${id}`, config);
+                setTournament(res.data);
+
+            } catch (err) {
+                console.error(err);
+            }
+            
+        }
+        
+        fetchTournament();
+        
+    }, [fbUser, id])
 
     const register = () => {
         navigate(`/tournaments/register/${id}`);
