@@ -49,6 +49,7 @@ func main() {
 	userHandler := handlers.NewRouteHandler(client, authClient, userCollection, validate)
 	tournamentsHandler := handlers.NewRouteHandler(client, authClient, tournamentCollection, validate)
 	registrationHandler := handlers.NewRouteHandler(client, authClient, registrationCollection, validate)
+	paymentHandler := handlers.NewRouteHandler(client, authClient, tournamentCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
@@ -80,11 +81,15 @@ func main() {
 	// protectedRoutes.POST("/tournaments/:id/registration", tournamentsHandler.RegisterUser)
 	protectedRoutes.DELETE("/tournaments/:tId", tournamentsHandler.DeleteTournament)
 	protectedRoutes.PUT("/tournaments/:tId", tournamentsHandler.UpdateTournament)
+	protectedRoutes.GET("/tournaments/:tId", tournamentsHandler.GetTournamentById)
 
 	// forms
 	protectedRoutes.GET("/tournaments/:tId/registrations", registrationHandler.GetRegistrations)
 	protectedRoutes.POST("/tournaments/:tId/registrations", registrationHandler.SubmitRegistration)
 	protectedRoutes.DELETE(("/tournaments/:tId/registrations/:uId"), registrationHandler.UnregisterUser)
+
+	// stripe configuration
+	protectedRoutes.POST("/payment-intent", paymentHandler.CreatePaymentIntent)
 
 	router.Run("localhost:" + port)
 }

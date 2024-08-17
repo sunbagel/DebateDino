@@ -15,8 +15,8 @@ type Tournament struct {
 	Date            string               `bson:"date" json:"date" validate:"required"`   // could add datetime validation
 	Image           string               `bson:"image" json:"image" validate:"required"` // url validation
 	DebatersPerTeam int                  `bson:"debatersPerTeam" json:"debatersPerTeam" validate:"required,min=1"`
-	MaxTeams        int                  `bson:"maxTeams" json:"maxTeams" validate:"required,min=2"`         // could be optional?
-	CurrentTeams    int                  `bson:"currentTeams" json:"currentTeams" validate:"required,min=0"` // current # of registered teams
+	MaxTeams        int                  `bson:"maxTeams" json:"maxTeams" validate:"required,min=2"` // could be optional?
+	CurrentTeams    int                  `bson:"currentTeams" json:"currentTeams" validate:"min=0"`  // current # of registered teams
 	MaxTeamSlots    int                  `bson:"maxTeamSlots" json:"maxTeamSlots" validate:"required"`
 	Debaters        []primitive.ObjectID `bson:"debaters" json:"debaters" validate:"required,dive"`
 	Judges          []primitive.ObjectID `bson:"judges" json:"judges" validate:"required,dive"`        // dive checks for nested fields in map/array(slices)
@@ -88,4 +88,9 @@ type Registration struct {
 	ParticipantID    primitive.ObjectID `bson:"userId" json:"userId" validate:"required"`                     // submittant's id
 	GeneralResponses []QuestionResponse `bson:"generalResponses" json:"generalResponses" validate:"required"` // responses to questions
 	Teams            []TeamData         `bson:"teams" json:"teams" validate:"required,dive"`
+}
+
+// payment info
+type Payment struct {
+	Amount int // amount in cents
 }

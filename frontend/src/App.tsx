@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import './styles/App.css'
@@ -7,7 +6,9 @@ import NavBar from './components/NavBar'
 import About from './pages/About';
 import Tournaments from './pages/Tournaments/Tournaments';
 import UserProfile from './pages/UserProfile';
-import CreateTournaments from './pages/Tournaments/CreateTournament';
+import TournamentCreation from './pages/Tournaments/TournamentCreation';
+import TournamentView from './pages/Tournaments/TournamentView';
+import TournamentRegister from './pages/Tournaments/TournamentRegister';
 import Login from './pages/Login';
 import { AuthProvider } from './context/AuthContext';
 import Registration from './pages/Registration';
@@ -33,7 +34,9 @@ function App() {
             <Route element={<AuthRouter/>}>
               {/* could have an index (default route) */}
               <Route path="/profile" element={<UserProfile />} />
-              <Route path="/tournaments/create" element={<CreateTournaments />} />
+              <Route path="/tournaments/create" element={<TournamentCreation/>}/>
+          <Route path="/tournaments/view/:id" element={<TournamentView/>}/>
+          <Route path="/tournaments/register/:id" element={<TournamentRegister />} />
             </Route>
           </Routes>
         </Router>
