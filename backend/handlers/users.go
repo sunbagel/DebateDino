@@ -163,10 +163,31 @@ func (handler *RouteHandler) UpdateUser(c *gin.Context) {
 	// takes data from request body
 	var updateData map[string]interface{}
 
+	allowedKeys := []string{"name", "phoneNumber", "institution"}
+
 	// BindJSON() takes HTTP request and marshals it into Go struct or map
 	// Extra fields are ignored - only fields present in the schema are added
 	if err := c.BindJSON(&updateData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// check updateData doesn't have invalid parameters
+	for key := range updateData {
+		var found bool = false
+		for _, value := range allowedKeys {
+			if key == value {
+				found = true
+			}
+		}
+		if !found {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid key found in update body"})
+			return
+		}
+	}
+
+	if len(updateData) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Update body is empty."})
 		return
 	}
 

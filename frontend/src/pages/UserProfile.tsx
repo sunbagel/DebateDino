@@ -63,6 +63,7 @@ const UserProfile = () => {
 
   // monitor form edits
   const { isDirty, dirtyFields } = form.formState;
+  
 
   // fetch initial user info
   useEffect(()=>{
@@ -106,7 +107,7 @@ const UserProfile = () => {
     form.reset(userInfo);
   }, [userInfo, form])
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
 
     // Initialize an object to hold the updated values.
     const updatedValues: Partial<z.infer<typeof formSchema>> = {};
@@ -114,29 +115,41 @@ const UserProfile = () => {
     // Iterate over dirtyFields to determine which fields have been modified.
     Object.keys(dirtyFields).forEach((key) => {
       const fieldKey = key as keyof z.infer<typeof formSchema>;
-      if (dirtyFields[fieldKey]) {
+      if (fieldKey != "username" && fieldKey != "email" && dirtyFields[fieldKey]) {
         updatedValues[fieldKey] = data[fieldKey];
       }
     });
 
     console.log(updatedValues);
+    if (Object.keys(updatedValues).length === 0){
+      console.error("Updated object is empty.");
+      return;
+    }
     if(fbUser){
       console.log("EDITING", fbUser.uid)
-      axios.put(`users/${fbUser.uid}`, updatedValues)
-        .then(res => {
-          const test = res.data;
-          console.log(test);
-          setUserInfo(userInfo => ({ ...userInfo, ...updatedValues }))
-        })
-        .catch(err => {
-          console.log(err);
-        })
+
+      try{
+        const token = await fbUser.getIdToken();
+
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        };
+        
+        await axios.put(`users/${fbUser.uid}`, updatedValues, config);
+        // const test = res.data;
+        // console.log(test);
+        setUserInfo(userInfo => ({ ...userInfo, ...updatedValues }));
+      }catch(err){
+        console.error(err);
+      }
+      
 
     } else {
       console.error("Couldn't update user profile - User not signed in or user id not found")
     }
     
-
     setIsEditing(false);
     
   }
@@ -170,7 +183,7 @@ const UserProfile = () => {
                     <FormLabel>Username</FormLabel>
                     <FormControl>
                       <Input
-                        readOnly={!isEditing}
+                        readOnly={true}
                         placeholder="username"
                         {...field}
                       />
@@ -204,7 +217,7 @@ const UserProfile = () => {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
-                        readOnly={!isEditing}
+                        readOnly={true}
                         placeholder="Email"
                         {...field}
                       />
