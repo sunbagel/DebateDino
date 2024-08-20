@@ -1,5 +1,14 @@
 # Documentation for Endpoints:
 
+## Users:
+
+```
+GET /users/:firebaseId
+```
+IMPORTANT:
+- Get users takes the Firebase Id instead of the MongoDB object id.
+- We can switch back to object id if desired. I figured Firebase is easier since we always have access to the Firebase User.
+
 ## Tournaments:
 
 ```

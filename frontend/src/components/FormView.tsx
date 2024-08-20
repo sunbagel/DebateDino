@@ -1,3 +1,4 @@
+import useAuth from "@/hooks/useAuth";
 import axios from "@/lib/axios";
 import { Card, CardContent, CardHeader } from "@/shadcn-components/ui/card";
 import { Skeleton } from "@/shadcn-components/ui/skeleton";
@@ -13,16 +14,35 @@ type Props = {
 
 function FormView({form, tournament}: Props) {
     const [user, setUser] = useState<User | undefined>(undefined);
+    const { currentUser: fbUser } = useAuth();
 
     useEffect(() => {
-        axios.get(`users/${form.userId}`)
-        .then(res => {
-            setUser(res.data);
-        })
-        .catch(err => {
-            console.error(err);
-        })
-    }, [form.userId])
+
+        async function getUser(){
+
+            if(!fbUser){
+                console.error("Couldn't fetch profile - User not signed in, or user id not found");
+                return;
+            }
+
+            const token = await fbUser.getIdToken();
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            };
+
+            try{
+                const res = await axios.get(`users/${form.userId}`, config);
+                setUser(res.data);
+            } catch(err){
+                console.error(err);
+            }
+        }
+
+        getUser();
+        
+    }, [fbUser,form.userId])
 
     if (user) {
         return (

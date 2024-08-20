@@ -197,7 +197,7 @@ const TournamentRegister = () => {
                     };
 
                     console.log('payment intent');
-                    const res = axios.post('payment-intent', { amount: 1000 }, config); // change the price when price is implemented
+                    const res = await axios.post('payment-intent', { amount: 1000 }, config); // change the price when price is implemented
                     setClientSecret(res.data.client_secret);
 
                 }
@@ -209,7 +209,7 @@ const TournamentRegister = () => {
 
         postPaymentIntent();
         
-    }, [currentStep, clientSecret])
+    }, [fbUser, currentStep, clientSecret])
 
     
 
