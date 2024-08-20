@@ -33,7 +33,7 @@ function FormView({form, tournament}: Props) {
             };
 
             try{
-                const res = await axios.get(`users/${form.userId}`, config);
+                const res = await axios.get(`users/${fbUser.uid}`, config);
                 setUser(res.data);
             } catch(err){
                 console.error(err);
