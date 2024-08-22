@@ -9,7 +9,7 @@ const Home = () => {
         
           <div className="flex flex-col w-1/2 space-y-4">
             <h1 className="text-5xl font-bold">Debate Dino</h1>
-            <p className="text-xl">RAYMOND DEBATEMOND FILLER TEXT DEBATINGDEMONDING</p>
+            <p className="text-xl">Start debating today!</p>
             <div className="flex space-x-4">
               <button className="px-6 py-2 bg-black text-white rounded">Get Started</button>
               <button className="px-6 py-2 bg-transparent text-black rounded border border-black">Learn More</button>

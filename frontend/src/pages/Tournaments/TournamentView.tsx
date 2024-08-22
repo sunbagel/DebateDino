@@ -33,7 +33,8 @@ const TournamentView = () => {
 
                 const res = await axios.get(`tournaments/${id}`, config);
                 setTournament(res.data);
-
+                console.log(res.data)
+                console.log(fbUser)
             } catch (err) {
                 console.error(err);
             }
@@ -51,9 +52,9 @@ const TournamentView = () => {
     return (
         <div className="container mx-auto flex min-h-screen flex-col pb-10">
             <div className="flex pt-10 h-96 justify-center relative items-center" >
-                <div className="rounded-3xl w-full h-full absolute bg-cover bg-cente" style={{backgroundImage: 'url("../../public/walterworth.png")'}}/>
+                <div className="rounded-3xl w-full h-full absolute bg-cover bg-cente" style={{backgroundImage: 'url("../../public/debatedino.png")'}}/>
                 <div className="z-0 w-full h-full absolute bg-gray-300 blur-md opacity-80"></div>
-                <img className="h-96 z-10" src="../../walterworth.png"></img>
+                <img className="h-96 z-10" src="../../debatedino.png"></img>
             </div>
             <div className="pt-10 flex flex-row justify-between">
                 <div className='flex flex-col gap-10'>
@@ -81,8 +82,8 @@ const TournamentView = () => {
                     </div>
                 </div>
                 <div>
-                    <Card className="fixed bottom-0 left-0 w-full bg-gray-200 p-4 sm:static sm:bottom-auto sm:left-auto sm:w-auto sm:bg-transparent sm:p-0">
-                        <CardHeader>Price: </CardHeader>
+                    <Card className="flex flex-col justify-center items-center fixed bottom-0 left-0 w-full bg-gray-200 p-4 sm:static sm:bottom-auto sm:left-auto sm:w-auto sm:bg-transparent sm:p-0">
+                        <CardHeader>Price: $10.00 CAD</CardHeader>
                         <CardContent>
                             <Button onClick={register}>Register</Button>
                         </CardContent>

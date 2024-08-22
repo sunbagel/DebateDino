@@ -1,11 +1,11 @@
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import axios from '@/lib/axios'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shadcn-components/ui/card";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Tournament } from "@/types/tournaments";
-import { Checkbox } from "@/shadcn-components/ui/checkbox";
-import { Button } from "@/shadcn-components/ui/button";
-import { Skeleton } from "@/shadcn-components/ui/skeleton";
+import { Card, CardContent } from '@/shadcn-components/ui/card';
+import { Skeleton } from '@/shadcn-components/ui/skeleton';
+import { Checkbox } from '@/shadcn-components/ui/checkbox';
+import useAuth from '@/hooks/useAuth';
 
 interface Options {
     [key: string]: string[]; // Index signature
@@ -17,11 +17,43 @@ const filters: Options = {
     Level: ["Beginner", "Intermediate", "Advanced"]
 }
 
-
-const Tournaments = () => {
-
+const MyTournaments = () => {
     const navigate = useNavigate();
-    const [tournaments, setTournaments] = useState<Array<Tournament>>([]);
+
+    // authentication details
+    const { currentUser: fbUser } = useAuth();
+    const [tournaments, setTournaments] = useState<Array<Tournament>>()
+    const [user, setUser] = useState()
+    // useEffect(() => {
+
+    //     async function fetchTournament(){
+    //         try{
+    //             if (!fbUser) {
+    //                 console.error("Couldn't fetch profile - User not signed in, or user id not found");
+    //                 return;
+    //             }
+
+    //             const token = await fbUser.getIdToken();
+    //             // console.log(token);
+    //             const config = {
+    //                 headers: {
+    //                     Authorization: `Bearer ${token}`
+    //                 }
+    //             };
+
+    //             const res = await axios.get(`tournaments/${id}`, config);
+    //             setTournament(res.data);
+    //             console.log(tournament)
+    //         } catch (err) {
+    //             console.error(err);
+    //         }
+            
+    //     }
+        
+    //     fetchTournament();
+        
+    // }, [fbUser, id])
+    
 
     const goToTournament = (id: string) => {
         console.log('hi')
@@ -29,15 +61,44 @@ const Tournaments = () => {
     }
 
     useEffect(() => {
-        axios.get(`/public/tournaments`)
-        .then(res => {
-            const tournamentRes: Tournament[] = res.data;
-            return setTournaments(tournamentRes);
-        })
-        .catch(err => {
-            console.log(err);
-        })
-    }, [setTournaments])
+        async function fetchUser(){
+            try{
+                if (!fbUser) {
+                    console.error("Couldn't fetch profile - User not signed in, or user id not found");
+                    return;
+                }
+
+                const token = await fbUser.getIdToken();
+                // console.log(token);
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                };
+
+                const userRes = await axios.get(`users/${fbUser.uid}`, config);
+                setUser(userRes)
+
+                
+                
+            } catch (err) {
+                console.error(err);
+            }
+            
+        }
+        // fetchUser();
+
+        // axios.get(`/public/tournaments`)
+        // .then(res => {
+        //     const tournamentRes: Tournament[] = res.data;
+        //     return setTournaments(tournamentRes.filter(tournament => {
+        //         return tournament._id && user &&  user.id && tournament._id === user.id
+        //     }));
+        // })
+        // .catch(err => {
+        //     console.log(err);
+        // })
+    }, [setTournaments, fbUser])
 
     return (
         <div className="container mx-auto flex min-h-screen flex-col">
@@ -108,6 +169,6 @@ const Tournaments = () => {
 }
 
 
-export default Tournaments;
+export default MyTournaments;
 
 

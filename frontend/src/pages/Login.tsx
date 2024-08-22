@@ -44,11 +44,10 @@ const Login = () => {
     }
 
     return (
-
-        <div className="flex flex-col mx-auto rounded items-center mt-5 py-5 max-w-sm space-y-5 bg-green-300">
-            <h1 className=" text-5xl font-bold">Sign in:</h1>
+        <div className="flex flex-col mx-auto items-center mt-5 py-5 max-w-sm space-y-5 p-12 bg-lime-200 bg-opacity-50 backdrop-filter backdrop-blur-md rounded-lg shadow-lg">
+            <h1 className=" text-3xl font-bold">Sign in</h1>
             <form className="flex flex-col" onSubmit={onSignIn}>
-                <label className="text-xl" htmlFor="name">Email:</label>
+                <label className="text-l" htmlFor="name">Email:</label>
                 <input
                     className="rounded-md outline outline-2 p-1"
                     type="text"
@@ -56,7 +55,7 @@ const Login = () => {
                     value={email}
                     onChange={handleEmailChange}
                 />
-                <label className="text-xl" htmlFor="password">Password:</label>
+                <label className="text-l" htmlFor="password">Password:</label>
                 <input
                     className="rounded-md outline outline-2 p-1"
                     type="password"

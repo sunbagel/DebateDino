@@ -54,7 +54,7 @@ const UserDropdown = () => {
                 </DropdownMenuItem>
 
                 {/* maybe make a separate view for personal tournaments */}
-                <DropdownMenuItem onSelect={() => navigate('tournaments')}>
+                <DropdownMenuItem onSelect={() => navigate(`tournaments`)}>
                     My Tournaments
                 </DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>

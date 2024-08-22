@@ -110,7 +110,7 @@ const Registration = () => {
     return (
         <div>
             <div className="container mx-auto flex flex-col min-h-screen space-y-5">
-                <h1 className="mt-10 text-5xl font-bold">Register:</h1>
+                <h1 className="mt-10 text-5xl font-bold">Register</h1>
                 <Form {...form}>
                     <form className="flex flex-col max-w-lg space-y-2" onSubmit={form.handleSubmit(register)}>
 
@@ -122,7 +122,7 @@ const Registration = () => {
                                     <FormLabel>Full Name:</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="Barry Allen"
+                                            placeholder="ex. Barry Allen"
                                             {...field}
                                         />
                                     </FormControl>
@@ -139,7 +139,7 @@ const Registration = () => {
                                     <FormLabel>Username:</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="FattestManAlive"
+                                            placeholder="ex. debatedino123"
                                             {...field}
                                         />
                                     </FormControl>
@@ -192,7 +192,7 @@ const Registration = () => {
                                     <FormLabel>Phone Number:</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="647-xxx-xxxx"
+                                            placeholder="xxx-xxx-xxxx"
                                             {...field}
                                         />
                                     </FormControl>
@@ -226,7 +226,7 @@ const Registration = () => {
                                     <FormLabel>Agreement:</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="YES (lol idk)"
+                                            placeholder="YES"
                                             {...field}
                                         />
                                     </FormControl>

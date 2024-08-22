@@ -144,7 +144,34 @@ const TournamentRegister = () => {
 
     const submitForm = () => {
         console.log('hihih', form.getValues());
-        return axios.post(`tournaments/${id}/registrations`, form.getValues())
+
+        async function submitRegistration() {
+            try {
+                if (!fbUser) {
+                    console.error("Couldn't fetch profile - User not signed in, or user id not found");
+                    return;
+                }
+
+                const token = await fbUser.getIdToken();
+                // console.log(token);
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                };
+
+                const res = await axios.post(`tournaments/${id}/registrations`, form.getValues(), config)
+                setTournament(res.data);
+
+            } catch (err) {
+                console.error(err);
+            }
+
+        }
+
+        submitRegistration();
+
+        return 
     }
 
     useEffect(() => {
@@ -216,9 +243,9 @@ const TournamentRegister = () => {
     return (
         <div className="container mx-auto flex min-h-screen flex-col pb-10">
             <div className="flex pt-10 h-96 justify-center relative items-center" >
-                <div className="rounded-3xl w-full h-full absolute bg-cover bg-cente" style={{backgroundImage: 'url("../../public/walterworth.png")'}}/>
+                <div className="rounded-3xl w-full h-full absolute bg-cover bg-cente" style={{backgroundImage: 'url("../../public/debatedino.png")'}}/>
                 <div className="z-0 w-full h-full absolute bg-gray-300 blur-md opacity-80"></div>
-                <img className="h-96 z-10" src="../../walterworth.png"></img>
+                <img className="h-96 z-10" src="../../debatedino.png"></img>
             </div>
             <h1 className="text-3xl font-bold pt-10">{tournament?.name}</h1>
             <div className="pt-10 justify-between">
