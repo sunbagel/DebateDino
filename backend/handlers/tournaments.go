@@ -55,7 +55,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 		fmt.Println(err)
 		return
 	}
-
+	fmt.Println(tournament)
 	if tournament.Form == nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Missing form data", "message": "A complete Form object is required for submitting a tournament."})
 		return

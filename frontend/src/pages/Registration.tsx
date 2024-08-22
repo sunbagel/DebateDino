@@ -173,6 +173,7 @@ const Registration = () => {
                                     <FormControl>
                                         <Input
                                             placeholder="Password"
+                                            type="password"
                                             {...field}
                                         />
                                     </FormControl>

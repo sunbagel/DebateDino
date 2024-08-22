@@ -59,7 +59,7 @@ const Login = () => {
                 <label className="text-xl" htmlFor="password">Password:</label>
                 <input
                     className="rounded-md outline outline-2 p-1"
-                    type="text"
+                    type="password"
                     id="password"
                     value={password}
                     onChange={handlePasswordChange}

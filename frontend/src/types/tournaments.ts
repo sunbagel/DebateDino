@@ -133,7 +133,7 @@ export const defaultTournament: Tournament = {
     description: "",
     date: "",
     debatersPerTeam: 2,
-    maxTeams: 20,
+    maxTeams: 2,
     maxTeamSlots: 4,
     location: "",
     refundPolicy: "",
