@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/shadcn-components/ui/card";
 import { Skeleton } from "@/shadcn-components/ui/skeleton";
 import { FormResponse } from "@/types/formResponse";
 import { Tournament } from "@/types/tournaments";
-import { User } from "@/types/users";
+import { BaseUser } from "@/types/users";
 import { useEffect, useState } from "react";
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
 }
 
 function FormView({form, tournament}: Props) {
-    const [user, setUser] = useState<User | undefined>(undefined);
+    const [user, setUser] = useState<BaseUser | undefined>(undefined);
     const { currentUser: fbUser } = useAuth();
 
     useEffect(() => {
