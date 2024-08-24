@@ -1,4 +1,4 @@
-import { User } from "@/types/users"
+import { BaseUser } from "@/types/users"
 import axios from "@/lib/axios";
 import { useEffect, useState } from "react";
 
@@ -17,13 +17,18 @@ import {
 } from "@/shadcn-components/ui/form"
 import { Separator } from "@/shadcn-components/ui/separator";
 import { Input } from "@/shadcn-components/ui/input"
+import useAuth from "@/hooks/useAuth";
 
 
 const formSchema = z.object({
-    name: z.string().min(2, {
-      message: "Name must be between 2 to 20 characters.",
-    }).max(20),
-    email: z.string().email("This is not a valid email").max(50),
+    username: z.string().trim().min(1, {
+      message: "Name must be between 1 to 30 characters.",
+    }).max(30),
+    name: z.string().trim().min(1, {
+      message: "Name must be between 1 to 30 characters.",
+    }).max(30),
+    email: z.string().trim().email("This is not a valid email").max(50),
+    phoneNumber: z.string().trim(),
     institution: z.string(),
     agreement: z.string().max(2000),
 
@@ -35,22 +40,20 @@ const formSchema = z.object({
 
 
 const UserProfile = () => {
-  const defaultUser = {
+
+
+  const { currentUser : fbUser } = useAuth();
+  const defaultUser: BaseUser = {
     username: "",
     name: "",
     email: "",
+    phoneNumber: "",
     institution: "",
     agreement: "",
-    // participating: [],
-    // judging: [],
-    // hosting: []
   }
 
-  const [ userInfo, setUserInfo ] = useState<User>(defaultUser);
-  const [ isEditing, setIsEditing ] = useState<boolean>(false);
-  const userIDPlaceholder = "65d69c469d47c04d60421fdb";
-
-  
+  const [userInfo, setUserInfo] = useState<BaseUser>(defaultUser);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,26 +63,51 @@ const UserProfile = () => {
 
   // monitor form edits
   const { isDirty, dirtyFields } = form.formState;
+  
 
   // fetch initial user info
   useEffect(()=>{
     // api should not return password. may want to return id?
-    axios.get(`users/${userIDPlaceholder}`)
-    .then(res => {
-      console.log(res.data);
-      const userRes : User = res.data;
-      setUserInfo(userRes);
-    })
-    .catch(err => console.log(err))
-      
-  }, [form, setUserInfo])
+
+    const fetchUser = async () => {
+      if(!fbUser){
+        console.error("Couldn't fetch profile - User not signed in, or user id not found");
+        return;
+      }
+
+      try{
+        const token = await fbUser.getIdToken();
+        // console.log(token);
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        };
+
+        const res = await axios.get(`users/${fbUser.uid}`, config);
+        // console.log(res.data);
+        const userRes: BaseUser = res.data;
+
+        if (fbUser.displayName) {
+          userRes.username = fbUser?.displayName;
+        }
+        setUserInfo(userRes);
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchUser();
+    
+  }, [fbUser, form, setUserInfo])
 
   // set form default everytime userInfo is changed
   useEffect(() => {
     form.reset(userInfo);
   }, [userInfo, form])
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
 
     // Initialize an object to hold the updated values.
     const updatedValues: Partial<z.infer<typeof formSchema>> = {};
@@ -87,22 +115,41 @@ const UserProfile = () => {
     // Iterate over dirtyFields to determine which fields have been modified.
     Object.keys(dirtyFields).forEach((key) => {
       const fieldKey = key as keyof z.infer<typeof formSchema>;
-      if (dirtyFields[fieldKey]) {
+      if (fieldKey != "username" && fieldKey != "email" && dirtyFields[fieldKey]) {
         updatedValues[fieldKey] = data[fieldKey];
       }
     });
 
     console.log(updatedValues);
-    axios.put(`users/${userIDPlaceholder}`, updatedValues)
-      .then(res => {
-        const test = res.data;
-        console.log(test);
-        setUserInfo(userInfo => ({...userInfo, ...updatedValues}))
-      })
-      .catch(err => {
-        console.log(err);
-      })
+    if (Object.keys(updatedValues).length === 0){
+      console.error("Updated object is empty.");
+      return;
+    }
+    if(fbUser){
+      console.log("EDITING", fbUser.uid)
 
+      try{
+        const token = await fbUser.getIdToken();
+
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        };
+        
+        await axios.put(`users/${fbUser.uid}`, updatedValues, config);
+        // const test = res.data;
+        // console.log(test);
+        setUserInfo(userInfo => ({ ...userInfo, ...updatedValues }));
+      }catch(err){
+        console.error(err);
+      }
+      
+
+    } else {
+      console.error("Couldn't update user profile - User not signed in or user id not found")
+    }
+    
     setIsEditing(false);
     
   }
@@ -126,6 +173,25 @@ const UserProfile = () => {
         <div className="space-y-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+              {/* EDITING USERNAME DOESN'T DO ANYTHING RN */}
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input
+                        readOnly={true}
+                        placeholder="username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="name"
@@ -151,8 +217,25 @@ const UserProfile = () => {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
-                        readOnly={!isEditing}
+                        readOnly={true}
                         placeholder="Email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone</FormLabel>
+                    <FormControl>
+                      <Input
+                        readOnly={!isEditing}
+                        placeholder="Phone Number"
                         {...field}
                       />
                     </FormControl>

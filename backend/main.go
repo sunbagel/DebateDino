@@ -6,6 +6,7 @@ import (
 	"server/config"
 	"server/db"
 	"server/handlers"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,12 +20,23 @@ func main() {
 	}
 	router := gin.New()
 	router.Use(gin.Logger())
-	router.Use(cors.Default())
+
+	corsConfig := cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		// AllowAllOrigins: false,
+		MaxAge: 12 * time.Hour, // Preflight requests can be cached for 12 hours
+	}
+	router.Use(cors.New(corsConfig))
 
 	cfg := config.Config{
 		DBname: "debatedino",
 	}
 	client := db.DBinstance()
+	authClient := db.InitFirebaseAuth()
 
 	var validate = validator.New()
 
@@ -34,10 +46,10 @@ func main() {
 	registrationCollection := client.Database(cfg.DBname).Collection("registrations")
 
 	// create handlers
-	userHandler := handlers.NewRouteHandler(client, userCollection, validate)
-	tournamentsHandler := handlers.NewRouteHandler(client, tournamentCollection, validate)
-	registrationHandler := handlers.NewRouteHandler(client, registrationCollection, validate)
-	paymentHandler := handlers.NewRouteHandler(client, tournamentCollection, validate)
+	userHandler := handlers.NewRouteHandler(client, authClient, userCollection, validate)
+	tournamentsHandler := handlers.NewRouteHandler(client, authClient, tournamentCollection, validate)
+	registrationHandler := handlers.NewRouteHandler(client, authClient, registrationCollection, validate)
+	paymentHandler := handlers.NewRouteHandler(client, authClient, tournamentCollection, validate)
 
 	// Test
 	router.GET("/api/", func(c *gin.Context) {
@@ -45,32 +57,39 @@ func main() {
 			"message": "hello world",
 		})
 	})
+
+	apiGroup := router.Group("/api")
+	publicRoutes := apiGroup.Group("/public")
+	// can give better name. just didn't want to refactor all endpoint calls
+	protectedRoutes := apiGroup.Group("/")
+	protectedRoutes.Use(db.VerifyTokenMiddleware(authClient))
+
 	// Users
 	// might want to add filtering options, ex. /users?name=John&institution=XYZ, can access the gin.Context with c.Query("name")
-	router.GET("/api/users", userHandler.GetUsers)
+	publicRoutes.GET("/users", userHandler.GetUsers)
 	// get by id
-	router.GET("/api/users/:id", userHandler.GetUserById)
-	router.GET("/api/users/:id/tournaments", userHandler.GetUserTournaments)
-	router.POST("/api/users", userHandler.CreateUser)
-	router.PUT("/api/users/:id", userHandler.UpdateUser)
-	router.DELETE("/api/users/:id", userHandler.DeleteUser)
+	protectedRoutes.GET("/users/:id", userHandler.GetUserById)
+	protectedRoutes.GET("/users/:id/tournaments", userHandler.GetUserTournaments)
+	protectedRoutes.POST("/users", userHandler.CreateUser)
+	protectedRoutes.PUT("/users/:id", userHandler.UpdateUser)
+	protectedRoutes.DELETE("/users/:id", userHandler.DeleteUser)
 
 	// Tournaments
-	router.GET("/api/tournaments", tournamentsHandler.SearchTournament)
-	router.POST("/api/tournaments", tournamentsHandler.CreateTournament)
+	publicRoutes.GET("/tournaments", tournamentsHandler.SearchTournament)
+	protectedRoutes.POST("/tournaments", tournamentsHandler.CreateTournament)
 	// to be refactored (for judge sign up)
-	// router.POST("/api/tournaments/:id/registration", tournamentsHandler.RegisterUser)
-	router.DELETE("/api/tournaments/:tId", tournamentsHandler.DeleteTournament)
-	router.PUT("/api/tournaments/:tId", tournamentsHandler.UpdateTournament)
-	router.GET("/api/tournaments/:tId", tournamentsHandler.GetTournamentById)
+	// protectedRoutes.POST("/tournaments/:id/registration", tournamentsHandler.RegisterUser)
+	protectedRoutes.DELETE("/tournaments/:tId", tournamentsHandler.DeleteTournament)
+	protectedRoutes.PUT("/tournaments/:tId", tournamentsHandler.UpdateTournament)
+	protectedRoutes.GET("/tournaments/:tId", tournamentsHandler.GetTournamentById)
 
 	// forms
-	router.GET("/api/tournaments/:tId/registrations", registrationHandler.GetRegistrations)
-	router.POST("/api/tournaments/:tId/registrations", registrationHandler.SubmitRegistration)
-	router.DELETE(("/api/tournaments/:tId/registrations/:uId"), registrationHandler.UnregisterUser)
+	protectedRoutes.GET("/tournaments/:tId/registrations", registrationHandler.GetRegistrations)
+	protectedRoutes.POST("/tournaments/:tId/registrations", registrationHandler.SubmitRegistration)
+	protectedRoutes.DELETE(("/tournaments/:tId/registrations/:uId"), registrationHandler.UnregisterUser)
 
 	// stripe configuration
-	router.POST("/api/payment-intent", paymentHandler.CreatePaymentIntent)
+	protectedRoutes.POST("/payment-intent", paymentHandler.CreatePaymentIntent)
 
 	router.Run("localhost:" + port)
 }

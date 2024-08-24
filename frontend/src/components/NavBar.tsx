@@ -1,27 +1,32 @@
 import { useState } from "react";
 import '../styles/NavBar.css';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import UserDropdown from "./UserDropdown";
+import useAuth from "@/hooks/useAuth";
+import { Button } from "@/shadcn-components/ui/button";
 
 
 
 const NavBar = () => {
 
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+
   return (
     
     <nav className="bg-lime-200 bg-opacity-50 shadow-md">
       <div className="container mx-auto px-6 py-8 flex justify-between items-center">
-        <Link to="/" className="flex items-center text-gray-800 text-xl font-bold">
-            <img src="../../debatedino.png" alt="Logo" className="h-8"/>
+        <Link to="/" className="flex items-center text-gray-800 text-xl font-bold gap-2">
+            <img src="../../Debate_Dino_Logo.svg" alt="Logo" className="h-8"/>
             <span className="self-center whitespace-nowrap">DebateDino</span>
         </Link>
 
         <div className="flex md:order-2">
           
           
-          <UserDropdown/>
+          { currentUser ? <UserDropdown/> : <Button onClick={() => navigate("/login")}>Log In</Button>}
 
 
           <button type="button" className="text-gray-800 hover:text-gray-600 md:hidden ml-3" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>

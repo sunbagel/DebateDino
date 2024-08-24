@@ -7,6 +7,7 @@ import (
 	"server/models"
 	"time"
 
+	"firebase.google.com/go/v4/auth"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,6 +20,23 @@ import (
 func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	// FB VALIDATION
+	// get token from context
+	tokenInterface, exists := c.Get("firebaseToken")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	// assert token type
+	firebaseToken, ok := tokenInterface.(*auth.Token)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid token data"})
+		return
+	}
+
+	// get request data
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -26,6 +44,37 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
+	firebaseUID := firebaseToken.UID
+	username := user.Username
+
+	// VALIDATION 1: Check if a user with this Firebase UID OR username already exists
+	existingUser := handler.collection.FindOne(ctx, bson.M{"$or": []bson.M{
+		{"firebaseUID": firebaseUID},
+		{"username": username},
+	}})
+
+	if existingUser.Err() != mongo.ErrNoDocuments {
+		// returns error 409
+		c.JSON(http.StatusConflict, gin.H{"error": "User already exists. Please pick a different username."})
+		return
+	}
+
+	// VALIDATION 2: verify email in body against Firebase email
+	email, ok := firebaseToken.Claims["email"].(string)
+
+	fmt.Println(email)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "error retrieving email"})
+		return
+	}
+	if user.Email != email {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "emails do not match"})
+		return
+	}
+
+	user.FbID = firebaseUID
+
+	// FINAL VALIDATION: Validate user object against schema
 	validationErr := handler.validate.Struct(user)
 	if validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
@@ -33,12 +82,10 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	// user.ID = primitive.NewObjectID()
-
-	// get collection from the handler
+	// Create user
 	result, insertErr := handler.collection.InsertOne(ctx, user)
 	if insertErr != nil {
-		msg := fmt.Sprintf("User was not created")
+		msg := fmt.Sprint("User was not created")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		fmt.Println(insertErr)
 		return
@@ -76,6 +123,7 @@ func (handler *RouteHandler) GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+// GET BY FIREBASE UID
 func (handler *RouteHandler) GetUserById(c *gin.Context) {
 
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
@@ -84,16 +132,9 @@ func (handler *RouteHandler) GetUserById(c *gin.Context) {
 	// passed in api call /users/:id
 	userID := c.Param("id")
 
-	// Convert userID from string to ObjectID if your database uses MongoDB's ObjectID
-	objID, err := primitive.ObjectIDFromHex(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
-		return
-	}
-
 	var user models.User
 	// find user
-	if err := handler.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user); err != nil {
+	if err := handler.collection.FindOne(ctx, bson.M{"fbId": userID}).Decode(&user); err != nil {
 
 		// handle errors
 		if err == mongo.ErrNoDocuments {
@@ -116,25 +157,41 @@ func (handler *RouteHandler) UpdateUser(c *gin.Context) {
 	defer cancel()
 
 	userID := c.Param("id")
-	objID, err := primitive.ObjectIDFromHex(userID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
-		return
-	}
 
 	// map, key is string, values are interfaces (empty interface implies any type)
 	// alternatively can define a struct
 	// takes data from request body
 	var updateData map[string]interface{}
 
+	allowedKeys := []string{"name", "phoneNumber", "institution"}
+
 	// BindJSON() takes HTTP request and marshals it into Go struct or map
+	// Extra fields are ignored - only fields present in the schema are added
 	if err := c.BindJSON(&updateData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	result, updateErr := handler.collection.UpdateByID(ctx, objID, bson.M{"$set": updateData})
+	// check updateData doesn't have invalid parameters
+	for key := range updateData {
+		var found bool = false
+		for _, value := range allowedKeys {
+			if key == value {
+				found = true
+			}
+		}
+		if !found {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid key found in update body"})
+			return
+		}
+	}
+
+	if len(updateData) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Update body is empty."})
+		return
+	}
+
+	result, updateErr := handler.collection.UpdateOne(ctx, bson.M{"fbId": userID}, bson.M{"$set": updateData})
 	if updateErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": updateErr.Error()})
 		return

@@ -39,6 +39,7 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 
 	// validate form responses
 	if err := ValidateResponses(form.Questions, registration.GeneralResponses); err != nil {
+		fmt.Println("validate issue")
 		return err
 	}
 
@@ -54,11 +55,9 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 
 	} else if len(registration.Teams) <= 0 {
 		msg := fmt.Sprintf("invalid number of teams. currently registering %d teams.", len(registration.Teams))
-
 		return errors.New(msg)
 	} else if len(registration.Teams)+tournament.CurrentTeams > tournament.MaxTeams {
 		msg := fmt.Sprintf("maximum of %d teams allowed in tournament. currently at %d teams, user is attempting to register %d teams.", tournament.MaxTeams, tournament.CurrentTeams, len(registration.Teams))
-
 		return errors.New(msg)
 	}
 	debatersPerTeam := tournament.DebatersPerTeam
@@ -72,6 +71,7 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 		}
 		// validate general team responses
 		if err := ValidateResponses(form.TeamQuestions, team.TeamResponses); err != nil {
+			fmt.Println("team question validate issue")
 			return err
 		}
 
@@ -79,6 +79,7 @@ func (handler *RouteHandler) ValidateQuestionResponses(ctx context.Context, tour
 		for _, member := range team.Members {
 
 			if err := ValidateResponses(form.MemberQuestions, member.MemberResponses); err != nil {
+				fmt.Println("member question validate issue")
 				return err
 			}
 
@@ -180,6 +181,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println("error in validate questions")
 		return
 	}
 
@@ -260,6 +262,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			fmt.Println("error in tournament updating")
 		}
 
 		return

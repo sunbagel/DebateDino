@@ -20,15 +20,18 @@ type Tournament struct {
 	MaxTeamSlots    int                  `bson:"maxTeamSlots" json:"maxTeamSlots" validate:"required"`
 	Debaters        []primitive.ObjectID `bson:"debaters" json:"debaters" validate:"required,dive"`
 	Judges          []primitive.ObjectID `bson:"judges" json:"judges" validate:"required,dive"`        // dive checks for nested fields in map/array(slices)
-	Form            *Form                `bson:"form" json:"form" validate:"required,omitempty"`       // no empty forms. recursively check subfields.
+	Form            *Form                `bson:"form" json:"form" validate:"required"`                 // no empty forms. recursively check subfields.
 	RefundPolicy    string               `bson:"refundPolicy" json:"refundPolicy" validate:"required"` // could use oneof tag
 }
 
 type User struct {
 	// ID            primitive.ObjectID   `json:"_id"`
+	FbID        string               `bson:"fbId" json:"fbId"` // firebase uid (no validation for testing)
 	Name        string               `bson:"name" json:"name" validate:"required"`
+	Username    string               `bson:"username" json:"username" validate:"required"`
 	Password    string               `bson:"password" json:"password" validate:"required"`
 	Email       string               `bson:"email" json:"email" validate:"required"`
+	PhoneNumber string               `bson:"phoneNumber" json:"phoneNumber" validate:"required"`
 	Institution string               `bson:"institution" json:"institution" validate:"required"`
 	Agreement   string               `bson:"agreement" json:"agreement" validate:"required"`
 	Debating    []primitive.ObjectID `bson:"debating" json:"debating" validate:"required,dive"`

@@ -24,6 +24,8 @@ import { useState } from "react"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shadcn-components/ui/pagination"
 import { defaultTournament, tournamentSchema } from "@/types/tournaments"
 import Question from "./questions/Question"
+import useAuth from "@/hooks/useAuth"
+import FormView from "@/components/FormView"
 
 
 export type Inputs = z.infer<typeof tournamentSchema>
@@ -68,19 +70,47 @@ const TournamentCreation = () => {
         control: form.control
     })
 
+    const { currentUser: fbUser } = useAuth();
+
     const processForm: SubmitHandler<Inputs> = (values: z.infer<typeof tournamentSchema>) => {
-        let tournamentId;
-        console.log(values);
-        axios.post('tournaments', values)
-        .then(res => {
-            tournamentId = res.data.InsertedID;
-            console.log(tournamentId);
-            form.reset();
-            navigate('/tournaments')
-        })
-        .catch(err => {
-            console.log(err);
-        })
+        async function createTournament(){
+            try {
+                if (!fbUser) {
+                    console.error("Couldn't fetch profile - User not signed in, or user id not found");
+                    return;
+                }
+
+                const token = await fbUser.getIdToken();
+                // console.log(token);
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                };
+                const data = values
+                const res = await axios.post(`tournaments`, data, config);
+                const tournamentId = res.data.InsertedID;
+                console.log(tournamentId);
+                // form.reset();
+                navigate('/tournaments')
+            } catch (err) {
+                console.error(err);
+            }
+            
+        }
+        createTournament()
+        // let tournamentId;
+        // console.log(values);
+        // axios.post('tournaments', values)
+        // .then(res => {
+        //     tournamentId = res.data.InsertedID;
+        //     console.log(tournamentId);
+        //     form.reset();
+        //     navigate('/tournaments')
+        // })
+        // .catch(err => {
+        //     console.log(err);
+        // })
     }
     
     type FieldName = keyof Inputs
