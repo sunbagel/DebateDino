@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -51,42 +52,69 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	}
 
 	// -----START TRANSACTION-----
-
-	// Create user in Mongo
-	result, insertErr := handler.collection.InsertOne(ctx, user)
-	if insertErr != nil {
-		msg := fmt.Sprint("User was not created")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-		fmt.Println(insertErr)
-		return
-	}
-
-	// get mongo generated id for the user
-	mongoObjectId, ok := result.InsertedID.(primitive.ObjectID)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve valid MongoDB ObjectID"})
-		log.Println("InsertedID is not a primitive.ObjectID")
-		return
-	}
-	mongoStringId := mongoObjectId.Hex() // Convert ObjectID to string
-
-	// Create user in Firebase
-	params := (&auth.UserToCreate{}).
-		UID(mongoStringId). // set id to the mongo id
-		Email(user.Email).
-		Password(user.Password).
-		DisplayName(user.Username).
-		EmailVerified(false)
-
-	// create Firebase User
-	_, err := handler.authClient.CreateUser(context.Background(), params)
+	session, err := handler.client.StartSession()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user in Firebase"})
-		log.Fatalf("Error creating Firebase user: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start session"})
 		return
 	}
+	defer session.EndSession(ctx)
+
+	var mongoStringId string
+	err = mongo.WithSession(ctx, session, func(sessCtx mongo.SessionContext) error {
+		if err := session.StartTransaction(); err != nil {
+			return err
+		}
+
+		// Create user in Mongo
+		result, insertErr := handler.collection.InsertOne(ctx, user)
+		if insertErr != nil {
+			msg := "User was not created"
+			log.Fatalf("Error creating user: %v\n", insertErr)
+			session.AbortTransaction(sessCtx)
+			return errors.New(msg)
+		}
+
+		// get mongo generated id for the user
+		mongoObjectId, ok := result.InsertedID.(primitive.ObjectID)
+		if !ok {
+			log.Println("InsertedID is not a primitive.ObjectID")
+			session.AbortTransaction(sessCtx)
+			return errors.New("failed to retrieve valid MongoDB ObjectID")
+		}
+		mongoStringId = mongoObjectId.Hex() // Convert ObjectID to string
+
+		// Create user in Firebase
+		params := (&auth.UserToCreate{}).
+			UID(mongoStringId). // set id to the mongo id
+			Email(user.Email).
+			Password(user.Password).
+			DisplayName(user.Username).
+			EmailVerified(false)
+
+		// create Firebase User
+		// note that transaction only applies to MongoDB related processes - do not expect it to roll back Firebase
+		// it's fine here because Firebase is the last process.
+		_, err := handler.authClient.CreateUser(context.Background(), params)
+		if err != nil {
+			log.Fatalf("Error creating Firebase user: %v\n", err)
+			session.AbortTransaction(sessCtx)
+			return errors.New("failed to create user in Firebase")
+		}
+
+		// commit the transaction
+		if err := session.CommitTransaction(sessCtx); err != nil {
+			session.AbortTransaction(sessCtx)
+			return err
+		}
+
+		return nil
+	})
 
 	// -----END TRANSACTION-----
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "User created successfully",
