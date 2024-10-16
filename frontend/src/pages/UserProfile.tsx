@@ -77,7 +77,7 @@ const UserProfile = () => {
 
       try{
         const token = await fbUser.getIdToken();
-        // console.log(token);
+        console.log(token);
         const config = {
           headers: {
             Authorization: `Bearer ${token}`

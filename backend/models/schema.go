@@ -26,7 +26,6 @@ type Tournament struct {
 
 type User struct {
 	// ID            primitive.ObjectID   `json:"_id"`
-	FbID        string               `bson:"fbId" json:"fbId"` // firebase uid (no validation for testing)
 	Name        string               `bson:"name" json:"name" validate:"required"`
 	Username    string               `bson:"username" json:"username" validate:"required"`
 	Password    string               `bson:"password" json:"password" validate:"required"`

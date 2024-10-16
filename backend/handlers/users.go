@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"server/models"
 	"time"
@@ -21,21 +22,6 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// FB VALIDATION
-	// get token from context
-	tokenInterface, exists := c.Get("firebaseToken")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	// assert token type
-	firebaseToken, ok := tokenInterface.(*auth.Token)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid token data"})
-		return
-	}
-
 	// get request data
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {
@@ -44,13 +30,10 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	firebaseUID := firebaseToken.UID
-	username := user.Username
-
-	// VALIDATION 1: Check if a user with this Firebase UID OR username already exists
+	// VALIDATION 1: Check if a user with this username or email already exists
 	existingUser := handler.collection.FindOne(ctx, bson.M{"$or": []bson.M{
-		{"firebaseUID": firebaseUID},
-		{"username": username},
+		{"username": user.Username},
+		{"email": user.Email},
 	}})
 
 	if existingUser.Err() != mongo.ErrNoDocuments {
@@ -58,21 +41,6 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"error": "User already exists. Please pick a different username."})
 		return
 	}
-
-	// VALIDATION 2: verify email in body against Firebase email
-	email, ok := firebaseToken.Claims["email"].(string)
-
-	fmt.Println(email)
-	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "error retrieving email"})
-		return
-	}
-	if user.Email != email {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "emails do not match"})
-		return
-	}
-
-	user.FbID = firebaseUID
 
 	// FINAL VALIDATION: Validate user object against schema
 	validationErr := handler.validate.Struct(user)
@@ -82,7 +50,9 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	// Create user
+	// -----START TRANSACTION-----
+
+	// Create user in Mongo
 	result, insertErr := handler.collection.InsertOne(ctx, user)
 	if insertErr != nil {
 		msg := fmt.Sprint("User was not created")
@@ -91,7 +61,37 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	// get mongo generated id for the user
+	mongoObjectId, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve valid MongoDB ObjectID"})
+		log.Println("InsertedID is not a primitive.ObjectID")
+		return
+	}
+	mongoStringId := mongoObjectId.Hex() // Convert ObjectID to string
+
+	// Create user in Firebase
+	params := (&auth.UserToCreate{}).
+		UID(mongoStringId). // set id to the mongo id
+		Email(user.Email).
+		Password(user.Password).
+		DisplayName(user.Username).
+		EmailVerified(false)
+
+	// create Firebase User
+	_, err := handler.authClient.CreateUser(context.Background(), params)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user in Firebase"})
+		log.Fatalf("Error creating Firebase user: %v\n", err)
+		return
+	}
+
+	// -----END TRANSACTION-----
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User created successfully",
+		"userId":  mongoStringId,
+	})
 }
 
 func (handler *RouteHandler) GetUsers(c *gin.Context) {
@@ -132,9 +132,15 @@ func (handler *RouteHandler) GetUserById(c *gin.Context) {
 	// passed in api call /users/:id
 	userID := c.Param("id")
 
+	objID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
 	var user models.User
 	// find user
-	if err := handler.collection.FindOne(ctx, bson.M{"fbId": userID}).Decode(&user); err != nil {
+	if err := handler.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user); err != nil {
 
 		// handle errors
 		if err == mongo.ErrNoDocuments {

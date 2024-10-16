@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"log"
 	"net/http"
 	"os"
 	"server/config"
@@ -36,7 +38,12 @@ func main() {
 		DBname: "debatedino",
 	}
 	client := db.DBinstance()
-	authClient := db.InitFirebaseAuth()
+	firebaseApp := db.InitFirebaseApp()
+	authClient, err := firebaseApp.Auth(context.Background())
+
+	if err != nil {
+		log.Fatalf("error getting Auth client: %v\n", err)
+	}
 
 	var validate = validator.New()
 
@@ -67,10 +74,10 @@ func main() {
 	// Users
 	// might want to add filtering options, ex. /users?name=John&institution=XYZ, can access the gin.Context with c.Query("name")
 	publicRoutes.GET("/users", userHandler.GetUsers)
+	publicRoutes.POST("/users", userHandler.CreateUser)
 	// get by id
 	protectedRoutes.GET("/users/:id", userHandler.GetUserById)
 	protectedRoutes.GET("/users/:id/tournaments", userHandler.GetUserTournaments)
-	protectedRoutes.POST("/users", userHandler.CreateUser)
 	protectedRoutes.PUT("/users/:id", userHandler.UpdateUser)
 	protectedRoutes.DELETE("/users/:id", userHandler.DeleteUser)
 
