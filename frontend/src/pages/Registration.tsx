@@ -31,9 +31,10 @@ const formSchema = z.object({
 })
 
 const Registration = () => {
-    const { signup, deleteUser } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+
+    const {signin} = useAuth();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -56,12 +57,8 @@ const Registration = () => {
         console.log(password);
 
         try{
-            const userCredential = await signup(email, password);
-            await updateProfile(userCredential.user, { displayName: username });
 
-            const userToken = await userCredential.user.getIdToken();
             const userData : RegisterUser = {
-                fb_id: auth.currentUser?.uid,
                 username,
                 name,
                 password,
@@ -73,17 +70,9 @@ const Registration = () => {
                 judging: [],
                 hosting: []
             };
-
-            console.log(userData);
-
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${userToken}`
-                }
-            };
-
-            const res = await axios.post('/users', userData, config)
-            console.log(res);
+            
+            const res = await axios.post('/public/users', userData);
+            await signin(email, password);
             const from = location.state?.from?.pathname || "/";
 
             // replace : true ensures the user cannot navigate back to the login page after already logging in
@@ -91,10 +80,8 @@ const Registration = () => {
 
         }catch(err){
             console.log("Failed to register user:", err);
-            // if FB registration went through, but Mongo-side user creation failed
-            // delete newly created user
-            deleteUser();
 
+            // NEED MORE SPECIFIC ERROR CHECKING HERE
             form.setError("username", 
                 {
                     type: "manual",

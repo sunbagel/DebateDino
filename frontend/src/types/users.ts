@@ -16,6 +16,6 @@ export interface TournamentUser {
 }
 
 export interface RegisterUser extends BaseUser, TournamentUser {
-    fb_id: string | undefined,
+    // fb_id: string | undefined,
     password: string,
 }
