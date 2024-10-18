@@ -192,6 +192,12 @@ func (handler *RouteHandler) UpdateUser(c *gin.Context) {
 
 	userID := c.Param("id")
 
+	objID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
 	// map, key is string, values are interfaces (empty interface implies any type)
 	// alternatively can define a struct
 	// takes data from request body
@@ -225,7 +231,7 @@ func (handler *RouteHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	result, updateErr := handler.collection.UpdateOne(ctx, bson.M{"fbId": userID}, bson.M{"$set": updateData})
+	result, updateErr := handler.collection.UpdateOne(ctx, bson.M{"_id": objID}, bson.M{"$set": updateData})
 	if updateErr != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": updateErr.Error()})
 		return
