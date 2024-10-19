@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"server/models"
 	"time"
@@ -47,6 +48,9 @@ func validateQuestion(q models.Question) error {
 func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	userCollection := handler.client.Database("debatedino").Collection("users")
+
 	var tournament models.Tournament
 
 	// bind input json to tournament variable
@@ -55,11 +59,13 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(tournament)
+
 	if tournament.Form == nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Missing form data", "message": "A complete Form object is required for submitting a tournament."})
 		return
 	}
+
+	// utilize goroutines here?
 
 	// intialize general questions
 	if err := initializeQuestions(tournament.Form.Questions); err != nil {
@@ -101,20 +107,71 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	// validate tournament variable
 	if validationErr := handler.validate.Struct(tournament); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
-		fmt.Println(validationErr)
+		log.Fatalf("Tournament Creation - Failed to Validate Tournament Data:%v\n", validationErr)
 		return
 	}
 
-	// get collection from the handler
-	result, insertErr := handler.collection.InsertOne(ctx, tournament)
-	if insertErr != nil {
-		msg := fmt.Sprintf("Tournament was not created")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-		fmt.Println(insertErr)
+	// -----START TRANSACTION-----
+	session, err := handler.client.StartSession()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start session"})
+		return
+	}
+	defer session.EndSession(ctx)
+
+	var insertedID string
+	err = mongo.WithSession(ctx, session, func(sessCtx mongo.SessionContext) error {
+
+		if err := session.StartTransaction(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return err
+		}
+
+		// get collection from the handler
+		result, insertErr := handler.collection.InsertOne(ctx, tournament)
+		if insertErr != nil {
+			msg := fmt.Sprintf("Tournament was not created")
+			log.Fatalf("Tournament Creation - Insertion Into Collection Failed:%v\n", insertErr)
+			session.AbortTransaction(sessCtx)
+			return errors.New(msg)
+		}
+
+		// get object id from result + convert to a string
+		objectId, ok := result.InsertedID.(primitive.ObjectID)
+		if !ok {
+			return errors.New("expected an ObjectID from tournament insertion, but received something else")
+		}
+		insertedID = objectId.Hex()
+
+		// update user's hosting field
+		hostId := tournament.Host
+		userUpdateBody := bson.M{"hosting": result.InsertedID}
+		userRes, err := userCollection.UpdateOne(sessCtx, bson.M{"_id": hostId}, bson.M{"$addToSet": userUpdateBody})
+
+		if err != nil {
+			session.AbortTransaction(sessCtx)
+			return err
+		}
+
+		if userRes.ModifiedCount == 0 {
+			session.AbortTransaction(sessCtx)
+			return errors.New("user not found")
+		}
+
+		if err := session.CommitTransaction(sessCtx); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	// ----END TRANSACTION----
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Fatalf("Transaction Failed%v\n", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, gin.H{"InsertedID": insertedID})
 }
 
 // Search Tournament

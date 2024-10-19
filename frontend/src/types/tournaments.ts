@@ -127,8 +127,8 @@ export const tournamentSchema = z.object({
     })
 })
 
-export const defaultTournament: Tournament = {
-    host: "65d69c469d47c04d60421fdb",
+export const getDefaultTournament = (hostId: string): Tournament => ({
+    host: hostId,
     name: "",
     description: "",
     date: "",
@@ -164,5 +164,5 @@ export const defaultTournament: Tournament = {
             }
         ]
     }
-}
+})
 

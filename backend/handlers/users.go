@@ -103,7 +103,6 @@ func (handler *RouteHandler) CreateUser(c *gin.Context) {
 
 		// commit the transaction
 		if err := session.CommitTransaction(sessCtx); err != nil {
-			session.AbortTransaction(sessCtx)
 			return err
 		}
 

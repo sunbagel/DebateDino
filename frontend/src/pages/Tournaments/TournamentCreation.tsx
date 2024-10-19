@@ -22,7 +22,7 @@ import axios from '@/lib/axios'
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/shadcn-components/ui/pagination"
-import { defaultTournament, tournamentSchema } from "@/types/tournaments"
+import { getDefaultTournament, tournamentSchema } from "@/types/tournaments"
 import Question from "./questions/Question"
 import useAuth from "@/hooks/useAuth"
 import FormView from "@/components/FormView"
@@ -50,11 +50,12 @@ const steps = [
 
 const TournamentCreation = () => {
     const navigate = useNavigate();
+    const { currentUser: fbUser } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
 
     const form = useForm<Inputs>({
         resolver: zodResolver(tournamentSchema),
-        defaultValues: defaultTournament as unknown as Inputs
+        defaultValues: getDefaultTournament(fbUser?.uid ?? "") as unknown as Inputs
     })
 
     const {fields: questionFields, append: questionAppend, remove: questionRemove} = useFieldArray({
@@ -70,7 +71,7 @@ const TournamentCreation = () => {
         control: form.control
     })
 
-    const { currentUser: fbUser } = useAuth();
+   
 
     const processForm: SubmitHandler<Inputs> = (values: z.infer<typeof tournamentSchema>) => {
         async function createTournament(){
@@ -88,7 +89,9 @@ const TournamentCreation = () => {
                     },
                 };
                 const data = values
+                console.log(data);
                 const res = await axios.post(`tournaments`, data, config);
+                console.log(res);
                 const tournamentId = res.data.InsertedID;
                 console.log(tournamentId);
                 // form.reset();
