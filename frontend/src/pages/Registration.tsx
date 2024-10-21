@@ -27,7 +27,9 @@ const formSchema = z.object({
     institution: z.string().trim().min(1, {
         message: "Institution cannot be empty"
     }),
-    agreement: z.string()
+    agreement: z.string().trim().min(1, {
+        message: "Agreement cannot be empty"
+    })
 })
 
 const Registration = () => {
