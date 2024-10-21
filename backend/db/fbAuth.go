@@ -15,7 +15,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-func InitFirebaseAuth() *auth.Client {
+func InitFirebaseApp() *firebase.App {
 
 	ctx := context.Background()
 
@@ -27,12 +27,7 @@ func InitFirebaseAuth() *auth.Client {
 		log.Fatalf("error initializing app: %v\n", err)
 	}
 
-	authClient, err := app.Auth(ctx)
-	if err != nil {
-		log.Fatalf("error getting Auth client: %v\n", err)
-	}
-
-	return authClient
+	return app
 
 }
 

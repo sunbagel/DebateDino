@@ -1,13 +1,20 @@
 # Documentation for Endpoints:
 
+## Authentication:
+A JWT Token must be received from Firebase, and used as a bearer token in your requests.
+
+### FOR POSTMAN REQUESTS:
+- For now, sign in on frontend and copy paste the token into Postman
+- An endpoint for testing may be implemented in the future (generates a token)
+
 ## Users:
 
 ```
-GET /users/:firebaseId
+GET /users/:id
 ```
 IMPORTANT:
-- Get users takes the Firebase Id instead of the MongoDB object id.
-- We can switch back to object id if desired. I figured Firebase is easier since we always have access to the Firebase User.
+- Get users takes the MongoDB Object id
+- As of 10/18/2024, Firebase Id is the same as MongoDB id
 
 ## Tournaments:
 

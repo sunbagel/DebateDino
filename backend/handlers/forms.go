@@ -212,6 +212,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 		// get tournament.CurrentTeams
 		var tournament models.Tournament
 		if err := tournamentCollection.FindOne(sessCtx, bson.M{"_id": registration.TournamentID}).Decode(&tournament); err != nil {
+			session.AbortTransaction(sessCtx)
 			return err
 		}
 
@@ -251,6 +252,7 @@ func (handler *RouteHandler) SubmitRegistration(c *gin.Context) {
 		}
 
 		if err := session.CommitTransaction(sessCtx); err != nil {
+			session.AbortTransaction(sessCtx)
 			return err
 		}
 
