@@ -77,7 +77,7 @@ const UserProfile = () => {
 
       try{
         const token = await fbUser.getIdToken();
-        console.log(fbUser.uid);
+        // console.log(fbUser.uid);
         // console.log(token);
         const config = {
           headers: {
