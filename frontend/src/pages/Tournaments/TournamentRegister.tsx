@@ -56,7 +56,7 @@ const TournamentRegister = () => {
     const form = useForm<Inputs>({
         resolver: zodResolver(formResponseSchema),
         defaultValues: {
-            userId: "65d69c469d47c04d60421fdb",
+            userId: fbUser?.uid,
             generalResponses: [],
             teams: [{
                 teamResponses: [],
