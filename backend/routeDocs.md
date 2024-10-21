@@ -13,8 +13,8 @@ A JWT Token must be received from Firebase, and used as a bearer token in your r
 GET /users/:id
 ```
 IMPORTANT:
-- Get users takes the MongoDB Object id
-- As of 10/18/2024, Firebase Id is the same as MongoDB id
+- Get users takes the Firebase Id instead of the MongoDB object id.
+- We can switch back to object id if desired. I figured Firebase is easier since we always have access to the Firebase User.
 
 ## Tournaments:
 
@@ -60,7 +60,7 @@ POST /tournaments/
 
 ## Users and Tournaments:
 
-### Registering Users:
+### Registering Users --CURRENTLY NOT IN USE--:
 Role is one of: "Debater", "Judge"
 **Edit: Debaters should be registered via form submission**
 
@@ -104,13 +104,13 @@ GET /tournaments/:id/users?=role=judge
 - Could use multiquery filter to filter 2/3 of the roles maybe (?)
 
 ## Forms
-- FormStructures are embedded into Tournament documents
-- FormResponses are in their own collection "formResponses"
-  - Maybe there is a better way to collect FormResponses (current solution requires filtering based on tournament/user)
+- Forms are embedded into Tournament documents
+- Registrations are in their own collection 
 
-### Form Structure:
+### Form Schema:
 
-Creating form structure should be part of tournament creation process
+Creating form structure should be part of tournament creation process, when the host defines questions.
+A form contains Questions, TeamQuestions, and MemberQuestions. Each Question can be of a different type (check schema.go)
 ```
 POST /tournaments
 
@@ -126,15 +126,16 @@ Example JSON Body:
         "isRequired": true
       },
       {
-        "type": "choice", // NOT A THING YET
+        "type": "select", 
         "text": "Which category are you interested in?",
         "options": ["Beginner", "Intermediate", "Advanced"]
-        "isRequired": false
+        "isRequired": true
       },
       {
         "type": "select",
         "text": "select a fruit",
         "options": ["blueberry", "peach", "watermelon"]
+        "isRequired": false
       }
 
     ]
@@ -154,7 +155,7 @@ Deleting form structure for a tournament (? though a tournament should always ha
 
 ### Registration:
 
-Submitting a Registration
+Submitting a Registration (when a debater/judge signs up for the tournament):
 ```
 POST /tournaments/:id/registrations
 {
@@ -277,20 +278,21 @@ Getting Registrations: (NOT DONE)
 Get all Registrations:
 GET /tournaments/:id/registrations
 
-Filter by user (? possible)
+Filter by user (INCOMPLETE)
 GET /tournaments/:id/registrations/?user=BOBBY WOBBY CHO
 
-Get specific Registration:
+Get specific Registration (INCOMPLETE)
 GET /tournaments/:id/registrations/:registrationsId
 ```
 
 
-Edit Registration: (NOT DONE)
+Edit Registration: (INCOMPLETE)
 ` PUT /tournaments/:id/registrations/:userId `
 - should be able to delete specific teams/modify specific members
 - form data modification? maybe...
 
 Delete Registration:
+- removes user's registration from the tournament
 ` DELETE /tournaments/:id/registrations/:userId `
 
 
