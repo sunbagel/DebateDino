@@ -24,7 +24,6 @@ const TournamentView = () => {
                 }
 
                 const token = await fbUser.getIdToken();
-                // console.log(token);
                 const config = {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -33,8 +32,6 @@ const TournamentView = () => {
 
                 const res = await axios.get(`tournaments/${id}`, config);
                 setTournament(res.data);
-                console.log(res.data)
-                console.log(fbUser)
             } catch (err) {
                 console.error(err);
             }

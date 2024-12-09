@@ -23,6 +23,7 @@ const UserDropdown = () => {
 
     const {signout, currentUser} = useAuth();
     
+    
 
     const onSignOut = () => {
         signout()
@@ -54,7 +55,7 @@ const UserDropdown = () => {
                 </DropdownMenuItem>
 
                 {/* maybe make a separate view for personal tournaments */}
-                <DropdownMenuItem onSelect={() => navigate(`tournaments`)}>
+                <DropdownMenuItem onSelect={() => navigate(`tournaments/${currentUser?.uid}`)}>
                     My Tournaments
                 </DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
