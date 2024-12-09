@@ -175,7 +175,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 }
 
 // Search Tournament
-// GET    /api/tournaments/
+// GET    /api/public/tournaments/
 
 // search tournament from request body
 // can be duplicates
@@ -207,14 +207,13 @@ func (handler *RouteHandler) SearchTournament(c *gin.Context) {
 	defer cursor.Close(ctx)
 
 	// populate tournaments with cursor
-	var tournaments []bson.M
+	var tournaments []models.Tournament
 
 	if err := cursor.All(ctx, &tournaments); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
 		return
 	}
-	// return tournaments
 	c.JSON(http.StatusOK, tournaments)
 }
 
