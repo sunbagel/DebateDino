@@ -13,7 +13,7 @@ import Login from './pages/Login';
 import { AuthProvider } from './context/AuthContext';
 import Registration from './pages/Registration';
 import AuthRouter from './pages/AuthRouter';
-import MyTournaments from './pages/Tournaments/MyTournaments';
+import MyTournaments from './pages/Tournaments/MyTournaments/MyTournaments';
 
 function App() {
 
