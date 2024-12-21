@@ -278,6 +278,7 @@ func (handler *RouteHandler) GetUserTournaments(c *gin.Context) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	tournamentCollection := handler.client.Database("debatedino").Collection("tournaments")
 	// role is optional
 	role := c.Query("role")
 	// get user id
@@ -316,11 +317,11 @@ func (handler *RouteHandler) GetUserTournaments(c *gin.Context) {
 
 	}
 
-	var tournaments []bson.D
+	var tournaments []models.Tournament
 	filter := bson.M{"_id": bson.M{"$in": tournamentIDs}}
 
 	// find all tournaments from tournamentIDs
-	cursor, err := handler.collection.Find(ctx, filter)
+	cursor, err := tournamentCollection.Find(ctx, filter)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tournaments"})

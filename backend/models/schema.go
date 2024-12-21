@@ -7,7 +7,7 @@ import (
 // Symbol type (name in mongodb)
 
 type Tournament struct {
-	// ID           primitive.ObjectID   `json:"_id"`
+	ID              primitive.ObjectID   `bson:"_id" json:"_id"`
 	Host            primitive.ObjectID   `bson:"host" json:"host" validate:"required"`
 	Name            string               `bson:"name" json:"name" validate:"required,min=2"`
 	Description     string               `bson:"description" json:"description" validate:"required,min=10"`

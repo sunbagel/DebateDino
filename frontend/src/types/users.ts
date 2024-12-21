@@ -1,6 +1,7 @@
 import { Tournament } from "./tournaments"
 
 export interface BaseUser  {
+    _id?: string
     username: string,
     name: string,
     email: string,
@@ -10,9 +11,9 @@ export interface BaseUser  {
 }
 
 export interface TournamentUser {
-    hosting: Array<Tournament>, // should really just be an array of tournament ids
-    debating: Array<Tournament>,
-    judging: Array<Tournament>
+    hosting: Array<string>, // should really just be an array of tournament ids
+    debating: Array<string>,
+    judging: Array<string>
 }
 
 export interface RegisterUser extends BaseUser, TournamentUser {

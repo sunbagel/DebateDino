@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/shadcn-components/ui/card';
 import { Skeleton } from '@/shadcn-components/ui/skeleton';
 import { Checkbox } from '@/shadcn-components/ui/checkbox';
 import useAuth from '@/hooks/useAuth';
+import { TournamentUser } from '@/types/users';
 
 interface Options {
     [key: string]: string[]; // Index signature
@@ -23,88 +24,51 @@ const MyTournaments = () => {
     // authentication details
     const { currentUser: fbUser } = useAuth();
     const [tournaments, setTournaments] = useState<Array<Tournament>>()
-    const [user, setUser] = useState()
-    // useEffect(() => {
-
-    //     async function fetchTournament(){
-    //         try{
-    //             if (!fbUser) {
-    //                 console.error("Couldn't fetch profile - User not signed in, or user id not found");
-    //                 return;
-    //             }
-
-    //             const token = await fbUser.getIdToken();
-    //             // console.log(token);
-    //             const config = {
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`
-    //                 }
-    //             };
-
-    //             const res = await axios.get(`tournaments/${id}`, config);
-    //             setTournament(res.data);
-    //             console.log(tournament)
-    //         } catch (err) {
-    //             console.error(err);
-    //         }
-            
-    //     }
-        
-    //     fetchTournament();
-        
-    // }, [fbUser, id])
-    
+    const [user, setUser] = useState<TournamentUser>()
 
     const goToTournament = (id: string) => {
-        console.log('hi')
         navigate(`/tournaments/view/${id}`)
     }
 
     useEffect(() => {
-        async function fetchUser(){
-            try{
+
+        async function getTournaments(){
+            try {
                 if (!fbUser) {
                     console.error("Couldn't fetch profile - User not signed in, or user id not found");
                     return;
                 }
 
                 const token = await fbUser.getIdToken();
-                // console.log(token);
                 const config = {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 };
 
-                const userRes = await axios.get(`users/${fbUser.uid}`, config);
-                setUser(userRes)
-
-                
-                
+                axios.get(`/users/${fbUser?.uid}/tournaments?role=debater`, config)
+                    .then(res => {
+                        const tournamentRes: Tournament[] = res.data;
+                        return setTournaments(tournamentRes);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    })
             } catch (err) {
                 console.error(err);
             }
-            
-        }
-        // fetchUser();
 
-        // axios.get(`/public/tournaments`)
-        // .then(res => {
-        //     const tournamentRes: Tournament[] = res.data;
-        //     return setTournaments(tournamentRes.filter(tournament => {
-        //         return tournament._id && user &&  user.id && tournament._id === user.id
-        //     }));
-        // })
-        // .catch(err => {
-        //     console.log(err);
-        // })
+        }
+
+        getTournaments();
+        
     }, [setTournaments, fbUser])
 
     return (
         <div className="container mx-auto flex min-h-screen flex-col">
             <div className="flex justify-between pt-10">
                 <div className="flex flex-col">
-                    <h1 className="text-5xl font-bold">Tournaments</h1>
+                    <h1 className="text-5xl font-bold">My Tournaments</h1>
                 </div>
                 <div className="flex">
                     <button onClick={() => navigate('create')} className="px-6 py-2 bg-black text-white rounded">Create Tournament</button>
