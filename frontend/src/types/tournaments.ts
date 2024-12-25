@@ -46,6 +46,8 @@ export type Tournament = {
     }
 }
 
+export type TournamentRole = "Attending" | "Hosting";
+
 export const tournamentSchema = z.object({
     host: z.string(),
     currentTeams: z.number(),

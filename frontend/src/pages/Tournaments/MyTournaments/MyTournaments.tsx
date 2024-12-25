@@ -1,8 +1,8 @@
 import axios from '@/lib/axios'
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Tournament } from "@/types/tournaments";
-import FilterTag from '@/pages/Tournaments/MyTournaments/FilterTag';
+import { Tournament, TournamentRole } from "@/types/tournaments";
+import FilterTag from '@/pages/Tournaments/MyTournaments/MyTournamentComponents/FilterTag';
 import { MapPin, UserRound } from "lucide-react"
 import { Card, CardContent } from '@/shadcn-components/ui/card';
 import { Skeleton } from '@/shadcn-components/ui/skeleton';
@@ -10,15 +10,17 @@ import { Checkbox } from '@/shadcn-components/ui/checkbox';
 import useAuth from '@/hooks/useAuth';
 import { TournamentUser } from '@/types/users';
 import { format } from 'date-fns';
-import TournamentSearchBar from '@/pages/Tournaments/MyTournaments/TournamentSearchBar';
-import SortDropdown from './SortDropdown';
+import TournamentSearchBar from '@/pages/Tournaments/MyTournaments/MyTournamentComponents/TournamentSearchBar';
+import SortDropdown from './MyTournamentComponents/SortDropdown';
 import { SortOption } from '@/types/tournamentSortOptions';
+import RoleSelect from './MyTournamentComponents/RoleSelect';
 
 interface Options {
     [key: string]: string[]; // Index signature
     Status: string[];
     Level: string[];
 }
+
 const filters: Options = {
     Status: ["Upcoming", "Open", "Ended"],
     Level: ["Beginner", "Intermediate", "Advanced"]
@@ -32,6 +34,7 @@ const MyTournaments = () => {
     const [tournaments, setTournaments] = useState<Array<Tournament>>();
     const [user, setUser] = useState<TournamentUser>();
     const [sortOption, setSortOption] = useState<SortOption>("name");
+    const [tournamentRoles, setTournamentRoles] = useState<Array<TournamentRole>>([]);
     
 
     const goToTournament = (id: string) => {
@@ -79,16 +82,24 @@ const MyTournaments = () => {
 
     useEffect(() => {
         console.log(sortOption);
-        // sort existing tournaments based on fields...
+        // TODO: sort existing tournaments based on fields...
+        // backend or frontend logic? if backend then it should be grouepd with tounramentRoles + search query
     }, [sortOption])
+
+    useEffect(() => {
+        console.log(tournamentRoles);
+        // TODO: generate new req
+    }, [tournamentRoles])
 
     return (
         <div className="container mx-auto flex min-h-screen flex-col">
-            <div className="flex justify-between pt-10">
-                <div className="flex flex-col">
-                    <h1 className="text-5xl font-bold">My Tournaments</h1>
-                </div>
+    
+            <div className="flex flex-col justify-between pt-10 space-y-6">
+                <h1 className="text-5xl font-bold">My Tournaments</h1>
+                <RoleSelect tournamentRoles={tournamentRoles} setTournamentRoles={setTournamentRoles}/>
             </div>
+            
+            
             <div className="pt-10 flex">
                 <div className="flex flex-col md:flex-row gap-20">
                     
@@ -142,7 +153,7 @@ const MyTournaments = () => {
                     </div>
                     <div className="flex flex-row md:flex-col gap-10 md:gap-2">
                         <TournamentSearchBar onSearch={onSearch}/>
-                        <SortDropdown position={sortOption} setPosition={setSortOption}/>
+                        <SortDropdown option={sortOption} setOption={setSortOption}/>
                         {Object.keys(filters).map((category) => {
                             return (
                                 <div key={category}>
