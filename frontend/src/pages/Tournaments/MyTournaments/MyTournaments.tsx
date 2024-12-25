@@ -122,8 +122,10 @@ const MyTournaments = () => {
                 <div className="flex flex-col md:flex-row gap-20">
                     
                     <div className="flex flex-col gap-3 w-full md:w-[70%]">
+                        {/* TODO: MAKE THE SKELETON MATCH THE ACTUAL CARD */}
                         {!tournaments && (
                             <div className="flex flex-col space-y-3">
+                                <p className="text-3xl font-bold pb-4 my-4">No tournaments found!</p>
                                 <Skeleton className="h-[125px] w-[250px] rounded-xl" />
                                 <div className="space-y-2">
                                     <Skeleton className="h-4 w-[250px]" />
@@ -133,7 +135,7 @@ const MyTournaments = () => {
                         )}
                         {tournaments && tournaments.reverse().map(t => {
                             return (
-                                <div key={t._id} className="hover:cursor-pointer hover:border-transparent border-2 border-l-4 hover:border-green-600 transition duration-300 ease-in-out" onClick={() => goToTournament(t._id ? t._id : "0")}>
+                                <div key={t._id} className="border-transparent hover:cursor-pointer hover:border-lime-300 hover:rounded-lg border-2 border-l-4 transition duration-300 ease-in-out rounded-lg" onClick={() => goToTournament(t._id ? t._id : "0")}>
                                     <Card className="flex flex-row p-3 rounded-md" >
                                         <div className="flex flex-row w-3/4">
                                             <CardContent>
