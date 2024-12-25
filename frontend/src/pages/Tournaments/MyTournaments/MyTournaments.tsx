@@ -45,23 +45,44 @@ const MyTournaments = () => {
         console.log("query", searchQuery);
     }
 
+    const getToken = async () => {
+        try {
+            if (!fbUser) {
+                console.error("Couldn't fetch profile - User not signed in, or user id not found");
+                return;
+            }
+    
+            const token = await fbUser.getIdToken();
+            return token;
+
+        } catch(err){
+            console.error("Failed to get bearer token");
+            throw err;
+        }
+        
+    }
+
     useEffect(() => {
 
         async function getTournaments(){
             try {
-                if (!fbUser) {
-                    console.error("Couldn't fetch profile - User not signed in, or user id not found");
-                    return;
-                }
 
-                const token = await fbUser.getIdToken();
+                const token = await getToken();
+                
                 const config = {
                     headers: {
                         Authorization: `Bearer ${token}`
+                    },
+                    params: {
+                        roles: tournamentRoles
+                    },
+                    paramsSerializer:{
+                        // formats query parameters
+                        indexes: null
                     }
                 };
 
-                axios.get(`/users/${fbUser?.uid}/tournaments?role=debater`, config)
+                axios.get(`/users/${fbUser?.uid}/tournaments`, config)
                     .then(res => {
                         const tournamentRes: Tournament[] = res.data;
                         console.log(tournamentRes);
@@ -77,8 +98,9 @@ const MyTournaments = () => {
         }
 
         getTournaments();
+        console.log(tournamentRoles)
         
-    }, [setTournaments, fbUser])
+    }, [setTournaments, fbUser, tournamentRoles])
 
     useEffect(() => {
         console.log(sortOption);
@@ -86,10 +108,6 @@ const MyTournaments = () => {
         // backend or frontend logic? if backend then it should be grouepd with tounramentRoles + search query
     }, [sortOption])
 
-    useEffect(() => {
-        console.log(tournamentRoles);
-        // TODO: generate new req
-    }, [tournamentRoles])
 
     return (
         <div className="container mx-auto flex min-h-screen flex-col">
@@ -103,7 +121,7 @@ const MyTournaments = () => {
             <div className="pt-10 flex">
                 <div className="flex flex-col md:flex-row gap-20">
                     
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 w-full md:w-[70%]">
                         {!tournaments && (
                             <div className="flex flex-col space-y-3">
                                 <Skeleton className="h-[125px] w-[250px] rounded-xl" />
@@ -116,7 +134,7 @@ const MyTournaments = () => {
                         {tournaments && tournaments.reverse().map(t => {
                             return (
                                 <div key={t._id} className="hover:cursor-pointer hover:border-transparent border-2 border-l-4 hover:border-green-600 transition duration-300 ease-in-out" onClick={() => goToTournament(t._id ? t._id : "0")}>
-                                    <Card className="flex flex-row p-3 rounded-none" >
+                                    <Card className="flex flex-row p-3 rounded-md" >
                                         <div className="flex flex-row w-3/4">
                                             <CardContent>
                                                 <img className="max-w-48 rounded-lg" src="../../debatedino.png" />
@@ -151,7 +169,7 @@ const MyTournaments = () => {
                             )
                         })}
                     </div>
-                    <div className="flex flex-row md:flex-col gap-10 md:gap-2">
+                    <div className="flex flex-row md:flex-col gap-10 md:gap-2 w-full md:w-[300px]">
                         <TournamentSearchBar onSearch={onSearch}/>
                         <SortDropdown option={sortOption} setOption={setSortOption}/>
                         {Object.keys(filters).map((category) => {

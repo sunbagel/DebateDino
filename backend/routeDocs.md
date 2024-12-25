@@ -83,9 +83,12 @@ GET /users/:id/tournaments
 
 Filter by hosting, debating, or judging:
 ```
-GET /users/:id/tournaments?role=host
-GET /users/:id/tournaments?role=debater
-GET /users/:id/tournaments?role=judge
+GET /users/:id/tournaments?roles=host
+GET /users/:id/tournaments?roles=debater
+GET /users/:id/tournaments?roles=judge
+
+Multiple Role Select:
+GET /users/:id/tournaments?roles=Host&roles=Judge"
 ```
 
 #### Get a Tournment's Users:

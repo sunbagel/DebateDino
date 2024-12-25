@@ -280,7 +280,7 @@ func (handler *RouteHandler) GetUserTournaments(c *gin.Context) {
 
 	tournamentCollection := handler.client.Database("debatedino").Collection("tournaments")
 	// role is optional
-	role := c.Query("role")
+	roles := c.QueryArray("roles")
 	// get user id
 	userID := c.Param("id")
 	objID, err := primitive.ObjectIDFromHex(userID)
@@ -301,35 +301,50 @@ func (handler *RouteHandler) GetUserTournaments(c *gin.Context) {
 	// filter by role (if present)
 	var tournamentIDs []primitive.ObjectID
 
-	switch role {
-	case "Host":
-		tournamentIDs = user.Hosting
+	if len(roles) == 0 {
+		// query all roles by default
+		roles = []string{"Host", "Debater", "Judge"}
+	}
 
-	case "Debater":
-		tournamentIDs = user.Debating
+	for _, role := range roles {
 
-	case "Judge":
-		tournamentIDs = user.Judging
+		switch role {
 
-	default:
-		tournamentIDs = append(user.Hosting, user.Debating...)
-		tournamentIDs = append(tournamentIDs, user.Judging...)
+		case "Host":
+			tournamentIDs = append(tournamentIDs, user.Hosting...)
 
+		case "Debater":
+			tournamentIDs = append(tournamentIDs, user.Debating...)
+
+		case "Judge":
+			tournamentIDs = append(tournamentIDs, user.Judging...)
+
+		default:
+			log.Printf("WARN: Role received (%s) was not one of Host, Debater, or Judge.", role)
+		}
 	}
 
 	var tournaments []models.Tournament
+	if len(tournamentIDs) == 0 {
+		// if nothing to search for, then return empty array
+		c.JSON(http.StatusOK, tournaments)
+		return
+	}
+
 	filter := bson.M{"_id": bson.M{"$in": tournamentIDs}}
 
 	// find all tournaments from tournamentIDs
 	cursor, err := tournamentCollection.Find(ctx, filter)
 
 	if err != nil {
+		log.Printf("ERROR: Failed to fetch tournaments: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tournaments"})
 		return
 	}
 
 	defer cursor.Close(ctx)
 	if err = cursor.All(ctx, &tournaments); err != nil {
+		log.Printf("ERROR: Failed to decode tournaments: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode tournaments"})
 		return
 	}

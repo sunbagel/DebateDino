@@ -17,10 +17,13 @@ const RoleSelect : React.FC<RoleDropdownProps> = ({tournamentRoles, setTournamen
 
     return (
         <ToggleGroup type="multiple" value={tournamentRoles} onValueChange={handleRoleChange} className="justify-start">
-            <ToggleGroupItem value="Attending" aria-label="Toggle attending">
-                Attending
+            <ToggleGroupItem value="Debater" aria-label="Toggle debating">
+                Debating
             </ToggleGroupItem>
-            <ToggleGroupItem value="Hosting" aria-label="Toggle hosting">
+            <ToggleGroupItem value="Judge" aria-label="Toggle judging">
+                Judging
+            </ToggleGroupItem>
+            <ToggleGroupItem value="Host" aria-label="Toggle hosting">
                 Hosting
             </ToggleGroupItem>
         </ToggleGroup>
