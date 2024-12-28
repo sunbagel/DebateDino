@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -335,4 +337,79 @@ func (handler *RouteHandler) GetUserTournaments(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, tournaments)
+}
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type FirebaseSignInResponse struct {
+	IdToken      string `json:"idToken"`
+	RefreshToken string `json:"refreshToken"`
+	ExpiresIn    string `json:"expiresIn"`
+	// ... other fields you might want, e.g. localId, etc.
+}
+
+func (handler *RouteHandler) LoginUser(c *gin.Context) {
+	fmt.Println("peepeee")
+
+	var ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	fmt.Println("LALALAA:")
+
+	var loginReq LoginRequest
+	if err := c.ShouldBindJSON(&loginReq); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	payload, err := json.Marshal(map[string]string{
+		"email":             loginReq.Email,
+		"password":          loginReq.Password,
+		"returnSecureToken": "true",
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to marshal payload"})
+		return
+	}
+
+	apiKey := "REPLACE_THIS_API_KEY" // REPLAAACE AAAAA
+	firebaseURL := fmt.Sprintf("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=%s", apiKey)
+
+	req, err := http.NewRequestWithContext(ctx, "POST", firebaseURL, bytes.NewBuffer(payload))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating Firebase request"})
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error calling Firebase Auth API"})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+		return
+	}
+
+	var fbResp FirebaseSignInResponse
+	if err := json.NewDecoder(resp.Body).Decode(&fbResp); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error decoding Firebase response"})
+		return
+	}
+
+	fmt.Println("Bearer Token:")
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":      "Login successful",
+		"token":        fbResp.IdToken,      // Bearer token
+		"refreshToken": fbResp.RefreshToken, // optional
+		"expiresIn":    fbResp.ExpiresIn,    // optional
+	})
+
 }
