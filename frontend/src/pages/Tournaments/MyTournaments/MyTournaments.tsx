@@ -144,7 +144,7 @@ const MyTournaments = () => {
 
                                             <CardContent className="space-y-3">
                                                 <h1 className="text-2xl font-bold">{t.name}</h1>
-                                                <p>{format(new Date(t.date), 'MM-dd-yyyy')}</p>
+                                                <p>{format(new Date(t.startDate), 'MM-dd-yyyy')}</p>
                                                 <p className="pt-2">{t.description}</p>
 
                                                 <div className="mt-10 pt-10">

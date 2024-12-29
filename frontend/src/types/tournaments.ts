@@ -1,11 +1,16 @@
 import { z } from "zod"
 
+type TournamentLevel = "open" | "beginner" | "intermediate" | "advanced";
+
 export type Tournament = {
     _id?: string;
     host: string,
     name: string,
     description: string,
-    date: string,
+    startDate: string,
+    endDate: string,
+    additionalInfo: string,
+    tournamentLevel: TournamentLevel,
     debatersPerTeam: number,
     maxTeams: number,
     maxTeamSlots: number,
@@ -59,8 +64,17 @@ export const tournamentSchema = z.object({
     }).min(1, {
         message: 'Description is required'
     }),
-    date: z.date({
+    startDate: z.date({
         required_error: "A date is required.",
+    }),
+    endDate: z.date({
+        required_error: "A date is required.",
+    }),
+    additionalInfo: z.string().max(2000, {
+        message: "Additional Info must be less than 2000 characters"
+    }),
+    tournamentLevel: z.enum(["open", "beginner", "intermediate", "advanced"], {
+        required_error: "Please select a tournament level",
     }),
     location: z.string().min(1, {
         message: 'Location is required'
@@ -133,7 +147,10 @@ export const getDefaultTournament = (hostId: string): Tournament => ({
     host: hostId,
     name: "",
     description: "",
-    date: "",
+    startDate: "",
+    endDate: "",
+    additionalInfo: "",
+    tournamentLevel: undefined,
     debatersPerTeam: 2,
     maxTeams: 2,
     maxTeamSlots: 4,

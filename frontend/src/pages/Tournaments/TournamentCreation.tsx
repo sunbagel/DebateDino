@@ -26,6 +26,7 @@ import { getDefaultTournament, tournamentSchema } from "@/types/tournaments"
 import Question from "./questions/Question"
 import useAuth from "@/hooks/useAuth"
 import FormView from "@/components/FormView"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/shadcn-components/ui/select"
 
 
 export type Inputs = z.infer<typeof tournamentSchema>
@@ -71,8 +72,6 @@ const TournamentCreation = () => {
         control: form.control
     })
 
-   
-
     const processForm: SubmitHandler<Inputs> = (values: z.infer<typeof tournamentSchema>) => {
         async function createTournament(){
             try {
@@ -101,19 +100,7 @@ const TournamentCreation = () => {
             }
             
         }
-        createTournament()
-        // let tournamentId;
-        // console.log(values);
-        // axios.post('tournaments', values)
-        // .then(res => {
-        //     tournamentId = res.data.InsertedID;
-        //     console.log(tournamentId);
-        //     form.reset();
-        //     navigate('/tournaments')
-        // })
-        // .catch(err => {
-        //     console.log(err);
-        // })
+        createTournament();
     }
     
     type FieldName = keyof Inputs
@@ -268,44 +255,85 @@ const TournamentCreation = () => {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="date"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                    <FormLabel>Date</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-[240px] pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            initialFocus
-                                        />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <div className="flex flex-row space-x-5">
+                                <FormField
+                                    control={form.control}
+                                    name="startDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Start Date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-[240px] pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="endDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>End Date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-[240px] pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
                             <FormField
                                 control={form.control}
                                 name="location"
@@ -332,6 +360,39 @@ const TournamentCreation = () => {
                                     </FormItem>
                                 )}
                             />
+
+                                <FormField
+                                    control={form.control}
+                                    name="tournamentLevel"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tournament Level</FormLabel>
+                                            <FormControl>
+                                                <Select
+                                                    value={field.value}
+                                                    onValueChange={field.onChange} // Updates the form value
+                                                >
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Select tournament level" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            <SelectItem value="open">Open (all skill levels)</SelectItem>
+                                                            <SelectItem value="beginner">Beginner</SelectItem>
+                                                            <SelectItem value="intermediate">Intermediate</SelectItem>
+                                                            <SelectItem value="advanced">Advanced</SelectItem>
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormControl>
+                                            <FormDescription>
+                                                Choose the skill level for your tournament.
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
                             <FormField
                                 control={form.control}
                                 name="debatersPerTeam"
@@ -368,6 +429,27 @@ const TournamentCreation = () => {
                                             <Input type="number" placeholder="" {...field} />
                                         </FormControl>
                                         <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            
+                            <FormField
+                                control={form.control}
+                                name="additionalInfo"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Additional Info</FormLabel>
+                                        <FormDescription>
+                                            Max 2000 characters. You can add anything you'd like - Discord links, logistics, etc.
+                                        </FormDescription>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="What do you want your participants to know?"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                        
                                     </FormItem>
                                 )}
                             />
