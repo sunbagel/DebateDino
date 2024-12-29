@@ -8,6 +8,7 @@ import (
 	"server/config"
 	"server/db"
 	"server/handlers"
+	"server/models"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -46,6 +47,9 @@ func main() {
 	}
 
 	var validate = validator.New()
+
+	// custom validation
+	validate.RegisterValidation("tournamentlevel", models.ValidateTournamentType)
 
 	// define collections
 	userCollection := client.Database(cfg.DBname).Collection("users")
