@@ -51,7 +51,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 
 	userCollection := handler.client.Database("debatedino").Collection("users")
 
-	var tournament models.Tournament
+	var tournament models.CreateTournament
 
 	// bind input json to tournament variable
 	if err := c.BindJSON(&tournament); err != nil {
