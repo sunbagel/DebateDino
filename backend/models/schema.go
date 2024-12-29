@@ -24,6 +24,24 @@ type Tournament struct {
 	RefundPolicy    string               `bson:"refundPolicy" json:"refundPolicy" validate:"required"` // could use oneof tag
 }
 
+// CreateTournament DTO. No id field
+type CreateTournament struct {
+	Host            primitive.ObjectID   `bson:"host" json:"host" validate:"required"`
+	Name            string               `bson:"name" json:"name" validate:"required,min=2"`
+	Description     string               `bson:"description" json:"description" validate:"required,min=10"`
+	Location        string               `bson:"location" json:"location" validate:"required"`
+	Date            string               `bson:"date" json:"date" validate:"required"`   // could add datetime validation
+	Image           string               `bson:"image" json:"image" validate:"required"` // url validation
+	DebatersPerTeam int                  `bson:"debatersPerTeam" json:"debatersPerTeam" validate:"required,min=1"`
+	MaxTeams        int                  `bson:"maxTeams" json:"maxTeams" validate:"required,min=2"` // could be optional?
+	CurrentTeams    int                  `bson:"currentTeams" json:"currentTeams" validate:"min=0"`  // current # of registered teams
+	MaxTeamSlots    int                  `bson:"maxTeamSlots" json:"maxTeamSlots" validate:"required"`
+	Debaters        []primitive.ObjectID `bson:"debaters" json:"debaters" validate:"required,dive"`
+	Judges          []primitive.ObjectID `bson:"judges" json:"judges" validate:"required,dive"`        // dive checks for nested fields in map/array(slices)
+	Form            *Form                `bson:"form" json:"form" validate:"required"`                 // no empty forms. recursively check subfields.
+	RefundPolicy    string               `bson:"refundPolicy" json:"refundPolicy" validate:"required"` // could use oneof tag
+}
+
 type User struct {
 	// ID            primitive.ObjectID   `json:"_id"`
 	Name        string               `bson:"name" json:"name" validate:"required"`
