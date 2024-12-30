@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import useAuth from '@/hooks/useAuth';
 
 const GuestHome = () => {
@@ -38,15 +38,15 @@ interface User {
   // etc.
 }
 
-const SignedInHome: React.FC<{ user: User }> = ({ user }) => {
+// Define the prop type separately or inline
+function SignedInHome({ user }: { user: User }) {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Hero / Welcome section */}
       <section
         className="relative h-[50vh] bg-cover bg-center flex items-center justify-center"
         style={{
-          backgroundImage:
-            'url("../../Debate_Dino_Logo.svg")',
+          backgroundImage: 'url("../../Debate_Dino_Logo.svg")',
         }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
@@ -92,9 +92,9 @@ const SignedInHome: React.FC<{ user: User }> = ({ user }) => {
       </section>
     </div>
   );
-};
+}
 
-const Home = () => {
+function Home() {
   const { currentUser: fbUser } = useAuth();
   const [signedInUser, setSignedInUser] = useState<User | null>(null);
 
@@ -129,6 +129,6 @@ const Home = () => {
   }
 
   return <SignedInHome user={signedInUser} />;
-};
+}
 
 export default Home;
