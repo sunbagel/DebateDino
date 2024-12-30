@@ -281,6 +281,10 @@ func (handler *RouteHandler) GetUserTournaments(c *gin.Context) {
 	tournamentCollection := handler.client.Database("debatedino").Collection("tournaments")
 	// role is optional
 	roles := c.QueryArray("roles")
+
+	// search is optional
+	tournamentName := c.Query("tournamentName")
+
 	// get user id
 	userID := c.Param("id")
 	objID, err := primitive.ObjectIDFromHex(userID)
@@ -332,6 +336,10 @@ func (handler *RouteHandler) GetUserTournaments(c *gin.Context) {
 	}
 
 	filter := bson.M{"_id": bson.M{"$in": tournamentIDs}}
+
+	if len(tournamentName) > 0 {
+		filter["name"] = bson.M{"$regex": fmt.Sprintf(".*%s.*", tournamentName), "$options": "i"}
+	}
 
 	// find all tournaments from tournamentIDs
 	cursor, err := tournamentCollection.Find(ctx, filter)

@@ -35,6 +35,7 @@ const MyTournaments = () => {
     const [user, setUser] = useState<TournamentUser>();
     const [sortOption, setSortOption] = useState<SortOption>("name");
     const [tournamentRoles, setTournamentRoles] = useState<Array<TournamentRole>>([]);
+    const [tournamentName, setTournamentNames] = useState<String>("");
     
 
     const goToTournament = (id: string) => {
@@ -42,7 +43,7 @@ const MyTournaments = () => {
     }
 
     const onSearch = (searchQuery : string) => {
-        console.log("query", searchQuery);
+        setTournamentNames(searchQuery)
     }
 
     const getToken = async () => {
@@ -64,7 +65,7 @@ const MyTournaments = () => {
 
     useEffect(() => {
 
-        async function getTournaments(){
+        async function getUserTournaments(){
             try {
 
                 const token = await getToken();
@@ -74,7 +75,8 @@ const MyTournaments = () => {
                         Authorization: `Bearer ${token}`
                     },
                     params: {
-                        roles: tournamentRoles
+                        roles: tournamentRoles,
+                        tournamentName: tournamentName
                     },
                     paramsSerializer:{
                         // formats query parameters
@@ -97,10 +99,10 @@ const MyTournaments = () => {
 
         }
 
-        getTournaments();
+        getUserTournaments();
         console.log(tournamentRoles)
         
-    }, [setTournaments, fbUser, tournamentRoles])
+    }, [setTournaments, fbUser, tournamentRoles, tournamentName])
 
     useEffect(() => {
         console.log(sortOption);
