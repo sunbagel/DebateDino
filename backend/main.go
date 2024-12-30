@@ -98,5 +98,8 @@ func main() {
 	// stripe configuration
 	protectedRoutes.POST("/payment-intent", paymentHandler.CreatePaymentIntent)
 
+	// Add the login endpoint
+	publicRoutes.POST("/login", userHandler.LoginUser)
+
 	router.Run("localhost:" + port)
 }
