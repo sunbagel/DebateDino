@@ -1,6 +1,4 @@
-import React from 'react';
-
-const About: React.FC = () => {
+const About = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero / Header section */}
