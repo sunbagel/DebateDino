@@ -119,17 +119,16 @@ const MyTournaments = () => {
             
             
             <div className="pt-10 flex">
-                <div className="flex flex-col md:flex-row gap-20">
-                    
-                    <div className="flex flex-col gap-3 w-full md:w-[70%]">
+                <div className="flex flex-col px-5 lg:w-3/4 md:w-3/4 md:flex-row gap-20">
+                    <div className="flex flex-col flex-grow gap-3 ">
                         {/* TODO: MAKE THE SKELETON MATCH THE ACTUAL CARD */}
                         {!tournaments && (
                             <div className="flex flex-col space-y-3">
                                 <p className="text-3xl font-bold pb-4 my-4">No tournaments found!</p>
-                                <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+                                <Skeleton className="h-[125px] w-full rounded-xl" />
                                 <div className="space-y-2">
-                                    <Skeleton className="h-4 w-[250px]" />
-                                    <Skeleton className="h-4 w-[200px]" />
+                                    <Skeleton className="h-4 w-1/2" />
+                                    <Skeleton className="h-4 w-1/2" />
                                 </div>
                             </div>
                         )}
@@ -144,11 +143,19 @@ const MyTournaments = () => {
 
                                             <CardContent className="space-y-3">
                                                 <h1 className="text-2xl font-bold">{t.name}</h1>
-                                                <p>{format(new Date(t.startDate), 'MM-dd-yyyy')}</p>
+                                                <p className="text-gray-700 text-sm font-medium">
+                                                    <span className="text-lime-500 font-semibold">
+                                                        {format(new Date(t.startDate), 'MMM dd, yyyy')}
+                                                    </span>
+                                                    <span className="mx-1 text-gray-500">to</span>
+                                                    <span className="text-lime-500 font-semibold">
+                                                        {format(new Date(t.endDate), 'MMM dd, yyyy')}
+                                                    </span>
+                                                </p>
                                                 <p className="pt-2">{t.description}</p>
 
                                                 <div className="mt-10 pt-10">
-                                                    <FilterTag name="Beginner"/>
+                                                    <FilterTag name={t.tournamentLevel}/>
                                                 </div>
                                                 
                                             </CardContent>
@@ -171,29 +178,30 @@ const MyTournaments = () => {
                             )
                         })}
                     </div>
-                    <div className="flex flex-row md:flex-col gap-10 md:gap-2 w-full md:w-[300px]">
-                        <TournamentSearchBar onSearch={onSearch}/>
-                        <SortDropdown option={sortOption} setOption={setSortOption}/>
-                        {Object.keys(filters).map((category) => {
-                            return (
-                                <div key={category}>
-                                    <h3 className="font-bold">{category}</h3>
-                                    <div className="flex flex-col">
-                                        {filters[category].map((f: string) => {
-                                            return (
-                                                <div key={f} className="flex flex-row items-center gap-1">
-                                                    <Checkbox key={f} id={f} />
-                                                    <label htmlFor={f}>
-                                                        {f}
-                                                    </label>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
+                    
+                </div>
+                <div className="flex flex-row px-5 md:flex-col gap-10 md:gap-2 lg:ml-auto lg:w-[25%] md:w-[300px]">
+                    <TournamentSearchBar onSearch={onSearch} />
+                    <SortDropdown option={sortOption} setOption={setSortOption} />
+                    {Object.keys(filters).map((category) => {
+                        return (
+                            <div key={category}>
+                                <h3 className="font-bold">{category}</h3>
+                                <div className="flex flex-col">
+                                    {filters[category].map((f: string) => {
+                                        return (
+                                            <div key={f} className="flex flex-row items-center gap-1">
+                                                <Checkbox key={f} id={f} />
+                                                <label htmlFor={f}>
+                                                    {f}
+                                                </label>
+                                            </div>
+                                        )
+                                    })}
                                 </div>
-                            )
-                        })}
-                    </div>
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
         </div>
