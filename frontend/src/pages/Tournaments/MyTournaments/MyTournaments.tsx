@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tournament, TournamentRole } from "@/types/tournaments";
 import FilterTag from '@/pages/Tournaments/MyTournaments/MyTournamentComponents/FilterTag';
-import { MapPin, UserRound } from "lucide-react"
+import { CalendarDays, MapPin, UserRound } from "lucide-react"
 import { Card, CardContent } from '@/shadcn-components/ui/card';
 import { Skeleton } from '@/shadcn-components/ui/skeleton';
 import { Checkbox } from '@/shadcn-components/ui/checkbox';
@@ -143,15 +143,19 @@ const MyTournaments = () => {
 
                                             <CardContent className="space-y-3">
                                                 <h1 className="text-2xl font-bold">{t.name}</h1>
-                                                <p className="text-gray-700 text-sm font-medium">
-                                                    <span className="text-lime-500 font-semibold">
-                                                        {format(new Date(t.startDate), 'MMM dd, yyyy')}
-                                                    </span>
-                                                    <span className="mx-1 text-gray-500">to</span>
-                                                    <span className="text-lime-500 font-semibold">
-                                                        {format(new Date(t.endDate), 'MMM dd, yyyy')}
-                                                    </span>
-                                                </p>
+                                                <div className="flex flex-row space-x-2">
+                                                    <CalendarDays />
+                                                    <p className="text-gray-700 text-md font-medium">
+                                                        <span className="text-lime-500 font-semibold">
+                                                            {format(new Date(t.startDate), 'MMM dd, yyyy')}
+                                                        </span>
+                                                        <span className="mx-1 text-gray-500">to</span>
+                                                        <span className="text-lime-500 font-semibold">
+                                                            {format(new Date(t.endDate), 'MMM dd, yyyy')}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                                
                                                 <p className="pt-2">{t.description}</p>
 
                                                 <div className="mt-10 pt-10">

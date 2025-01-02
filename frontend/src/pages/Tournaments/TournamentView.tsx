@@ -5,6 +5,8 @@ import { Tournament } from "@/types/tournaments";
 import { Card, CardContent, CardHeader } from '@/shadcn-components/ui/card';
 import { Button } from '@/shadcn-components/ui/button';
 import useAuth from '@/hooks/useAuth';
+import { format } from 'date-fns';
+import { CalendarDays } from 'lucide-react';
 
 const TournamentView = () => {
     const navigate = useNavigate();
@@ -54,8 +56,25 @@ const TournamentView = () => {
                 <img className="h-96 z-10" src="../../debatedino.png"></img>
             </div>
             <div className="pt-10 flex flex-row justify-between">
-                <div className='flex flex-col gap-10'>
-                    <h1 className="font-bold text-3xl">{tournament?.name}</h1>
+                <div className='flex flex-col gap-5'>
+                    <p className="text-gray-700 text-md font-medium">
+                        {tournament?.startDate && tournament?.endDate ? (
+                            <div className="flex flex-row">
+                                <CalendarDays className="mr-2" />
+                                <span className="font-semibold">
+                                    {format(new Date(tournament?.startDate), 'MMM dd, yyyy')}
+                                </span>
+                                <span className="mx-1 text-gray-500">to</span>
+                                <span className="font-semibold">
+                                    {format(new Date(tournament?.endDate), 'MMM dd, yyyy')}
+                                </span>
+                            </div>
+                        ) : (
+                            <span>Dates not available</span>
+                        )}
+                        
+                    </p>
+                    <h1 className="font-bold text-4xl">{tournament?.name}</h1>
                     <div>
                         <h1 className="font-bold text-xl">Location</h1>
                         <div className="flex flex-row gap-2 items-center">
