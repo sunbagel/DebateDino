@@ -107,7 +107,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	// validate tournament variable
 	if validationErr := handler.validate.Struct(tournament); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
-		log.Fatalf("Tournament Creation - Failed to Validate Tournament Data:%v\n", validationErr)
+		log.Printf("Tournament Creation - Failed to Validate Tournament Data:%v\n", validationErr)
 		return
 	}
 
@@ -131,7 +131,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 		result, insertErr := handler.collection.InsertOne(ctx, tournament)
 		if insertErr != nil {
 			msg := fmt.Sprintf("Tournament was not created")
-			log.Fatalf("Tournament Creation - Insertion Into Collection Failed:%v\n", insertErr)
+			log.Printf("Tournament Creation - Insertion Into Collection Failed:%v\n", insertErr)
 			session.AbortTransaction(sessCtx)
 			return errors.New(msg)
 		}
@@ -167,7 +167,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 	// ----END TRANSACTION----
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		log.Fatalf("Transaction Failed%v\n", err)
+		log.Printf("Transaction Failed%v\n", err)
 		return
 	}
 

@@ -46,7 +46,7 @@ type BaseTournament struct {
 	MaxTeams        int                  `bson:"maxTeams" json:"maxTeams" validate:"required,min=2"` // could be optional?
 	CurrentTeams    int                  `bson:"currentTeams" json:"currentTeams" validate:"min=0"`  // current # of registered teams
 	MaxTeamSlots    int                  `bson:"maxTeamSlots" json:"maxTeamSlots" validate:"required"`
-	Fees            Fees                 `bson:"fees" json:"fees" validate:"required,dive"`
+	Fees            Fees                 `bson:"fees" json:"fees" validate:"required"`
 	Debaters        []primitive.ObjectID `bson:"debaters" json:"debaters" validate:"required,dive"`
 	Judges          []primitive.ObjectID `bson:"judges" json:"judges" validate:"required,dive"`        // dive checks for nested fields in map/array(slices)
 	Form            *Form                `bson:"form" json:"form" validate:"required"`                 // no empty forms. recursively check subfields.
