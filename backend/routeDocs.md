@@ -12,9 +12,6 @@ A JWT Token must be received from Firebase, and used as a bearer token in your r
 ```
 GET /users/:id
 ```
-IMPORTANT:
-- Get users takes the Firebase Id instead of the MongoDB object id.
-- We can switch back to object id if desired. I figured Firebase is easier since we always have access to the Firebase User.
 
 ## Tournaments:
 
@@ -25,10 +22,19 @@ POST /tournaments/
     "name" : "Tournament Registration Test",
     "description" : "TESTING REGISTRATION",
     "location" : "kings",
-    "date" : "2/26/2024",
+    "startDate" : "2/26/2024",
+    "endDate": "2/28/2024",
+    "additionalInfo": "balala",
+    "tournamentLevel": "open",
     "debatersPerTeam": 2,
     "maxTeams": 20,
     "maxTeamSlots": 4,
+    "fees": {
+        debaterFee: 10.50,
+        judgeFee: 5.00,
+        penaltyPerMissingJudge: 3.00,
+        MinimumJudgesPerInstitution: 2
+    }
     "image" : "image url placeholder?",
     "form": {
         "questions" : [
