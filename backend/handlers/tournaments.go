@@ -51,7 +51,7 @@ func (handler *RouteHandler) CreateTournament(c *gin.Context) {
 
 	userCollection := handler.client.Database("debatedino").Collection("users")
 
-	var tournament models.CreateTournament
+	var tournament models.BaseTournament
 
 	// bind input json to tournament variable
 	if err := c.BindJSON(&tournament); err != nil {
@@ -244,6 +244,7 @@ func (handler *RouteHandler) DeleteTournament(c *gin.Context) {
 	c.JSON(http.StatusOK, bson.M{"deletedId": id})
 }
 
+// TODO: add an UpdateTournamentDTO
 // Update Tournament
 // PUT    /api/tournaments/:tId
 func (handler *RouteHandler) UpdateTournament(c *gin.Context) {
