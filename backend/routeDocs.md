@@ -30,11 +30,11 @@ POST /tournaments/
     "maxTeams": 20,
     "maxTeamSlots": 4,
     "fees": {
-        debaterFee: 10.50,
-        judgeFee: 5.00,
-        penaltyPerMissingJudge: 3.00,
-        MinimumJudgesPerInstitution: 2
-    }
+        "debaterFee": 10.50,
+        "judgeFee": 5.00,
+        "penaltyPerMissingJudge": 3.00,
+        "minimumJudgesPerInstitution": 2
+    },
     "image" : "image url placeholder?",
     "form": {
         "questions" : [

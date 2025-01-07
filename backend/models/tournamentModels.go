@@ -24,6 +24,13 @@ func ValidateTournamentType(fl validator.FieldLevel) bool {
 	return false
 }
 
+type Fees struct {
+	DebaterFee                  float64 `bson:"debaterFee" json:"debaterFee" validate:"required,min=0"`
+	JudgeFee                    float64 `bson:"judgeFee" json:"judgeFee" validate:"required,min=0"`
+	PenaltyPerMissingJudge      float64 `bson:"penaltyPerMissingJudge" json:"penaltyPerMissingJudge" validate:"required,min=0"`
+	MinimumJudgesPerInstitution int     `bson:"minimumJudgesPerInstitution" json:"minimumJudgesPerInstitution" validate:"required,min=0"`
+}
+
 // Used in CreateTournament. No ID provided
 type BaseTournament struct {
 	Host            primitive.ObjectID   `bson:"host" json:"host" validate:"required"`
@@ -39,6 +46,7 @@ type BaseTournament struct {
 	MaxTeams        int                  `bson:"maxTeams" json:"maxTeams" validate:"required,min=2"` // could be optional?
 	CurrentTeams    int                  `bson:"currentTeams" json:"currentTeams" validate:"min=0"`  // current # of registered teams
 	MaxTeamSlots    int                  `bson:"maxTeamSlots" json:"maxTeamSlots" validate:"required"`
+	Fees            Fees                 `bson:"fees" json:"fees" validate:"required,dive"`
 	Debaters        []primitive.ObjectID `bson:"debaters" json:"debaters" validate:"required,dive"`
 	Judges          []primitive.ObjectID `bson:"judges" json:"judges" validate:"required,dive"`        // dive checks for nested fields in map/array(slices)
 	Form            *Form                `bson:"form" json:"form" validate:"required"`                 // no empty forms. recursively check subfields.
